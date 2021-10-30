@@ -26,6 +26,20 @@ class VariableDecl {
     }
 }
 
+class ParameterSort {
+    static Values = {
+        Object:   0, // Function parameter
+        Type:     1, // Type template parameter
+        NonType:  2, // Non-type template parameter
+        Template: 3, // Template template parameter
+        Count:    4
+    };
+
+    constructor(reader) {
+        this.value = reader.read_uint8();
+    }
+}
+
 class ParameterDecl {
     static partition_name = "decl.parameter";
 
@@ -36,8 +50,10 @@ class ParameterDecl {
         this.initializer = new ExprIndex(reader);
         this.level = reader.read_uint32();
         this.position = reader.read_uint32();
+        this.sort = new ParameterSort(reader);
         this.properties = new ReachableProperties(reader);
-        this.pack = reader.read_uint8();
+        this.pad1 = new StructPadding(reader);
+        this.pad2 = new StructPadding(reader);
     }
 }
 
@@ -168,21 +184,28 @@ class PartialSpecializationDecl {
     }
 }
 
-class ExplicitSpecializationDecl {
-    static partition_name = "decl.explicit-specialization";
+class SpecializationSort {
+    static Values = {
+        Implicit:      0, // An implicit specialization.
+        Explicit:      1, // An explicit specialization.
+        Instantiation: 2  // An explicit instantiation.
+    };
 
     constructor(reader) {
-        this.specialization_info = reader.read_uint32();
-        this.decl = new DeclIndex(reader);
+        this.value = reader.read_uint8();
     }
 }
 
-class ExplicitInstantiationDecl {
-    static partition_name = "decl.explicit-instantiation";
+class SpecializationDecl {
+    static partition_name = "decl.specialization";
 
     constructor(reader) {
         this.specialization_info = reader.read_uint32();
         this.decl = new DeclIndex(reader);
+        this.sort = new SpecializationSort(reader);
+        this.pad1 = new StructPadding(reader);
+        this.pad2 = new StructPadding(reader);
+        this.pad3 = new StructPadding(reader);
     }
 }
 
@@ -372,10 +395,11 @@ class TupleDecl {
     }
 }
 
-class SyntaxTreeDecl {
+class SyntacticDecl {
     static partition_name = "decl.syntax-tree";
 
     constructor(reader) {
+        this.syntax = new SyntaxIndex(reader);
     }
 }
 
@@ -434,10 +458,8 @@ function symbolic_for_decl_sort(sort) {
         return TemplateDecl;
     case DeclIndex.Sort.PartialSpecialization:
         return PartialSpecializationDecl;
-    case DeclIndex.Sort.ExplicitSpecialization:
-        return ExplicitSpecializationDecl;
-    case DeclIndex.Sort.ExplicitInstantiation:
-        return ExplicitInstantiationDecl;
+    case DeclIndex.Sort.Specialization:
+        return SpecializationDecl;
     case DeclIndex.Sort.Concept:
         return ConceptDecl;
     case DeclIndex.Sort.Function:
@@ -467,7 +489,7 @@ function symbolic_for_decl_sort(sort) {
     case DeclIndex.Sort.Tuple:
         return TupleDecl;
     case DeclIndex.Sort.SyntaxTree:
-        return SyntaxTreeDecl;
+        return SyntacticDecl;
     case DeclIndex.Sort.Intrinsic:
         return IntrinsicDecl;
     case DeclIndex.Sort.Property:

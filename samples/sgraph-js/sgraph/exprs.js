@@ -154,6 +154,8 @@ class MonadExpr {
     constructor(reader) {
         this.locus = new SourceLocation(reader);
         this.type = new TypeIndex(reader);
+        this.impl = new DeclIndex(reader);  // An associated set of decls with this operator.  This set
+                                            // is obtained through the first phase of 2-phase name lookup.
         this.unary = new ExprIndex(reader);
         this.assort = read_op(MonadicOperator, reader);
     }
@@ -165,6 +167,8 @@ class DyadExpr {
     constructor(reader) {
         this.locus = new SourceLocation(reader);
         this.type = new TypeIndex(reader);
+        this.impl = new DeclIndex(reader);  // An associated set of decls with this operator.  This set
+                                            // is obtained through the first phase of 2-phase name lookup.
         this.left = new ExprIndex(reader);
         this.right = new ExprIndex(reader);
         this.assort = read_op(DyadicOperator, reader);
@@ -177,6 +181,8 @@ class TriadExpr {
     constructor(reader) {
         this.locus = new SourceLocation(reader);
         this.type = new TypeIndex(reader);
+        this.impl = new DeclIndex(reader);  // An associated set of decls with this operator.  This set
+                                            // is obtained through the first phase of 2-phase name lookup.
         this.left = new ExprIndex(reader);
         this.mid = new ExprIndex(reader);
         this.right = new ExprIndex(reader);
@@ -322,28 +328,6 @@ class AlignofExpr {
         this.locus = new SourceLocation(reader);
         this.type = new TypeIndex(reader);
         this.type_id = new TypeIndex(reader);
-    }
-}
-
-class NewExpr {
-    static partition_name = "expr.new";
-
-    constructor(reader) {
-        this.double_colon = new SourceLocation(reader);
-        this.new_keyword = new SourceLocation(reader);
-        this.allocated_type = new TypeIndex(reader);
-        this.placement = new ExprIndex(reader);
-        this.initializer = new ExprIndex(reader);
-    }
-}
-
-class DeleteExpr {
-    static partition_name = "expr.delete";
-
-    constructor(reader) {
-        this.double_colon = new SourceLocation(reader);
-        this.delete_keyword = new SourceLocation(reader);
-        this.expr = new ExprIndex(reader);
     }
 }
 
@@ -747,10 +731,6 @@ function symbolic_for_expr_sort(sort) {
         return SizeofTypeIdExpr;
     case ExprIndex.Sort.Alignof:
         return AlignofExpr;
-    case ExprIndex.Sort.New:
-        return NewExpr;
-    case ExprIndex.Sort.Delete:
-        return DeleteExpr;
     case ExprIndex.Sort.Typeid:
         return TypeidExpr;
     case ExprIndex.Sort.DestructorCall:

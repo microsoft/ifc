@@ -108,6 +108,20 @@ class Resolver {
             return false;
         }
     }
+
+    resolve_heap(heap_seq) {
+        if (!heap_seq.Heap.T)
+            return undefined;
+        const partition = this.toc.partition_by_name(heap_seq.Heap.heap);
+        var offset = partition.tell(heap_seq.start);
+        var elms = new Array();
+        for (var i = 0; i < heap_seq.cardinality; ++i) {
+            var e = this.offset_read(heap_seq.Heap.T, offset);
+            elms.push(e);
+            offset += partition.entry_size;
+        }
+        return elms;
+    }
 }
 
 class ResolvedLocus {

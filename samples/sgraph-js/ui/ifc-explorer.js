@@ -63,6 +63,11 @@ class IFCExplorerJSONReplacer {
         return { sort: sort, value: op.value };
     }
 
+    static replace_heap_seq(seq) {
+        const resolved_seq = sgraph.resolver.resolve_heap(seq);
+        return resolved_seq;
+    }
+
     static generic_bitset_to_string(T, bitset) {
         return bitset_to_string(T, bitset.value);
     }
@@ -90,6 +95,8 @@ function ifc_explorer_json_replacer(key, value) {
         return IFCExplorerJSONReplacer.replace_locus(value);
     if (value instanceof Operator)
         return IFCExplorerJSONReplacer.replace_operator(value);
+    if (value instanceof HeapSequence)
+        return IFCExplorerJSONReplacer.replace_heap_seq(value);
     if (value instanceof BasicSpecifiers)
         return IFCExplorerJSONReplacer.generic_bitset_to_string(BasicSpecifiers, value);
     if (value instanceof ReachableProperties)

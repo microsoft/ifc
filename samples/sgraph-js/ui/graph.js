@@ -399,8 +399,12 @@ d3.select(".graph-canvas")
     // Render the backing canvas to get the correct color.
     draw(backing_canvas, true);
 
-    const mouse_x = e.layerX || e.offsetX;
-    const mouse_y = e.layerY || e.offsetY;
+    // https://stackoverflow.com/a/12114213
+    // The ordering of layer vs offset is important.  We want to prefer
+    // offset if we can as this is the position of the mouse in the
+    // canvas bounding box.
+    const mouse_x = e.offsetX || e.layerX;
+    const mouse_y = e.offsetY || e.layerY;
 
     const backing_canvas_context = backing_canvas.node().getContext("2d");
     const color = backing_canvas_context.getImageData(mouse_x, mouse_y, 1, 1).data;
