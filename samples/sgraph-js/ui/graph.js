@@ -122,9 +122,6 @@ function secondary_color_from_meta(str) {
     if (meta.index.sort != DeclIndex.Sort.Template)
         return 'none';
     const template_decl = sgraph.resolver.read(TemplateDecl, meta.index.index);
-    // Transition for IFC version < 0.31.
-    if (template_decl.entity.decl.sort == 0)
-        return 'none';
     return color_for_index(template_decl.entity.decl);
 }
 

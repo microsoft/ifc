@@ -311,8 +311,17 @@ class SyntaxIndex {
 }
 
 class ChartIndex {
+    static Sort = {
+        None:       0, // No template parameters; e.g. explicit specialization.
+        Unilevel:   1, // Unidimensional set of template parameters; e.g. templates that are not members of templates.
+        Multilevel: 2, // Multidimensional set of template parameters; e.g. member templates of templates.
+        Count:      3
+    };
+
     constructor(reader) {
-        this.offset = reader.read_uint32();
+        var index = reader.read_index_bitfield(ChartIndex.Sort.Count);
+        this.sort = index.sort;
+        this.index = index.index;
     }
 }
 
