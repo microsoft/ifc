@@ -68,6 +68,12 @@ class Resolver {
         return literal;
     }
 
+    resolve_chart_index(index) {
+        const symbolic = symbolic_for_chart_sort(index.sort);
+        const chart = this.read(symbolic, index.index);
+        return chart;
+    }
+
     decls_for_scope(index) {
         // Note: ScopeIndex is a 1-based index but stored in the IFC as 0-based.
         const scope = this.read(Scope, index - 1);
@@ -107,6 +113,32 @@ class Resolver {
         default:
             return false;
         }
+    }
+
+    resolve_heap(heap_seq) {
+        if (!heap_seq.Heap.T)
+            return undefined;
+        const partition = this.toc.partition_by_name(heap_seq.Heap.heap);
+        var offset = partition.tell(heap_seq.start);
+        var elms = new Array();
+        for (var i = 0; i < heap_seq.cardinality; ++i) {
+            var e = this.offset_read(heap_seq.Heap.T, offset);
+            elms.push(e);
+            offset += partition.entry_size;
+        }
+        return elms;
+    }
+
+    resolve_sequence(seq) {
+        const partition = this.toc.partition_by_name(seq.T.partition_name);
+        var offset = partition.tell(seq.start);
+        var elms = new Array();
+        for (var i = 0; i < seq.cardinality; ++i) {
+            var e = this.offset_read(seq.T, offset);
+            elms.push(e);
+            offset += partition.entry_size;
+        }
+        return elms;
     }
 }
 

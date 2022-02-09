@@ -53,6 +53,7 @@ class MonadicOperator {
         Read:           31, // lvalue-to-rvalue conversion -- abstract machine
         Materialize:    32, // temporary materialization -- abstract machine
         PseudoDtorCall: 33, // p->~T(), with T a scalar type
+        LookupGlobally: 34, // ::x
 
         Msvc:                               0x0400,
         MsvcAssume:                         0x0401, // __assume(x)
@@ -177,6 +178,7 @@ class DyadicOperator {
         Closure:            61, //                      -- abstract machine, (env, func) pair formation; useful for lambdas
         ZeroInitialize:     62, //                      -- abstract machine, zero-initialize an object or subject
         ClearStorage:       63, //                      -- abstract machine, clear a storage span64
+        Select:             64, // x :: y
 
         Msvc:                                          0x0400,
         MsvcTryCast:                                   0x0401, // WinTR try cast

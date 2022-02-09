@@ -160,7 +160,7 @@ class TupleType {
     static partition_name = "type.tuple";
 
     constructor(reader) {
-        this.expression = new HeapSequence(HeapSort.Values.Type, reader);
+        this.seq = new HeapSequence(HeapSort.Values.Type, reader);
     }
 }
 

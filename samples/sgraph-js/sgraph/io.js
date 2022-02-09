@@ -105,10 +105,16 @@ class SHA256 {
 }
 
 class Version {
-    constructor(reader) {
-        this.major = reader.read_uint8();
-        this.minor = reader.read_uint8();
+    constructor(major, minor) {
+        this.major = major;
+        this.minor = minor;
     }
+}
+
+function read_version(reader) {
+    var major = reader.read_uint8();
+    var minor = reader.read_uint8();
+    return new Version(major, minor);
 }
 
 class Abi {
@@ -208,7 +214,7 @@ class Header {
         if (!this.signature.valid())
             return;
         this.content_hash = new SHA256(reader);
-        this.version = new Version(reader);
+        this.version = read_version(reader);
         this.abi = new Abi(reader);
         this.arch = new Architecture(reader);
         this.cplusplus = new CPlusPlus(reader);

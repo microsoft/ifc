@@ -57,10 +57,27 @@ class IFCExplorerJSONReplacer {
         return { index: lit_index_str, value: literal };
     }
 
+    static replace_chart_index(index) {
+        const chart = sgraph.resolver.resolve_chart_index(index);
+        const sort = sort_to_string(ChartIndex, index.sort);
+        const chart_index_str = `ChartIndex{${index.sort}(${sort}),${index.index}}`;
+        return { index: chart_index_str, value: chart };
+    }
+
+    static replace_unilevel_chart(chart) {
+        const elms = sgraph.resolver.resolve_sequence(chart.seq);
+        return { requirement: chart.requirement, parameters: elms };
+    }
+
     static replace_operator(op) {
         const sort = sort_to_string(Operator, op.sort);
         console.log(op);
         return { sort: sort, value: op.value };
+    }
+
+    static replace_heap_seq(seq) {
+        const resolved_seq = sgraph.resolver.resolve_heap(seq);
+        return resolved_seq;
     }
 
     static generic_bitset_to_string(T, bitset) {
@@ -86,10 +103,16 @@ function ifc_explorer_json_replacer(key, value) {
         return IFCExplorerJSONReplacer.replace_name_index(value);
     if (value instanceof LitIndex)
         return IFCExplorerJSONReplacer.replace_lit_index(value);
+    if (value instanceof ChartIndex)
+        return IFCExplorerJSONReplacer.replace_chart_index(value);
+    if (value instanceof UnilevelChart)
+        return IFCExplorerJSONReplacer.replace_unilevel_chart(value);
     if (value instanceof SourceLocation)
         return IFCExplorerJSONReplacer.replace_locus(value);
     if (value instanceof Operator)
         return IFCExplorerJSONReplacer.replace_operator(value);
+    if (value instanceof HeapSequence)
+        return IFCExplorerJSONReplacer.replace_heap_seq(value);
     if (value instanceof BasicSpecifiers)
         return IFCExplorerJSONReplacer.generic_bitset_to_string(BasicSpecifiers, value);
     if (value instanceof ReachableProperties)

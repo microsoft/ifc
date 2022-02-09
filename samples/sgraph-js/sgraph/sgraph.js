@@ -1,4 +1,16 @@
-// Based on IFC specification 0.33.
+// Based on IFC specification 0.41.
+function implemented_ifc_version() {
+    return new Version(0, 41);
+}
+
+function ifc_version_compatible(version) {
+    var impl_version = implemented_ifc_version();
+    if (version.major != impl_version.major)
+        return false;
+    if (version.minor != impl_version.minor)
+        return false;
+    return true;
+}
 
 function sort_to_string(T, sort) {
     return Object.entries(T.Sort).find(e => e[1] == sort)[0];
@@ -35,8 +47,8 @@ class DeclIndex {
         Temploid:                9, // A member of a parameterized scope -- does not have template parameters of its own.
         Template:                10, // A template declaration: class, function, constructor, type alias, variable.
         PartialSpecialization:   11, // A partial specialization of a template (class-type or function).
-        ExplicitSpecialization:  12, // An explicit specialization of a template (class-type or function).
-        ExplicitInstantiation:   13, // An explicit instantiation request of a template specialization.
+        Specialization:          12, // A specialization of some template decl.
+        UnusedSort0:             13, // Empty slot. (was explicit instantiation in IFC < 0.41)
         Concept:                 14, // A concept
         Function:                15, // A function declaration; both free-standing and static member functions.
         Method:                  16, // A non-static member function declaration.
@@ -130,8 +142,8 @@ class ExprIndex {
         ExpressionList:            26, // Either '(e1, e2, e3)' or '{ e1, e2, e2 }'
         SizeofType:                27, // 'sizeof(type-id)'
         Alignof:                   28, // 'alignof(type-id)'
-        New:                       29, // A 'new' expression
-        Delete:                    30, // A 'delete' expression
+        UnusedSort0:               29, // A 'new' expression
+        UnusedSort1:               30, // A 'delete' expression
         Typeid:                    31, // A 'typeid' expression
         DestructorCall:            32, // A destructor call: i.e. the right sub-expression of 'expr->~T()'
         SyntaxTree:                33, // A syntax tree for an unelaborated expression.
@@ -299,8 +311,17 @@ class SyntaxIndex {
 }
 
 class ChartIndex {
+    static Sort = {
+        None:       0, // No template parameters; e.g. explicit specialization.
+        Unilevel:   1, // Unidimensional set of template parameters; e.g. templates that are not members of templates.
+        Multilevel: 2, // Multidimensional set of template parameters; e.g. member templates of templates.
+        Count:      3
+    };
+
     constructor(reader) {
-        this.offset = reader.read_uint32();
+        var index = reader.read_index_bitfield(ChartIndex.Sort.Count);
+        this.sort = index.sort;
+        this.index = index.index;
     }
 }
 

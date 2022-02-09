@@ -211,6 +211,16 @@ function validate_sorts() {
         && validate_sort(UnitIndex);
 }
 
+function valid_ifc_version(header) {
+    if (ifc_version_compatible(header.version))
+        return true;
+    var impl_version = implemented_ifc_version();
+    var impl_version_str = `Version{${impl_version.major}.${impl_version.minor}}`;
+    var ifc_version_str = `Version{${header.version.major}.${header.version.minor}}`;
+    output.textContent = `IFC version incompatibility.  Implemented explorer version ${impl_version_str}, IFC version ${ifc_version_str}`;
+    return false;
+}
+
 if (window.FileList && window.File) {
     file_selector.addEventListener('dragover', event => {
         event.stopPropagation();
@@ -218,7 +228,6 @@ if (window.FileList && window.File) {
         event.dataTransfer.dropEffect = 'copy';
     });
     file_selector.addEventListener('drop', event => {
-        //output.innerHTML = '';
         event.stopPropagation();
         event.preventDefault();
         const files = event.dataTransfer.files;
@@ -242,6 +251,8 @@ if (window.FileList && window.File) {
                 output.textContent = "invalid IFC";
                 return;
             }
+            if (!valid_ifc_version(header))
+                return;
             read_ifc(reader, header);
             display_ifc_info(file);
             ifc_explorer_ifc_loaded();
