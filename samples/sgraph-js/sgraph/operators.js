@@ -202,8 +202,9 @@ class DyadicOperator {
         MsvcBuiltinIsPointerInterconvertibleWithClass: 0x0413, // __builtin_is_pointer_interconvertible_with_class(U, V)
         MsvcBuiltinIsCorrespondingMember:              0x0414, // __builtin_is_corresponding_member(x, y)
         MsvcIntrinsic:                                 0x0415, //                      -- abstract machine, misc intrinsic with no regular function declaration
+        MsvcSaturatedArithmetic:                       0x0416, // An MSVC intrinsic for an abstract machine saturated arithemtic operation.
 
-        Count:                                         0x0416
+        Count:                                         0x0417
     };
 
     constructor(value) {
@@ -222,8 +223,9 @@ class TriadicOperator {
 
         MsvcConfusion:         0x0FE0, // FIXME: Anything below is confusion to be removed
         MsvcConfusedPushState: 0x0FE1, // An EH state tree representing a call to a ctor, dtor, and msvc-specific EH state flags.
+        MsvcConfusedChoice:    0x0FE2, // Like 'Choice' above, but specific to codegen.
 
-        Count:                 0x0FE2
+        Count:                 0x0FE3
     };
 
     constructor(value) {
