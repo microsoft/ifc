@@ -673,6 +673,16 @@ class AssignInitializerExpr {
     }
 }
 
+class LabelExpr {
+    static partition_name = "expr.label";
+
+    constructor(reader) {
+        this.locus = new SourceLocation(reader);
+        this.type = new TypeIndex(reader);
+        this.designator = new ExprIndex(reader);
+    }
+}
+
 function symbolic_for_expr_sort(sort) {
     switch (sort) {
     case ExprIndex.Sort.Empty:
@@ -789,7 +799,8 @@ function symbolic_for_expr_sort(sort) {
         return TokensExpr;
     case ExprIndex.Sort.AssignInitializer:
         return AssignInitializerExpr;
-    case ExprIndex.Sort.PushState: // Deprecated as of IFC version 0.32.
+    case ExprIndex.Sort.Label:
+        return LabelExpr;
     case ExprIndex.Sort.VendorExtension:
     default:
         console.error(`Bad sort: ${sort}`);

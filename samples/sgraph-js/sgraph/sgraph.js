@@ -1,6 +1,6 @@
-// Based on IFC specification 0.41.
+// Based on IFC specification 0.42.
 function implemented_ifc_version() {
-    return new Version(0, 41);
+    return new Version(0, 42);
 }
 
 function ifc_version_compatible(version) {
@@ -48,7 +48,7 @@ class DeclIndex {
         Template:                10, // A template declaration: class, function, constructor, type alias, variable.
         PartialSpecialization:   11, // A partial specialization of a template (class-type or function).
         Specialization:          12, // A specialization of some template decl.
-        UnusedSort0:             13, // Empty slot. (was explicit instantiation in IFC < 0.41)
+        UnusedSort0:             13, // Empty slot.
         Concept:                 14, // A concept
         Function:                15, // A function declaration; both free-standing and static member functions.
         Method:                  16, // A non-static member function declaration.
@@ -142,8 +142,8 @@ class ExprIndex {
         ExpressionList:            26, // Either '(e1, e2, e3)' or '{ e1, e2, e2 }'
         SizeofType:                27, // 'sizeof(type-id)'
         Alignof:                   28, // 'alignof(type-id)'
-        UnusedSort0:               29, // A 'new' expression
-        UnusedSort1:               30, // A 'delete' expression
+        Label:                     29, // A symbolic label resulting from the expression in a labeled statement.
+        UnusedSort0:               30, // Empty slot.
         Typeid:                    31, // A 'typeid' expression
         DestructorCall:            32, // A destructor call: i.e. the right sub-expression of 'expr->~T()'
         SyntaxTree:                33, // A syntax tree for an unelaborated expression.
@@ -172,7 +172,7 @@ class ExprIndex {
         Nullptr:                   52, // 'nullptr'
         This:                      53, // 'this'
         TemplateReference:         54, // A reference to a member of a template
-        PushState:                 55, // A EH push-state expression (constructor call + matching destructor call)
+        UnusedSort1:               55, // Empty slot.
         TypeTraitIntrinsic:        56, // A use of a type trait intrinsic
         DesignatedInitializer:     57, // A single designated initializer clause: '.a = e'
         PackedTemplateArguments:   58, // The template argument set for a template parameter pack
