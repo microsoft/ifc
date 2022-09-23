@@ -1,4 +1,4 @@
-
+# IFC Reader Library
 
 add_library(ifc-reader STATIC 
 	assert.cxx
