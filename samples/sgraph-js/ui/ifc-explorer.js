@@ -5,6 +5,43 @@ function ifc_explorer_clear_content(content) {
     }
 }
 
+function update_history_sidebar() {
+    const elements = ifc_explorer.history.stack.map(e => {
+        if (e instanceof DeclIndex) {
+            const sort = sort_to_string(DeclIndex, e.sort);
+            const call_func = `onclick='set_ifc_explorer_selected_decl({ sort: ${e.sort}, index: ${e.index}}, true)'`;
+            return `<a ${ifc_explorer_css_class} ${call_func}>DeclIndex{${e.sort}(${sort}),${e.index}}</a>`;
+        }
+        else if (e instanceof ExprIndex) {
+            const sort = sort_to_string(ExprIndex, e.sort);
+            const call_func = `onclick='set_ifc_explorer_selected_expr({ sort: ${e.sort}, index: ${e.index}}, true)'`;
+            return `<a ${ifc_explorer_css_class} ${call_func}>ExprIndex{${e.sort}(${sort}),${e.index}}</a>`;
+        }
+        else if (e instanceof TypeIndex) {
+            const sort = sort_to_string(TypeIndex, e.sort);
+            const call_func = `onclick='set_ifc_explorer_selected_type({ sort: ${e.sort}, index: ${e.index}}, true)'`;
+            return `<a ${ifc_explorer_css_class} ${call_func}>TypeIndex{${e.sort}(${sort}),${e.index}}</a>`;
+        }
+        return "unknown";
+    })
+        // Reverse this list so that it will be displayed as the most recent add at the top.
+        .reverse()
+        .join('<br />');
+    ifc_explorer_clear_content(ifc_explorer.history.sidebar);
+    const container = document.createElement("span");
+    container.innerHTML = elements;
+    ifc_explorer.history.sidebar.appendChild(container);
+}
+
+function update_history_with_new_element(T, sort, index) {
+    // Remove the oldest element if we've reached the maximum capacity.
+    if (ifc_explorer.history.stack.length + 1 > ifc_explorer.history.max_history) {
+        ifc_explorer.history.stack.shift();
+    }
+    ifc_explorer.history.stack.push(index_from_raw(T, sort, index));
+    update_history_sidebar();
+}
+
 const ifc_explorer_css_class = "class='explorer-element'";
 
 class IFCExplorerJSONReplacer {
@@ -28,7 +65,7 @@ class IFCExplorerJSONReplacer {
         if (null_index(index))
             return "DeclIndex{null}";
         const sort = sort_to_string(DeclIndex, index.sort);
-        const call_func = `onclick='set_ifc_explorer_selected_decl({ sort: ${index.sort}, index: ${index.index}})'`;
+        const call_func = `onclick='set_ifc_explorer_selected_decl({ sort: ${index.sort}, index: ${index.index}}, false)'`;
         return `<a ${ifc_explorer_css_class} ${call_func}>DeclIndex{${index.sort}(${sort}),${index.index}}</a>`;
     }
 
@@ -36,7 +73,7 @@ class IFCExplorerJSONReplacer {
         if (null_index(index))
             return "TypeIndex{null}";
         const sort = sort_to_string(TypeIndex, index.sort);
-        const call_func = `onclick='set_ifc_explorer_selected_type({ sort: ${index.sort}, index: ${index.index}})'`;
+        const call_func = `onclick='set_ifc_explorer_selected_type({ sort: ${index.sort}, index: ${index.index}}, false)'`;
         return `<a ${ifc_explorer_css_class} ${call_func}>TypeIndex{${index.sort}(${sort}),${index.index}}</a>`;
     }
 
@@ -44,7 +81,7 @@ class IFCExplorerJSONReplacer {
         if (null_index(index))
             return "ExprIndex{null}";
         const sort = sort_to_string(ExprIndex, index.sort);
-        const call_func = `onclick='set_ifc_explorer_selected_expr({ sort: ${index.sort}, index: ${index.index}})'`;
+        const call_func = `onclick='set_ifc_explorer_selected_expr({ sort: ${index.sort}, index: ${index.index}}, false)'`;
         return `<a ${ifc_explorer_css_class} ${call_func}>ExprIndex{${index.sort}(${sort}),${index.index}}</a>`;
     }
 
@@ -155,9 +192,12 @@ function ifc_explorer_json_replacer(key, value) {
     return value;
 }
 
-function set_ifc_explorer_selected_decl(index) {
+function set_ifc_explorer_selected_decl(index, from_history) {
     if (null_index(index)) return;
     ifc_explorer_clear_content(ifc_explorer.decls.content);
+    if (!from_history) {
+        update_history_with_new_element(DeclIndex, index.sort, index.index);
+    }
 
     // Update edits.
     ifc_explorer.decls.sort_dropdown.selectedIndex = Array
@@ -180,7 +220,7 @@ function set_ifc_explorer_selected_decl(index) {
 function ifc_explorer_load_decl(e) {
     const sort = parseInt(ifc_explorer.decls.sort_dropdown.value);
     const index = parseInt(ifc_explorer.decls.index_edit.value);
-    set_ifc_explorer_selected_decl({ sort: sort, index: index });
+    set_ifc_explorer_selected_decl({ sort: sort, index: index }, false);
 }
 
 function ifc_explorer_init_decls() {
@@ -205,9 +245,12 @@ function ifc_explorer_init_decls() {
     ifc_explorer.decls.load.addEventListener("click", e => ifc_explorer_load_decl(e));
 }
 
-function set_ifc_explorer_selected_type(index) {
+function set_ifc_explorer_selected_type(index, from_history) {
     if (null_index(index)) return;
     ifc_explorer_clear_content(ifc_explorer.types.content);
+    if (!from_history) {
+        update_history_with_new_element(TypeIndex, index.sort, index.index);
+    }
 
     // Update edits.
     ifc_explorer.types.sort_dropdown.selectedIndex = Array
@@ -230,7 +273,7 @@ function set_ifc_explorer_selected_type(index) {
 function ifc_explorer_load_type(e) {
     const sort = parseInt(ifc_explorer.types.sort_dropdown.value);
     const index = parseInt(ifc_explorer.types.index_edit.value);
-    set_ifc_explorer_selected_type({ sort: sort, index: index });
+    set_ifc_explorer_selected_type({ sort: sort, index: index }, false);
 }
 
 function ifc_explorer_init_types() {
@@ -255,9 +298,12 @@ function ifc_explorer_init_types() {
     ifc_explorer.types.load.addEventListener("click", e => ifc_explorer_load_type(e));
 }
 
-function set_ifc_explorer_selected_expr(index) {
+function set_ifc_explorer_selected_expr(index, from_history) {
     if (null_index(index)) return;
     ifc_explorer_clear_content(ifc_explorer.exprs.content);
+    if (!from_history) {
+        update_history_with_new_element(ExprIndex, index.sort, index.index);
+    }
 
     // Update edits.
     ifc_explorer.exprs.sort_dropdown.selectedIndex = Array
@@ -280,7 +326,7 @@ function set_ifc_explorer_selected_expr(index) {
 function ifc_explorer_load_expr(e) {
     const sort = parseInt(ifc_explorer.exprs.sort_dropdown.value);
     const index = parseInt(ifc_explorer.exprs.index_edit.value);
-    set_ifc_explorer_selected_expr({ sort: sort, index: index });
+    set_ifc_explorer_selected_expr({ sort: sort, index: index }, false);
 }
 
 function ifc_explorer_init_exprs() {
