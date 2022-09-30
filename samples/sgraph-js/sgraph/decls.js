@@ -40,6 +40,21 @@ class ParameterSort {
     }
 }
 
+// This is a strong type representing a default argument decl.
+class DefaultIndex {
+    constructor(reader) {
+        const pointed = reader.read_uint32(reader);
+        if (pointed != 0)
+        {
+            this.index = index_from_raw(DeclIndex, DeclIndex.Sort.DefaultArgument, pointed - 1);
+        }
+        else
+        {
+            this.index = index_from_raw(DeclIndex, DeclIndex.Sort.VendorExtension, 0)
+        }
+    }
+}
+
 class ParameterDecl {
     static partition_name = "decl.parameter";
 
@@ -47,7 +62,7 @@ class ParameterDecl {
         this.identity = new IdentityTextOffset(reader);
         this.type = new TypeIndex(reader);
         this.type_constraint = new ExprIndex(reader);
-        this.initializer = new ExprIndex(reader);
+        this.initializer = new DefaultIndex(reader);
         this.level = reader.read_uint32();
         this.position = reader.read_uint32();
         this.sort = new ParameterSort(reader);
@@ -206,6 +221,21 @@ class SpecializationDecl {
         this.pad1 = new StructPadding(reader);
         this.pad2 = new StructPadding(reader);
         this.pad3 = new StructPadding(reader);
+    }
+}
+
+class DefaultArgumentDecl {
+    static partition_name = "decl.default-arg";
+
+    constructor(reader) {
+        this.locus = new SourceLocation(reader);
+        this.type = new TypeIndex(reader);
+        this.home_scope = new DeclIndex(reader);
+        this.initializer = new ExprIndex(reader);
+        this.basic_spec = new BasicSpecifiers(reader);
+        this.access = new Access(reader);
+        this.properties = new ReachableProperties(reader);
+        this.pad1 = new StructPadding(reader);
     }
 }
 
@@ -460,6 +490,8 @@ function symbolic_for_decl_sort(sort) {
         return PartialSpecializationDecl;
     case DeclIndex.Sort.Specialization:
         return SpecializationDecl;
+    case DeclIndex.Sort.DefaultArgument:
+        return DefaultArgumentDecl;
     case DeclIndex.Sort.Concept:
         return ConceptDecl;
     case DeclIndex.Sort.Function:

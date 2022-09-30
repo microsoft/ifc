@@ -129,7 +129,7 @@ class Options {
         case DeclIndex.Sort.Property:
         case DeclIndex.Sort.OutputSegment:
             return 'red';
-        case DeclIndex.Sort.UnusedSort0:
+        case DeclIndex.Sort.DefaultArgument:
         case DeclIndex.Sort.VendorExtension:
         case DeclIndex.Sort.Count:
             return 'black';

@@ -58,6 +58,8 @@ class IFCExplorerJSONReplacer {
     }
 
     static replace_chart_index(index) {
+        if (null_index(index))
+            return "ChartIndex{null}";
         const chart = sgraph.resolver.resolve_chart_index(index);
         const sort = sort_to_string(ChartIndex, index.sort);
         const chart_index_str = `ChartIndex{${index.sort}(${sort}),${index.index}}`;
