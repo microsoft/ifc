@@ -1,6 +1,6 @@
-// Based on IFC specification 0.42.
+// Based on IFC specification 0.43.
 function implemented_ifc_version() {
-    return new Version(0, 42);
+    return new Version(0, 43);
 }
 
 function ifc_version_compatible(version) {
@@ -33,6 +33,15 @@ function null_index(index) {
     return index.sort == 0 && index.index == 0;
 }
 
+function index_from_raw(T, sort, index) {
+    const dummy_reader = {
+        read_index_bitfield(unused) {
+            return { sort: sort, index: index };
+        }
+    }
+    return new T(dummy_reader);
+}
+
 class DeclIndex {
     static Sort = {
         VendorExtension:         0,  // A vendor-specific extension.
@@ -44,11 +53,11 @@ class DeclIndex {
         Scope:                   6,  // A type declaration.
         Enumeration:             7,  // An enumeration declaration.
         Alias:                   8,  // An alias declaration for a (general) type.
-        Temploid:                9, // A member of a parameterized scope -- does not have template parameters of its own.
+        Temploid:                9,  // A member of a parameterized scope -- does not have template parameters of its own.
         Template:                10, // A template declaration: class, function, constructor, type alias, variable.
         PartialSpecialization:   11, // A partial specialization of a template (class-type or function).
         Specialization:          12, // A specialization of some template decl.
-        UnusedSort0:             13, // Empty slot.
+        DefaultArgument:         13, // A default argument declaration for some parameter.
         Concept:                 14, // A concept
         Function:                15, // A function declaration; both free-standing and static member functions.
         Method:                  16, // A non-static member function declaration.

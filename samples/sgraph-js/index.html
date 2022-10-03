@@ -60,6 +60,10 @@
             cursor: pointer;
         }
 
+        .explorer-history {
+            font-size: 0.6em;
+        }
+
         /* sidebar */
         .wrapper {
             display: flex;
@@ -168,71 +172,81 @@
                 </div>
             </div>
             <div class="modal fade" id="ifc-explorer" tabindex="-1" role="dialog" aria-labelledby="ifc-explorer-label" aria-hidden="true">
-                <div class="modal-dialog" role="document">
+                <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="ifc-explorer-label">IFC Explorer</h5>
                     </div>
-                    <ul class="nav nav-tabs" id="ifc-explorer-tabs" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" id="ifc-explorer-decls-tab" data-toggle="tab" href="#ifc-explorer-decls" role="tab" aria-controls="ifc-explorer-decls" aria-selected="true">Decls</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="ifc-explorer-types-tab" data-toggle="tab" href="#ifc-explorer-types" role="tab" aria-controls="ifc-explorer-types" aria-selected="false">Types</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="ifc-explorer-exprs-tab" data-toggle="tab" href="#ifc-explorer-exprs" role="tab" aria-controls="ifc-explorer-exprs" aria-selected="false">Exprs</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="ifc-explorer-ifc-header-tab" data-toggle="tab" href="#ifc-explorer-ifc-header" role="tab" aria-controls="ifc-explorer-ifc-header" aria-selected="false">IFC Header</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="ifc-explorer-toc-tab" data-toggle="tab" href="#ifc-explorer-toc" role="tab" aria-controls="ifc-explorer-toc" aria-selected="false">Table of Contents</a>
-                        </li>
-                    </ul>
-                    <div class="tab-content" id="ifc-explorer-tabs-content">
-                        <div class="tab-pane fade show active" id="ifc-explorer-decls" role="tabpanel" aria-labelledby="ifc-explorer-decls-tab">
-                            <div class="input-group input-group-sm">
-                                <select id="ifc-explorer-content-decls-sort-dropdown"></select>
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Index</span>
-                                </div>
-                                <input id="ifc-explorer-content-decls-index-edit" type="text" class="form-control" />
-                                <button id="ifc-explorer-content-decls-load" type="button" class="btn btn-secondary">Load</button>
+                    <div class="content">
+                        <div class="row">
+                            <div class="col-2">
+                                <span>History:</span><br />
+                                <div class="explorer-history" id="ifc-explorer-history"></div>
                             </div>
-                            <div class="modal-body" id="ifc-explorer-content-decls"></div>
-                        </div>
-                        <div class="tab-pane fade" id="ifc-explorer-types" role="tabpanel" aria-labelledby="ifc-explorer-types-tab">
-                            <div class="input-group input-group-sm">
-                                <select id="ifc-explorer-content-types-sort-dropdown"></select>
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Index</span>
+                            <div class="col-10">
+                                <ul class="nav nav-tabs" id="ifc-explorer-tabs" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="ifc-explorer-decls-tab" data-toggle="tab" href="#ifc-explorer-decls" role="tab" aria-controls="ifc-explorer-decls" aria-selected="true">Decls</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="ifc-explorer-types-tab" data-toggle="tab" href="#ifc-explorer-types" role="tab" aria-controls="ifc-explorer-types" aria-selected="false">Types</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="ifc-explorer-exprs-tab" data-toggle="tab" href="#ifc-explorer-exprs" role="tab" aria-controls="ifc-explorer-exprs" aria-selected="false">Exprs</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="ifc-explorer-ifc-header-tab" data-toggle="tab" href="#ifc-explorer-ifc-header" role="tab" aria-controls="ifc-explorer-ifc-header" aria-selected="false">IFC Header</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="ifc-explorer-toc-tab" data-toggle="tab" href="#ifc-explorer-toc" role="tab" aria-controls="ifc-explorer-toc" aria-selected="false">Table of Contents</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="ifc-explorer-tabs-content">
+                                    <div class="tab-pane fade show active" id="ifc-explorer-decls" role="tabpanel" aria-labelledby="ifc-explorer-decls-tab">
+                                        <div class="input-group input-group-sm">
+                                            <select id="ifc-explorer-content-decls-sort-dropdown"></select>
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">Index</span>
+                                            </div>
+                                            <input id="ifc-explorer-content-decls-index-edit" type="text" class="form-control" />
+                                            <button id="ifc-explorer-content-decls-load" type="button" class="btn btn-secondary">Load</button>
+                                        </div>
+                                        <div class="modal-body" id="ifc-explorer-content-decls"></div>
+                                    </div>
+                                    <div class="tab-pane fade" id="ifc-explorer-types" role="tabpanel" aria-labelledby="ifc-explorer-types-tab">
+                                        <div class="input-group input-group-sm">
+                                            <select id="ifc-explorer-content-types-sort-dropdown"></select>
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">Index</span>
+                                            </div>
+                                            <input id="ifc-explorer-content-types-index-edit" type="text" class="form-control" />
+                                            <button id="ifc-explorer-content-types-load" type="button" class="btn btn-secondary">Load</button>
+                                        </div>
+                                        <div class="modal-body" id="ifc-explorer-content-types"></div>
+                                    </div>
+                                    <div class="tab-pane fade" id="ifc-explorer-exprs" role="tabpanel" aria-labelledby="ifc-explorer-exprs-tab">
+                                        <div class="input-group input-group-sm">
+                                            <select id="ifc-explorer-content-exprs-sort-dropdown"></select>
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">Index</span>
+                                            </div>
+                                            <input id="ifc-explorer-content-exprs-index-edit" type="text" class="form-control" />
+                                            <button id="ifc-explorer-content-exprs-load" type="button" class="btn btn-secondary">Load</button>
+                                        </div>
+                                        <div class="modal-body" id="ifc-explorer-content-exprs"></div>
+                                    </div>
+                                    <div class="tab-pane fade" id="ifc-explorer-ifc-header" role="tabpanel" aria-labelledby="ifc-explorer-ifc-header-tab">
+                                        <div class="modal-body" id="ifc-explorer-content-ifc-header"></div>
+                                    </div>
+                                    <div class="tab-pane fade" id="ifc-explorer-toc" role="tabpanel" aria-labelledby="ifc-explorer-toc-tab">
+                                        <div class="modal-body" id="ifc-explorer-content-toc"></div>
+                                    </div>
                                 </div>
-                                <input id="ifc-explorer-content-types-index-edit" type="text" class="form-control" />
-                                <button id="ifc-explorer-content-types-load" type="button" class="btn btn-secondary">Load</button>
-                            </div>
-                            <div class="modal-body" id="ifc-explorer-content-types"></div>
-                        </div>
-                        <div class="tab-pane fade" id="ifc-explorer-exprs" role="tabpanel" aria-labelledby="ifc-explorer-exprs-tab">
-                            <div class="input-group input-group-sm">
-                                <select id="ifc-explorer-content-exprs-sort-dropdown"></select>
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Index</span>
+                                <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                 </div>
-                                <input id="ifc-explorer-content-exprs-index-edit" type="text" class="form-control" />
-                                <button id="ifc-explorer-content-exprs-load" type="button" class="btn btn-secondary">Load</button>
                             </div>
-                            <div class="modal-body" id="ifc-explorer-content-exprs"></div>
                         </div>
-                        <div class="tab-pane fade" id="ifc-explorer-ifc-header" role="tabpanel" aria-labelledby="ifc-explorer-ifc-header-tab">
-                            <div class="modal-body" id="ifc-explorer-content-ifc-header"></div>
-                        </div>
-                        <div class="tab-pane fade" id="ifc-explorer-toc" role="tabpanel" aria-labelledby="ifc-explorer-toc-tab">
-                            <div class="modal-body" id="ifc-explorer-content-toc"></div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     </div>
                 </div>
                 </div>

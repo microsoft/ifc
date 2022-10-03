@@ -103,6 +103,7 @@ class MonadicOperator {
         MsvcConfusedDependentSizeof:        0x0FE2, // The parser is confused about dependent 'sizeof <expr>'
         MsvcConfusedPopState:               0x0FE3, // An EH state represented directly in a unary expression for invoking destructors after invoking a ctor.
         MsvcConfusedDtorAction:             0x0FE4, // An EH state represented directly in a unary expression for invoking destructors directly.
+        MsvcConfusedVtorDisplacement:       0x0FE5, // The compiler generated expression representing an offset amount to a virtual base pointer address during initialization.
 
         Count:                              0x0FE5
     };

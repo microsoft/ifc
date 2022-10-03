@@ -24,6 +24,11 @@ const graph_fps_toggle = document.getElementById('graph-fps-toggle');
 // IFC explorer dialog
 const ifc_explorer = {
     button: document.getElementById('ifc-explorer-button'),
+    history: {
+        sidebar: document.getElementById('ifc-explorer-history'),
+        stack: new Array(),
+        max_history: 20
+    },
     decls: {
         tab: '#ifc-explorer-decls-tab',
         content: document.getElementById('ifc-explorer-content-decls'),

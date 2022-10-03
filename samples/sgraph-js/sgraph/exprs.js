@@ -616,7 +616,8 @@ class TemplateReferenceExpr {
     constructor(reader) {
         this.locus = new SourceLocation(reader);
         this.type = new TypeIndex(reader);
-        this.member = new IdentityNameIndex(reader);
+        this.member = new DeclIndex(reader);
+        this.member_name = new NameIndex(reader);
         this.parent = new TypeIndex(reader);
         this.template_arguments = new ExprIndex(reader);
     }
