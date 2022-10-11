@@ -1,5 +1,5 @@
 #include "ifc/reader.hxx"
-#include <ipr/util/exceptions.hxx> // to integrate error reporting
+#include <stdexcept>
 #include <Windows.h>
 
 extern Filesystem* os_api;
@@ -10,6 +10,24 @@ size_t UTF8ToUTF16Cch(LPCSTR lpSrcStr, size_t cchSrc, LPWSTR lpDestStr, size_t c
 {
     return MultiByteToWideChar(CP_UTF8, 0, lpSrcStr, (int)cchSrc, lpDestStr, (int)cchDest);
 }
+
+class Not_yet_implemented : public std::logic_error
+{
+public:
+    Not_yet_implemented(std::string_view what_is_not_implemented) :
+        logic_error("'" + std::string(what_is_not_implemented) + "' is not yet implemented")
+    {
+    }
+};
+
+class Unexpected : public std::logic_error
+{
+public:
+    Unexpected(std::string_view what_is_not_expected) :
+        logic_error("unexpected: '" + std::string(what_is_not_expected) + "'")
+    {
+    }
+};
 
 namespace Module
 {
@@ -45,10 +63,9 @@ namespace Module
         }
     }
 
-    // Map error functions to the exceptions used in ipr-tools project.
     void not_implemented(std::string_view message)
     {
-        throw ipr::Not_yet_implemented(message);
+        throw Not_yet_implemented(message);
     }
 
     void not_implemented(std::string_view message, int payload)
@@ -60,7 +77,7 @@ namespace Module
 
     void unexpected(std::string_view message)
     {
-        throw ipr::Unexpected(message);
+        throw Unexpected(message);
     }
 
     void unexpected(std::string_view message, int payload)

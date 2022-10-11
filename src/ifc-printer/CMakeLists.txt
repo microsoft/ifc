@@ -1,0 +1,13 @@
+add_executable(ifc-printer
+  main.cxx
+  printer.cxx
+)
+
+target_link_libraries(ifc-printer
+  PUBLIC
+    ifc-dom
+    ifc-reader
+)
+
+target_link_libraries(ifc-printer PRIVATE GSL bcrypt.lib)
+#add_compile_definitions(VERSP_DEBUG)
