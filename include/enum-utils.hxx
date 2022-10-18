@@ -12,6 +12,12 @@
 #include <concepts>
 #include <bit>
 
+#ifdef WIN32
+#define NON_USER_CODE __declspec(non_user_code)
+#else
+#define NON_USER_CODE
+#endif
+
 namespace bits {
 
     // Raw underlying integer type of an enumeration.
@@ -23,13 +29,13 @@ namespace bits {
 
     // Return the underlying integer value representation of an enumerator, with the appropriate type.
     template<Enum T>
-    __declspec(non_user_code) constexpr raw<T> rep(T t) noexcept
+    NON_USER_CODE constexpr raw<T> rep(T t) noexcept
     {
         return raw<T>(t);
     }
     // For symmetry, define 'rep' for integral types (can be called with either enum or integral). AKA "identity".
     template<std::integral T>
-    __declspec(non_user_code) constexpr T rep(T t) noexcept
+    NON_USER_CODE constexpr T rep(T t) noexcept
     {
         return t;
     }
@@ -190,21 +196,21 @@ concept YesNoEnum = bits::Enum<T>
                     && bits::rep(T::No) == false;
 
 template <YesNoEnum T>
-__declspec(non_user_code)
+NON_USER_CODE
 constexpr bool is_yes(T e) noexcept
 {
     return e == T::Yes;
 }
 
 template <YesNoEnum T>
-__declspec(non_user_code)
+NON_USER_CODE
 constexpr bool is_no(T e) noexcept
 {
     return e == T::No;
 }
 
 template <YesNoEnum T>
-__declspec(non_user_code)
+NON_USER_CODE
 constexpr T make_yes_no(bool value) noexcept
 {
     return static_cast<T>(value);

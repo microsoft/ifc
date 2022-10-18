@@ -106,7 +106,7 @@ namespace index_like {
     //       is an implementation.
     template<typename U, typename V>
     concept FiberEmbedding = MultiSorted<V> and requires {
-        { U::algebra_sort } -> std::same_as<const typename V::SortType&>;
+        { U::algebra_sort } -> std::convertible_to<typename V::SortType>;
     };
 
     // -- The next two functions (rep and per) are conceptual inverse of each other.

@@ -33,6 +33,8 @@ namespace Module::util
                 node.children.push_back(&ctx.get(item));
             break;
         }
+        default:
+            break;
         }
     }
 

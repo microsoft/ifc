@@ -31,7 +31,7 @@
 #define DASSERT_ASSUME(ex)  DASSERT(ex)
 #define RASSERT(ex)         DASSERT(ex)
 #else
-#  error "no production version selected""
+#  error "no production version selected"
 #endif
 
 // This is used to suppress warning C4189: local variable is initialized but not referenced.

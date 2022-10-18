@@ -4,7 +4,7 @@
 #include "gsl/span"
 #include "ifc/abstract-sgraph.hxx"
 #include "ifc/file.hxx"
-#include "ifc/io.hxx"
+//#include "ifc/io.hxx"
 
 namespace Module
 {
@@ -31,17 +31,17 @@ namespace Module
         not_implemented(result);
     }
 
-    class Reader : public MemoryMapped::InputIfcFile
+//    class Reader : public MemoryMapped::InputIfcFile
+    class Reader
     {
         template <typename T>
         const T& view_entry_at(ByteOffset offset) const
         {
             const auto byte_offset = bits::rep(offset);
-            DASSERT(byte_offset < size());
+            const auto& contents = ifc.contents();
+            DASSERT(byte_offset < contents.size());
 
-            const auto byte_ptr = begin() + byte_offset;
-            DASSERT(end() - bits::rep(byte_length<T>) >= byte_ptr);
-
+            const auto byte_ptr = &contents[byte_offset];
             const auto ptr = reinterpret_cast<const T*>(byte_ptr);
             return *ptr;
         }
@@ -50,7 +50,8 @@ namespace Module
         void read_table_of_contents();
 
     public:
-        explicit Reader(const Pathname& path);
+        const Module::InputIfc& ifc;
+        explicit Reader(const Module::InputIfc& ifc);
 
         // get(index) -> get a reference to a data structure of the appropriate type
         //               the type is deduced from the type of the index.
@@ -62,46 +63,37 @@ namespace Module
         // element, otherwise nullptr
         //    Example: "if (auto* decl = ctx.reader.get_if<Symbolic::DeclStatement>(stmt)) ... "
 
-        using MemoryMapped::InputIfcFile::get;
+        //using MemoryMapped::InputIfcFile::get;
+
+        const char* get(TextOffset offset) const
+        {
+            return ifc.get(offset);
+        }
 
         template <typename T, typename Index>
-        const T& get(Index index)
+        const T& get(Index index) const
         {
             DASSERT(T::algebra_sort == index.sort());
             return view_entry_at<T>(toc.offset(index));
         }
 
-        template <>
-        const int64_t& get<int64_t, LitIndex>(LitIndex index)
-        {
-            DASSERT(LiteralSort::Integer == index.sort());
-            return view_entry_at<int64_t>(toc.u64s.tell(index.index()));
-        }
-
-        template <>
-        const double& get<double, LitIndex>(LitIndex index)
-        {
-            DASSERT(LiteralSort::FloatingPoint == index.sort());
-            return view_entry_at<double>(toc.fps.tell(index.index()));
-        }
-
-        const Symbolic::StringLiteral& get(StringIndex index)
+        const Symbolic::StringLiteral& get(StringIndex index) const
         {
             return view_entry_at<Symbolic::StringLiteral>(toc.string_literals.tell(index.index()));
         }
 
-        const Symbolic::FileAndLine& get(LineIndex index)
+        const Symbolic::FileAndLine& get(LineIndex index) const
         {
             return view_entry_at<Symbolic::FileAndLine>(toc.lines.tell(index));
         }
 
-        const Symbolic::SpecializationForm& get(SpecFormIndex index)
+        const Symbolic::SpecializationForm& get(SpecFormIndex index) const
         {
             return view_entry_at<Symbolic::SpecializationForm>(toc.spec_forms.tell(index));
         }
 
         template <typename T, typename Index>
-        const T* get_if(Index index)
+        const T* get_if(Index index) const
         {
             return (T::algebra_sort == index.sort()) ? &view_entry_at<T>(toc.offset(index)) :
                                                        nullptr;
@@ -109,13 +101,7 @@ namespace Module
 
         // ScopeIndex has a dedicated value to indicate absence of a scope,
         // this will return a Scope, if present and nullptr otherwise.
-        const Symbolic::Scope* try_get(ScopeIndex index)
-        {
-            if (index_like::null(index))
-                return nullptr;
-
-            return &partition<Symbolic::Scope>()[bits::rep(index) - 1];
-        }
+        const Symbolic::Scope* try_get(ScopeIndex index) const;
 
         // partition<T> - returns a span of all items in a partition.
 
@@ -123,35 +109,14 @@ namespace Module
         gsl::span<const E> partition() const
         {
             const auto& summary = toc[E::algebra_sort];
-            return view_partition<E>(summary);
+            return ifc.view_partition<E>(summary);
         }
 
         template <AnyTrait E>
         gsl::span<const E> partition() const
         {
             const auto& summary = toc[E::partition_tag];
-            return view_partition<E>(summary);
-        }
-
-        template <>
-        gsl::span<const Symbolic::Scope> partition<Symbolic::Scope>() const
-        {
-            const auto& summary = toc.scopes;
-            return view_partition<Symbolic::Scope>(summary);
-        }
-
-        template <>
-        gsl::span<const Symbolic::Declaration> partition<Symbolic::Declaration>() const
-        {
-            const auto& summary = toc.entities;
-            return view_partition<Symbolic::Declaration>(summary);
-        }
-
-        template <>
-        gsl::span<const Symbolic::ParameterDecl> partition<Symbolic::ParameterDecl>() const
-        {
-            const auto& summary = toc[Symbolic::ParameterDecl::algebra_sort];
-            return view_partition<Symbolic::ParameterDecl>(summary);
+            return ifc.view_partition<E>(summary);
         }
 
         // sequence(seq) - will return a span of all elements in the sequence.
@@ -173,7 +138,7 @@ namespace Module
         gsl::span<const E> sequence(Sequence<E, Tag> seq) const
         {
             const auto& summary = toc[Tag];
-            const auto partition = view_partition<E>(summary);
+            const auto partition = ifc.view_partition<E>(summary);
             // We prefer our DASSERT to subspan terminating on out of bounds.
             const auto start = bits::rep(seq.start);
             const auto cardinality = bits::rep(seq.cardinality);
@@ -409,6 +374,49 @@ namespace Module
         }
     };
 
+    // Outside of class due to GCC bug.
+    template <>
+    inline const int64_t& Reader::get<int64_t, LitIndex>(LitIndex index) const
+    {
+        DASSERT(LiteralSort::Integer == index.sort());
+        return view_entry_at<int64_t>(toc.u64s.tell(index.index()));
+    }
+
+    template <>
+    inline const double& Reader::get<double, LitIndex>(LitIndex index) const
+    {
+        DASSERT(LiteralSort::FloatingPoint == index.sort());
+        return view_entry_at<double>(toc.fps.tell(index.index()));
+    }
+
+    template <>
+    inline gsl::span<const Symbolic::Scope> Reader::partition<Symbolic::Scope>() const
+    {
+        const auto& summary = toc.scopes;
+        return ifc.view_partition<Symbolic::Scope>(summary);
+    }
+
+    template <>
+    inline gsl::span<const Symbolic::Declaration> Reader::partition<Symbolic::Declaration>() const
+    {
+        const auto& summary = toc.entities;
+        return ifc.view_partition<Symbolic::Declaration>(summary);
+    }
+
+    template <>
+    inline gsl::span<const Symbolic::ParameterDecl> Reader::partition<Symbolic::ParameterDecl>() const
+    {
+        const auto& summary = toc[Symbolic::ParameterDecl::algebra_sort];
+        return ifc.view_partition<Symbolic::ParameterDecl>(summary);
+    }
+
+    inline const Symbolic::Scope* Reader::try_get(ScopeIndex index) const
+    {
+        if (index_like::null(index))
+            return nullptr;
+
+        return &partition<Symbolic::Scope>()[bits::rep(index) - 1];
+    }
 }  // namespace Module
 
 #endif // IFC_READER_LIB_H

@@ -9,5 +9,5 @@ target_link_libraries(ifc-printer
     ifc-reader
 )
 
-target_link_libraries(ifc-printer PRIVATE GSL bcrypt.lib)
+target_link_libraries(ifc-printer PRIVATE GSL)
 #add_compile_definitions(VERSP_DEBUG)

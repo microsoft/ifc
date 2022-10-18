@@ -3,6 +3,7 @@
 #include "printer.hxx"
 #include <iostream>
 #include <filesystem>
+#include <fstream>
 
 void translate_exception()
 {
@@ -88,11 +89,27 @@ Arguments process_args(int argc, char** argv)
     return result;
 }
 
+std::vector<std::byte> load_file(const std::string& name)
+{
+    std::filesystem::path path { name };
+    auto size = std::filesystem::file_size(path);
+    std::vector<std::byte> v;
+    v.resize(size);
+    std::ifstream file(name, std::ios::binary);
+    file.read(reinterpret_cast<char*>(v.data()), v.size());
+    return v;
+}
+
 void process_ifc(const std::string& name, Print_options options)
 {
-    Module::Reader reader(name.c_str());
+    auto contents = load_file(name);
+
+    Module::InputIfc file{ gsl::span(contents) };
+    file.validate<Module::UnitSort::Primary>(Module::Architecture::Unknown, Module::Pathname{ }, Module::IfcOptions::IntegrityCheck);
+
+    Module::Reader reader(file);
     Module::util::Loader loader(reader);
-    auto& gs = loader.get(reader.header()->global_scope);
+    auto& gs = loader.get(reader.ifc.header()->global_scope);
     print(gs, std::cout, options);
 
     // Make sure that we resolve and print all

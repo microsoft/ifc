@@ -11,6 +11,8 @@
 #include "runtime-assertions.hxx"
 #include "ifc/index-utils.hxx"
 #include "ifc/version.hxx"
+#include "ifc/pathname.hxx"
+#include <gsl/span>
 
 namespace Module {
     using index_like::Index;
@@ -180,6 +182,335 @@ namespace Module {
     template<typename T>
     struct PartitionSummary : PartitionSummaryData {
         PartitionSummary() : PartitionSummaryData{ } { entry_size = byte_length<T>;  }
+    };
+
+    // Exception tag used to signal target architecture mismatch.
+    struct IfcArchMismatch {
+        Pathname name;
+    };
+
+    // Exception tag used to signal an read failure from an IFC file (either invalid or corrupted.)
+    struct IfcReadFailure {
+    };
+
+    // -- failed to match ifc integrity check
+    struct IntegrityCheckFailed {
+        SHA256Hash expected;
+        SHA256Hash actual;
+    };
+
+    /// -- unsupported format
+    struct UnsupportedFormatVersion {
+        FormatVersion version;
+    };
+
+    enum class IfcOptions
+    {
+        None = 0,
+        IntegrityCheck = 1U << 0, // Enable the SHA256 file check.
+        AllowAnyPrimaryInterface = 1U << 1, // Project any primary module interface without checking for a matching name.
+    };
+
+    SHA256Hash hash_bytes(const uint8_t* first, const uint8_t* last);
+    SHA256Hash hash_bytes(const std::byte* first, const std::byte* last);
+
+    inline SHA256Hash bytes_to_hash(const uint8_t* first, const uint8_t* last)
+    {
+        auto size = std::distance(first, last);
+        if (size != sizeof(SHA256Hash))
+        {
+            return { };
+        }
+        SHA256Hash hash{};
+        uint8_t* alias = reinterpret_cast<uint8_t*>(hash.value.data());
+        // std::copy in devcrt  issues a warning whenever you try to copy
+        // an unbounded T* so we will just use std::memcpy instead.
+        std::memcpy(alias, first, size);
+        return hash;
+    }
+
+    struct InputIfc
+    {
+        using StringTable = gsl::span<const std::byte>;
+        using PartitionTable = gsl::span<const PartitionSummaryData>;
+        template<typename T>
+        using Table = gsl::span<const T>;
+        using SpanType = gsl::span<const std::byte>;
+
+        const Header* header() const { return hdr; }
+        const StringTable* string_table() const { return &str_tab; }
+        PartitionTable partition_table() const
+        {
+            return { toc, static_cast<PartitionTable::size_type>(hdr->partition_count) };
+        }
+
+        InputIfc() = default;
+
+        InputIfc(const SpanType& span) : span(span)
+        {
+            cursor = span.begin();
+        }
+
+        void init(const SpanType& s)
+        {
+            span = s;
+            cursor = span.begin();
+        }
+
+        const auto contents() const
+        {
+            return span;
+        }
+
+        const char* get(TextOffset offset) const
+        {
+            if (index_like::null(offset))
+                return {};
+            return reinterpret_cast<const char*>(string_table()->data()) + bits::rep(offset);
+        }
+
+        bool position(ByteOffset offset)
+        {
+            auto n = bits::rep(offset);
+            if (n > span.size())
+                return false;
+            cursor = span.begin() + n;
+            return true;
+        }
+
+        SpanType::iterator tell() const { return cursor; }
+
+        bool has_room_left_for(EntitySize amount) const
+        {
+            return span.end() - bits::rep(amount) >= cursor;
+        }
+
+        template<typename T>
+        const T* read()
+        {
+            constexpr auto sz = byte_length<T>;
+            if (!has_room_left_for(sz))
+                return { };
+            const std::byte* byte_ptr = &(*tell());
+            auto ptr = reinterpret_cast<const T*>(byte_ptr);
+            cursor += bits::rep(sz);
+            return ptr;
+        }
+
+        template<typename T>
+        Table<T> read_array(Cardinality n)
+        {
+            const auto sz = n * byte_length<T>;
+            if (!has_room_left_for(sz))
+                return { };
+            const std::byte* byte_ptr = &(*tell());
+            auto ptr = reinterpret_cast<const T*>(byte_ptr);
+            cursor += bits::rep(sz);
+            return { ptr, static_cast<typename Table<T>::size_type>(bits::rep(n)) };
+        }
+
+        // View a partition without touching the cursor.
+        // PartitionSummaryData is assumed to be validated on read of toc and not checked in this function.
+        template <typename T>
+        Table<T> view_partition(const PartitionSummaryData& summary) const
+        {
+            const auto byte_offset = bits::rep(summary.offset);
+            DASSERT(byte_offset < span.size());
+
+            const auto byte_ptr = &span[byte_offset];
+            const auto ptr = reinterpret_cast<const T*>(byte_ptr);
+            return { ptr, static_cast<typename Table<T>::size_type>(bits::rep(summary.cardinality)) };
+        }
+
+        template<typename T>
+        static bool has_signature(InputIfc& file, const T& sig)
+        {
+            auto start = &(*file.tell());
+            return file.position(ByteOffset{ sizeof sig }) && memcmp(start, sig, sizeof sig) == 0;
+        }
+
+        static void validate_content_integrity(const InputIfc& file);
+
+        static bool compatible_architectures(Architecture src, Architecture dst)
+        {
+            if (src == dst)
+                return true;
+
+            // FIXME: CHPE runs the compiler twice -- first X86, then HybridX86ARM64. Because of
+            // the ordering of these invocations, the compiler can overwrite X86 IFCs with
+            // HybridX86ARM64 IFCS. Subsequent use of these IFCs can result in X86 compiler
+            // invocations attempting to read HybridX86ARM64 IFCS, causing architecture mismatches.
+            // Our definition of compatibility is regrettably weakened to allow this case.
+            if (src == Architecture::HybridX86ARM64 and dst == Architecture::X86)
+                return true;
+
+            return false;
+        }
+
+        using UTF8ViewType = std::u8string_view;
+        struct OwningModuleAndPartition
+        {
+            UTF8ViewType owning_module;
+            UTF8ViewType partition_name;
+        };
+
+        struct IllFormedPartitionName { };
+
+        static OwningModuleAndPartition separate_module_name(UTF8ViewType name)
+        {
+            // The full module name for a partition will be of the form "M:P"
+            // where 'M' is the owning module name parts and 'P' is the partition
+            // name parts as specified in n4830 [module.unit]/1.
+            auto first = std::begin(name);
+            auto last = std::end(name);
+            auto colon = std::find(first, last, ':');
+
+            // If there is no ':' at all, this is not a partition name.
+            if (colon == last)
+            {
+                throw IllFormedPartitionName{ };
+            }
+            // The name cannot start with a ':'.
+            if (colon == first)
+            {
+                throw IllFormedPartitionName{ };
+            }
+            auto partition_name_start = std::next(colon);
+            // The partition name cannot be blank.
+            if (partition_name_start == last)
+            {
+                throw IllFormedPartitionName{ };
+            }
+            UTF8ViewType module_name = name.substr(0, std::distance(first, colon));
+            UTF8ViewType partition_name = name.substr(std::distance(first, partition_name_start), std::distance(partition_name_start, last));
+            return OwningModuleAndPartition{ module_name, partition_name };
+        }
+
+        template <UnitSort Kind, typename T>
+        bool validate(Architecture arch, const T& ifc_designator, IfcOptions options)
+        {
+            if (!has_signature(*this, Module::InterfaceSignature))
+                return false;
+
+            if (implies(options, IfcOptions::IntegrityCheck))
+            {
+                validate_content_integrity(*this);
+            }
+
+            auto header = hdr = read<Header>();
+            if (header == nullptr)
+                return false;
+
+            if (header->version > CurrentFormatVersion
+                || (header->version < MinimumFormatVersion && header->version != EDGFormatVersion))
+                throw UnsupportedFormatVersion{ header->version };
+
+            // If the user requested an unknown architecture, we do not perform architecture check.
+            if (arch != Architecture::Unknown and not compatible_architectures(header->arch, arch))
+            {
+                if constexpr (Kind != UnitSort::Partition)
+                {
+                    throw IfcArchMismatch{ ifc_designator };
+                }
+                else
+                {
+                    throw IfcArchMismatch{ ifc_designator.partition };
+                }
+            }
+
+            position(header->toc);
+            toc = read<PartitionSummaryData>();
+
+            if (!zero(header->string_table_bytes))
+            {
+                if (!position(header->string_table_bytes))
+                    return { };
+                auto bytes = tell();
+                auto nbytes = bits::rep(header->string_table_size);
+                DASSERT(has_room_left_for(EntitySize{ nbytes }));
+                str_tab = { &bytes[0], static_cast<StringTable::size_type>(nbytes) };
+            }
+
+            if constexpr (Kind == UnitSort::Primary || Kind == UnitSort::ExportedTU)
+            {
+                // If we are reading module to merge then the final module name (which can be provided on the command-line) may not
+                // match the name of the module we are loading. So there is no need to check.
+                if (!ifc_designator.empty()
+                    && (header->unit.sort() == UnitSort::Primary || header->unit.sort() == UnitSort::ExportedTU))
+                {
+                    auto sz = bits::rep(header->unit.module_name());
+                    DASSERT(sz <= bits::rep(header->string_table_size));
+                    auto chars = reinterpret_cast<const char8_t*>(string_table()->data()) + sz;
+                    std::u8string_view ifc_name{ chars };
+                    if (ifc_name != ifc_designator)
+                        return false;
+                }
+                // Failed to have a valid designator or the unit sort is a mismatch.  If we do not allow any arbitrary interface through, exit.
+                else if (!implies(options, IfcOptions::AllowAnyPrimaryInterface))
+                {
+                    return false;
+                }
+            }
+
+            if constexpr (Kind == UnitSort::Partition)
+            {
+                // If we are reading module to merge then the final module name (which can be provided on the command-line) may not
+                // match the name of the module we are loading. So there is no need to check.
+                if (!ifc_designator.partition.empty()
+                    && (header->unit.sort() == UnitSort::Partition))
+                {
+                    auto sz = bits::rep(header->unit.module_name());
+                    DASSERT(sz <= bits::rep(header->string_table_size));
+                    auto chars = reinterpret_cast<const char8_t*>(string_table()->data()) + sz;
+                    std::u8string_view ifc_name{ chars };
+                    try
+                    {
+                        auto [owning_module_name, partition_name] = separate_module_name(ifc_name);
+                        if (owning_module_name != ifc_designator.owner)
+                        {
+                            return false;
+                        }
+
+                        if (partition_name != ifc_designator.partition)
+                        {
+                            return false;
+                        }
+                    }
+                    catch (const IllFormedPartitionName&)
+                    {
+                        return false;
+                    }
+                }
+                // Failed to have a valid designator or the unit sort is a mismatch.
+                else
+                {
+                    return false;
+                }
+            }
+
+            if constexpr (Kind == UnitSort::Header)
+            {
+                // We do not need to verify this now that the src_path of the header unit matches the one passed in.
+                // It is desireable to simply ask the ifc to be loaded without such verification as paths are not
+                // reliable once the header unit is made to be distributable.  A higher-level check is needed.
+                // The unit sort is a mismatch.
+                if (header->unit.sort() != UnitSort::Header)
+                {
+                    return false;
+                }
+            }
+
+            if (!position(ByteOffset(sizeof InterfaceSignature)))
+                throw IfcReadFailure{};
+            return true;
+        }
+
+    protected:
+        SpanType span;
+        SpanType::iterator cursor{};
+        const Header* hdr{ };
+        const PartitionSummaryData* toc{ };
+        StringTable str_tab{ };
     };
 }
 

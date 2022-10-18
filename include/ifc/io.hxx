@@ -47,17 +47,6 @@ namespace Module {
     // data structure corruption and the rest of processing for that
     // specific IFC must be abandoned.
 
-    // Exception tag used to signal target architecture mismatch.
-    struct IfcArchMismatch {
-        ModuleName name;
-        Pathname path;
-    };
-
-    // Exception tag used to signal an read failure from an IFC file (either invalid or corrupted.)
-    struct IfcReadFailure {
-        Pathname path;
-    };
-
     // -- Could not determine content size.
     struct ContentSizeError {
         Pathname path;
@@ -83,25 +72,9 @@ namespace Module {
         Pathname path;
     };
 
-    // -- failed to match ifc integrity check
-    struct IntegrityCheckFailed {
-        SHA256Hash expected;
-        SHA256Hash actual;
-    };
-
-    // -- failed to hash
-    struct HashFailed {
-        std::string reason;
-    };
-
     // -- malformed IFC input
     struct MalformedIfc {
         ModuleName name;
-    };
-
-    /// -- unsupported format
-    struct UnsupportedFormatVersion {
-        FormatVersion version;
     };
 
     // Facilities for stdio-based file IO
@@ -247,100 +220,23 @@ namespace Module {
         // into the address space of the owning process.  The projection is undone at the end
         // of the object's useful life.
         struct FileProjection : Mapping {
-            template<typename T>
-            using Table = gsl::span<const T>;
 
             FileProjection() { }                        // See comment for Mapping's default constructor.
             explicit FileProjection(const Pathname&, Filesystem* fs_api);
             FileProjection(FileProjection&&);
             ~FileProjection();
 
-            const std::byte* begin() const { return origin; }
-            const std::byte* end() const { return begin() + size(); }
-
             // Is this file projection in good state?
-            explicit operator bool() const { return get() != nullptr && begin() != nullptr; }
-
-            // Set the file stream position appropriately for the next read operation.
-            bool position(ByteOffset);
-
-            const std::byte* tell() const { return cursor; }
-
-            bool has_room_left_for(EntitySize amount) const
-            {
-                return end() - bits::rep(amount) >= cursor;
-            }
-
-            template<typename T>
-            const T* read()
-            {
-                constexpr auto sz = byte_length<T>;
-                if (!has_room_left_for(sz))
-                    return { };
-                auto ptr = reinterpret_cast<const T*>(tell());
-                cursor += bits::rep(sz);
-                return ptr;
-            }
-
-            template<typename T>
-            Table<T> read_array(Cardinality n)
-            {
-                const auto sz = n * byte_length<T>;
-                if (!has_room_left_for(sz))
-                    return { };
-                auto ptr = reinterpret_cast<const T*>(tell());
-                cursor += bits::rep(sz);
-                return { ptr, static_cast<typename Table<T>::size_type>(bits::rep(n)) };
-            }
-
-            // View a partition without touching the cursor.
-            // PartitionSummaryData is assumed to be validated on read of toc and not checked in this function.
-            template <typename T>
-            Table<T> view_partition(const PartitionSummaryData& summary) const
-            {
-                const auto byte_offset = bits::rep(summary.offset);
-                DASSERT(byte_offset < size());
-
-                const auto byte_ptr = begin() + byte_offset;
-                DASSERT(end() - bits::rep(summary.cardinality * byte_length<T>) >= byte_ptr);
-
-                const auto ptr = reinterpret_cast<const T*>(byte_ptr);
-                return { ptr, static_cast<typename Table<T>::size_type>(bits::rep(summary.cardinality)) };
-            }
+            explicit operator bool() const { return _origin != nullptr; }
+            const std::byte* origin() const { return _origin; }
 
         private:
-            const std::byte* origin { };
-            const std::byte* cursor { };
+            const std::byte* _origin { };
         };
 
-
-        enum class FileProjectionOptions
-        {
-            None                     = 0,
-            IntegrityCheck           = 1U << 0, // Enable the SHA256 file check.
-            AllowAnyPrimaryInterface = 1U << 1, // Project any primary module interface without checking for a matching name.
-        };
-
-        struct InputIfcFile : FileProjection {
-            using StringTable = gsl::span<const std::byte>;
-            using PartitionTable = gsl::span<const PartitionSummaryData>;
+        struct InputIfcFile : public Module::InputIfc {
 
             InputIfcFile() { }
-
-            const Header* header() const { return hdr; }
-            const StringTable* string_table() const { return &str_tab; }
-            PartitionTable partition_table() const
-            {
-                return { toc, static_cast<PartitionTable::size_type>(hdr->partition_count) };
-            }
-
-
-            const char* get(TextOffset offset) const
-            {
-                if (index_like::null(offset))
-                    return {};
-                return reinterpret_cast<const char*>(string_table()->data()) + bits::rep(offset);
-            }
 
             const Pathname& path() const
             {
@@ -348,13 +244,11 @@ namespace Module {
             }
 
             template <UnitSort, typename T>
-            static InputIfcFile project(const Pathname& path, Architecture arch, const T& ifc_designator, FileProjectionOptions options, Filesystem* fs_api);
+            static InputIfcFile project(const Pathname& path, Architecture arch, const T& ifc_designator, IfcOptions options, Filesystem* fs_api);
 
         private:
             Pathname file_path;
-            const Header* hdr { };
-            const PartitionSummaryData* toc { };
-            StringTable str_tab { };
+            FileProjection file_projection;
 
             explicit InputIfcFile(const Pathname&, Filesystem* fs_api);
         };
@@ -362,7 +256,7 @@ namespace Module {
         //Helper class for Anonymous Modules
         class AnonymousModuleIfcFileHelper {
         public:
-            AnonymousModuleIfcFileHelper(const Pathname& path, Architecture arch, FileProjectionOptions options, Filesystem* fs_api):
+            AnonymousModuleIfcFileHelper(const Pathname& path, Architecture arch, IfcOptions options, Filesystem* fs_api):
                 pathname{ path }, arch{ arch }, opts{ options }, fs{ fs_api } {
 
             }
@@ -371,14 +265,14 @@ namespace Module {
         private:
             Pathname pathname;
             Architecture arch;
-            FileProjectionOptions opts;
+            IfcOptions opts;
             Filesystem* fs;
         };
 
         //Helper class for Named Modules
         class NamedModuleIfcFileHelper {
         public:
-            NamedModuleIfcFileHelper(const Pathname& path, Architecture arch, const ModuleName& name, FileProjectionOptions options, Filesystem* fs_api) :
+            NamedModuleIfcFileHelper(const Pathname& path, Architecture arch, const ModuleName& name, IfcOptions options, Filesystem* fs_api) :
                 pathname{ path }, arch{ arch }, module_name{ name }, opts{ options }, fs{ fs_api } {
 
             }
@@ -389,15 +283,15 @@ namespace Module {
             Pathname pathname;
             Architecture arch;
             ModuleName module_name;
-            FileProjectionOptions opts;
+            IfcOptions opts;
             Filesystem* fs;
         };
 
         //Helper class for Module Partition
         class ModulePartitionIfcFileHelper {
         public:
-            //const Pathname& path, Architecture arch, const ModulePartitionName& name, FileProjectionOptions options, Filesystem* fs_api
-            ModulePartitionIfcFileHelper(const Pathname& path, Architecture arch, const ModulePartitionName& name, FileProjectionOptions options, Filesystem* fs_api) :
+            //const Pathname& path, Architecture arch, const ModulePartitionName& name, IfcOptions options, Filesystem* fs_api
+            ModulePartitionIfcFileHelper(const Pathname& path, Architecture arch, const ModulePartitionName& name, IfcOptions options, Filesystem* fs_api) :
                 pathname{ path }, arch{ arch }, partition_name{ name }, opts{ options }, fs{ fs_api } {
 
             }
@@ -409,14 +303,14 @@ namespace Module {
             Pathname pathname;
             Architecture arch;
             ModulePartitionName partition_name;
-            FileProjectionOptions opts;
+            IfcOptions opts;
             Filesystem* fs;
         };
 
         //Helper class for Header Units
         class HeaderUnitsIfcFileHelper {
         public:
-            HeaderUnitsIfcFileHelper(const Pathname& path, Architecture arch, std::u8string_view resolved_header_path, FileProjectionOptions options, Filesystem* fs_api) :
+            HeaderUnitsIfcFileHelper(const Pathname& path, Architecture arch, std::u8string_view resolved_header_path, IfcOptions options, Filesystem* fs_api) :
                 pathname{ path }, arch{ arch }, header_path{ resolved_header_path }, opts{ options }, fs{ fs_api } {
 
             }
@@ -427,7 +321,7 @@ namespace Module {
             Pathname pathname;
             Architecture arch;
             std::u8string_view header_path;
-            FileProjectionOptions opts;
+            IfcOptions opts;
             Filesystem* fs;
         };
     }

@@ -1,15 +1,5 @@
 #include "ifc/reader.hxx"
 #include <stdexcept>
-#include <Windows.h>
-
-extern Filesystem* os_api;
-// ifclib relies on a hand-written utf8 conversion routine which is deeply
-// embedded in the c1xx and is difficult to pull out. Use this as a replacement for now.
-// User Story: 1367721 tracks more permanent solution.
-size_t UTF8ToUTF16Cch(LPCSTR lpSrcStr, size_t cchSrc, LPWSTR lpDestStr, size_t cchDest)
-{
-    return MultiByteToWideChar(CP_UTF8, 0, lpSrcStr, (int)cchSrc, lpDestStr, (int)cchDest);
-}
 
 class Not_yet_implemented : public std::logic_error
 {
@@ -33,18 +23,16 @@ namespace Module
 {
     constexpr std::string_view analysis_partition_prefix = ".msvc.code-analysis.";
 
-    Reader::Reader(const Pathname& path) :
-        InputIfcFile(MemoryMapped::AnonymousModuleIfcFileHelper(
-            path, Architecture::Unknown, MemoryMapped::FileProjectionOptions::None, os_api).project())
+    Reader::Reader(const Module::InputIfc& ifc) : ifc(ifc)
     {
-        if (not header())
+         if (not ifc.header())
             throw "file not found";
         read_table_of_contents();
     }
 
     void Reader::read_table_of_contents()
     {
-        for (auto& summary : partition_table())
+        for (auto& summary : ifc.partition_table())
         {
             DASSERT(!index_like::null(summary.name));
             DASSERT(!summary.empty());
