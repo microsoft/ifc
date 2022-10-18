@@ -9,8 +9,6 @@ FetchContent_Declare(GSL
     GIT_TAG "v3.1.0"
 )
 FetchContent_MakeAvailable(GSL)
-#
-
 
 if (MSVC)
 add_compile_options(
@@ -18,10 +16,6 @@ add_compile_options(
     /EHsc          # Turn on exception handling semantics
 )
 endif()
-
-#find_package (GSL CONFIG REQUIRED)
-#target_link_libraries(main PRIVATE Microsoft.GSL::GSL)
-#link_libraries (${CURL_LIBRARIES})
 
 # Add common properties
 set(CMAKE_CXX_STANDARD 20)
@@ -31,4 +25,3 @@ add_definitions(-DVERSP_RELEASE=$<CONFIG:Release> -DVERSP_DEBUG=$<CONFIG:Debug> 
 include_directories (include)
 
 add_subdirectory (src)
-#add_subdirectory (samples)
