@@ -34,7 +34,7 @@ using namespace std::literals;
 
 struct Arguments
 {
-    Print_options options;
+    Print_options options = Print_options::None;
 
     // Files to process.
     std::vector<std::string> files;

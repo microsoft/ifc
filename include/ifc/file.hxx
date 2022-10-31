@@ -211,7 +211,6 @@ namespace Module {
         AllowAnyPrimaryInterface = 1U << 1, // Project any primary module interface without checking for a matching name.
     };
 
-    SHA256Hash hash_bytes(const uint8_t* first, const uint8_t* last);
     SHA256Hash hash_bytes(const std::byte* first, const std::byte* last);
 
     inline SHA256Hash bytes_to_hash(const uint8_t* first, const uint8_t* last)

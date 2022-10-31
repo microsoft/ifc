@@ -22,7 +22,7 @@ namespace Module::util
             White,
         };
 
-        inline std::ostream& operator<<(std::ostream& os, Console_color color)
+        std::ostream& operator<<(std::ostream& os, Console_color color)
         {
             os << "\u001b[" << static_cast<int>(color) << "m";
             return os;
