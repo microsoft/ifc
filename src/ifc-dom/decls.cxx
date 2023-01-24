@@ -138,7 +138,7 @@ namespace Module::util
                 n.props.emplace("alignment", ctx.ref(val.alignment));
 
         if constexpr (HasPackSize<T>)
-            if (auto size = (unsigned int)val.pack_size)
+            if (auto size = static_cast<unsigned int>(val.pack_size))
                 n.props.emplace("pack_size", std::to_string(size));
     }
 

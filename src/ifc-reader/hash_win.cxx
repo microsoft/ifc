@@ -105,9 +105,9 @@ namespace {
 }
 
 namespace Module {
-	SHA256Hash hash_bytes(const std::byte* first, const std::byte* last)
-	{
+    SHA256Hash hash_bytes(const std::byte* first, const std::byte* last)
+    {
         SHA256Helper helper;
         return helper.hash(first, last);
-	}
+    }
 }
