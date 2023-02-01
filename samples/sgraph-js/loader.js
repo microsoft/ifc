@@ -1,7 +1,3 @@
-function has_property(obj, prop) {
-    return obj.hasOwnProperty(prop);
-}
-
 function log_header(header) {
     if (!header.valid())
         console.log("not valid header!");
@@ -256,6 +252,7 @@ if (window.FileList && window.File) {
             read_ifc(reader, header);
             display_ifc_info(file);
             ifc_explorer_ifc_loaded();
+            graph.element.hidden = false;
         });
         reader.readAsArrayBuffer(file);
     });
