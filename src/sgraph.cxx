@@ -8,6 +8,11 @@
 #include <string_view>
 #include <algorithm>
 
+// Don't build module right now.
+#if MODULE_ENABLED
+#undef MODULE_ENABLED
+#endif
+
 #if MODULE_ENABLED
 #pragma warning(push)
 // Disable macro redefinition for now.  This fires because of conflicting macro definitions
@@ -63,7 +68,7 @@ namespace Module {
             { DeclSort::Template, "decl.template" },
             { DeclSort::PartialSpecialization, "decl.partial-specialization" },
             { DeclSort::Specialization, "decl.specialization" },
-            { DeclSort::UnusedSort0, "decl.unused0" },
+            { DeclSort::DefaultArgument, "decl.default-arg" },
             { DeclSort::Concept, "decl.concept" },
             { DeclSort::Function, "decl.function" },
             { DeclSort::Method, "decl.method" },
@@ -406,10 +411,9 @@ namespace Module {
             { MsvcTraitSort::Vendor, ".msvc.trait.vendor-traits" },
             { MsvcTraitSort::DeclAttributes, ".msvc.trait.decl-attrs" }, // FIXME: This should go away once we have a bit in the graph for C++ attributes.
             { MsvcTraitSort::StmtAttributes, ".msvc.trait.stmt-attrs" }, // FIXME: this should go away once we have a bit in the graph for C++ attributes.
-            { MsvcTraitSort::BlockLocus, ".msvc.trait.block-locus" }, // FIXME: This should go away when statements have proper location information.
             { MsvcTraitSort::CodegenMappingExpr, ".msvc.trait.codegen-mapping-expr" },
             { MsvcTraitSort::DynamicInitVariable, ".msvc.trait.dynamic-init-variable" },
-            { MsvcTraitSort::LabelKey, ".msvc.trait.label-key" },
+            { MsvcTraitSort::CodegenLabelProperties, ".msvc.trait.codegen-label-properties" },
             { MsvcTraitSort::CodegenSwitchType, ".msvc.trait.codegen-switch-type" },
             { MsvcTraitSort::CodegenDoWhileStmt, ".msvc.trait.codegen-dowhile-stmt" },
             { MsvcTraitSort::LexicalScopeIndex, ".msvc.trait.lexical-scope-index" },

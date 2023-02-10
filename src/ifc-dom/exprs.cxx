@@ -369,6 +369,11 @@ namespace Module::util
         ctx.reader.visit(expr, Expr_loader{ctx, node});
     }
 
+    void load(Loader& ctx, Node& node, Symbolic::DefaultIndex index)
+    {
+        load(ctx, node, std::bit_cast<ExprIndex>(index));
+    }
+
     std::string expr_list(Loader& ctx, ExprIndex index, std::string delimiters)
     {
         std::string result;

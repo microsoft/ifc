@@ -167,6 +167,12 @@ template<bits::Enum T>
 }
 
 template<bits::Enum T>
+[[nodiscard]] constexpr T remove_flags(T x, T y) noexcept
+{
+    return x & (~y);
+}
+
+template<bits::Enum T>
 constexpr T& operator|=(T& e1, T e2) noexcept
 {
     return e1 = e1 | e2;

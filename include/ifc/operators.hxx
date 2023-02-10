@@ -83,6 +83,7 @@ namespace Module {
         Materialize,                                        // temporary materialization -- abstract machine
         PseudoDtorCall,                                     // p->~T(), with T a scalar type
         LookupGlobally,                                     // ::x
+        Artificial,                                         // Compiler-generated expression wrapper
 
         Msvc = 0x0400,
         MsvcAssume,                                         // __assume(x)
@@ -312,11 +313,11 @@ namespace Module {
     // Universal representation of arity-graded operators
     struct Operator {
         enum class Index : uint16_t { };
-        Operator() : tag{ }, value{ } { }
+        constexpr Operator() : tag{ }, value{ } { }
         template<OperatorCategory Category>
-        Operator(Category c) : tag(bits::rep(operator_sort(c))), value(bits::rep(c)) { }
-        OperatorSort sort() const { return OperatorSort(tag); }
-        Index index() const { return Index(value); }
+        constexpr Operator(Category c) : tag(bits::rep(operator_sort(c))), value(bits::rep(c)) { }
+        constexpr OperatorSort sort() const { return OperatorSort(tag); }
+        constexpr Index index() const { return Index(value); }
     private:
         uint16_t tag : sort_precision;
         uint16_t value : index_precision;
