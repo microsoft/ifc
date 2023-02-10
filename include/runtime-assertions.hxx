@@ -34,6 +34,10 @@
 #  error "no production version selected"
 #endif
 
+// This is used to workaround a false positive of C5262 which doesn't take [[noreturn]] function into account.
+// Use this variant if RASSERT() is the last statement in a case statement and followed by a case label or a default label.
+#define RASSERT_IN_CASE(ex) RASSERT(ex); [[fallthrough]]
+
 // This is used to suppress warning C4189: local variable is initialized but not referenced.
 // This macro should only be used when the local variable is only referenced in DASSERT.
 // The parameter should be the identifier of the local variable.

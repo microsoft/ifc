@@ -10,4 +10,3 @@ target_link_libraries(ifc-printer
 )
 
 target_link_libraries(ifc-printer PRIVATE GSL)
-#add_compile_definitions(VERSP_DEBUG)

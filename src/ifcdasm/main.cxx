@@ -166,7 +166,7 @@ std::ostream& operator << (std::ostream& os, const Module::Architecture& v)
 
 std::ostream& operator << (std::ostream& os, const Module::NameIndex& v)
 {
-    _ASSERTE(v.sort() == Module::NameSort::SourceFile);
+    DASSERT(v.sort() == Module::NameSort::SourceFile);
     os << bits::rep(v.index());
     return os;
 }

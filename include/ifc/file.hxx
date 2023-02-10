@@ -187,10 +187,12 @@ namespace Module {
     // Exception tag used to signal target architecture mismatch.
     struct IfcArchMismatch {
         Pathname name;
+        Pathname path;
     };
 
     // Exception tag used to signal an read failure from an IFC file (either invalid or corrupted.)
     struct IfcReadFailure {
+        Pathname path;
     };
 
     // -- failed to match ifc integrity check
@@ -386,7 +388,7 @@ namespace Module {
         }
 
         template <UnitSort Kind, typename T>
-        bool validate(Architecture arch, const T& ifc_designator, IfcOptions options)
+        bool validate(const Pathname& path, Architecture arch, const T& ifc_designator, IfcOptions options)
         {
             if (!has_signature(*this, Module::InterfaceSignature))
                 return false;
@@ -409,11 +411,11 @@ namespace Module {
             {
                 if constexpr (Kind != UnitSort::Partition)
                 {
-                    throw IfcArchMismatch{ ifc_designator };
+                    throw IfcArchMismatch{ ifc_designator, path };
                 }
                 else
                 {
-                    throw IfcArchMismatch{ ifc_designator.partition };
+                    throw IfcArchMismatch{ ifc_designator.partition, path };
                 }
             }
 
@@ -500,7 +502,7 @@ namespace Module {
             }
 
             if (!position(ByteOffset(sizeof InterfaceSignature)))
-                throw IfcReadFailure{};
+                throw IfcReadFailure { path };
             return true;
         }
 

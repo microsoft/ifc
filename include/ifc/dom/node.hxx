@@ -70,6 +70,7 @@ namespace Module::util
     constexpr SortKind sort_kind(ChartIndex) { return SortKind::Chart;}
     constexpr SortKind sort_kind(StmtIndex) { return SortKind::Stmt;}
     constexpr SortKind sort_kind(SyntaxIndex) { return SortKind::Syntax;}
+    constexpr SortKind sort_kind(Symbolic::DefaultIndex) { return SortKind::Expr; }
     // clang-format on
 
     // Type-erased abstract index.
@@ -193,6 +194,7 @@ namespace Module::util
     void load(Loader& ctx, Node& node, SyntaxIndex index);
     void load(Loader& ctx, Node& node, ChartIndex index);
     void load(Loader& ctx, Node& node, StmtIndex index);
+    void load(Loader& ctx, Node& node, Symbolic::DefaultIndex index);
 
     // Will return a nice short string for a type, such as "int*" if it can.
     // Empty string otherwise.

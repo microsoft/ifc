@@ -218,9 +218,7 @@ namespace Module {
         NoInitAll               = 1 << 22,          // __declspec(no_init_all)
         DynamicInitialization   = 1 << 23,          // Indicates that this entity is used for implementing aspects of dynamic initialization.
         LexicalScopeIndex       = 1 << 24,          // Indicates this entity has a local lexical scope index associated with it.
-        HasAssociatedIpr        = 1u << 31,         // does this template have associated IPR (transitory trait)
-                                                    // 31 was picked so that it could be removed easily later and not
-                                                    // affect any important traits that are not transitory
+        ResumableFunction       = 1 << 25,          // Indicates this function was a transformed coroutine function.
     };
 
     enum class SuppressedWarningSequenceIndex : uint32_t { };
@@ -275,7 +273,7 @@ namespace Module {
         Template,               // A template declaration: class, function, constructor, type alias, variable.
         PartialSpecialization,  // A partial specialization of a template (class-type or function).
         Specialization,         // A specialization of some template decl.
-        UnusedSort0,            // Empty slot.
+        DefaultArgument,        // A default argument declaration for some parameter.
         Concept,                // A concept
         Function,               // A function declaration; both free-standing and static member functions.
         Method,                 // A non-static member function declaration.
@@ -1988,6 +1986,7 @@ namespace Module {
             DeclIndex home_scope;           // Enclosing scope of this declaration.
             BasicSpecifiers basic_spec;     // Basic declaration specifiers.
             Access access;                  // Access right to this function.
+            FunctionTraits traits;          // Function traits.  TODO: Move this to the logical location for next major IFC version.
         };
 
         static_assert(offsetof(IntrinsicDecl, identity) == 0, "The name population code expects 'identity' to be at offset zero");
@@ -2001,11 +2000,35 @@ namespace Module {
             Access access;                  // Access right to this enumerator.
         };
 
+        // A strongly-typed abstraction of ExprIndex which always points to ExprSort::NamedDecl.
+        enum class DefaultIndex : uint32_t {
+            UnderlyingSort = bits::rep(ExprSort::NamedDecl)
+        };
+
+        inline ExprIndex as_expr_index(DefaultIndex index)
+        {
+            if (index_like::null(index))
+                return { };
+            // DefaultIndex == 1 starts us at offset 0, so we retract the index to get the offset.
+            const auto n = index_like::pointed<DefaultIndex>::retract(index);
+            using SortType = ExprIndex::SortType;
+            constexpr auto sort = SortType{bits::rep(DefaultIndex::UnderlyingSort)};
+            return index_like::make<ExprIndex>(sort, n);
+        }
+
+        inline DefaultIndex as_default_index(ExprIndex index)
+        {
+            if (null(index))
+                return { };
+            // Since this is an offset into a known partition, we only need its value.
+            return index_like::pointed<DefaultIndex>::inject(bits::rep(index.index()));
+        }
+
         struct ParameterDecl : Tag<DeclSort::Parameter> {
             Identity<TextOffset> identity;  // The name and location of this function parameter
             TypeIndex type;                 // Sort and index of this decl's type.  Null means no type.
             ExprIndex type_constraint;      // Optional type-constraint on the parameter type.
-            ExprIndex initializer;          // Default argument. Null means none was provided.
+            DefaultIndex initializer;       // Default argument. Null means none was provided.
             uint32_t level;                 // The nesting depth of this parameter (template or function).
             uint32_t position;              // The 1-based position of this parameter.
             ParameterSort sort;             // The kind of parameter.
@@ -2140,6 +2163,16 @@ namespace Module {
             SpecFormIndex specialization_form; // The specialization pattern: primary template + argument list.
             DeclIndex decl;                    // The entity declared by this specialization.
             SpecializationSort sort;           // The specialization category.
+            BasicSpecifiers basic_spec;
+            Access access;
+            ReachableProperties properties;
+        };
+
+        struct DefaultArgumentDecl : Tag<DeclSort::DefaultArgument> {
+            SourceLocation locus;               // The location of this default argument decl.
+            TypeIndex type;                     // The type of the default argument decl.
+            DeclIndex home_scope;               // Enclosing scope of this declaration.
+            ExprIndex initializer;              // The expression used to initialize the accompanying parameter when this default argument is used in a call expression.
             BasicSpecifiers basic_spec;
             Access access;
             ReachableProperties properties;
@@ -2424,7 +2457,8 @@ namespace Module {
         };
 
         struct TemplateReference : LocationAndType<ExprSort::TemplateReference> {
-            Identity<NameIndex> member { };     // What identifies this non-static member function
+            DeclIndex member { };
+            NameIndex member_name { };
             TypeIndex parent { };               // The enclosing concrete specialization
             ExprIndex template_arguments { };   // Any associated template arguments
         };
@@ -2453,7 +2487,7 @@ namespace Module {
                 Indirection,        // Dereference a pointer, e.g. *p
                 RemoveReference,    // Convert a reference into an lvalue
                 LvalueToRvalue,     // lvalue-to-rvalue conversion
-                IntegralConversion, // Integral conversion (should be removed once we purge these from the FE)
+                IntegralConversion, // FIXME: no longer needed
                 Count
             };
 
@@ -2936,10 +2970,9 @@ namespace Module {
         Vendor,                 // extended vendor traits
         DeclAttributes,         // C++ attributes associated with a declaration
         StmtAttributes,         // C++ attributes associated with a statement
-        BlockLocus,             // the source location of blocks
         CodegenMappingExpr,     // definitions of inline functions intended for code generation
         DynamicInitVariable,    // A mapping from a real variable to the variable created as part of a dynamic initialization implementation.
-        LabelKey,               // A unique value attached to label expressions.  Used for code generation.
+        CodegenLabelProperties, // Unique properties attached to label expressions.  Used for code generation.
         CodegenSwitchType,      // A mapping between a switch statement and its 'control' expression type.
         CodegenDoWhileStmt,     // Captures extra statements associated with a do-while statement condition.
         LexicalScopeIndex,      // A decl has an association with a specific local lexical scope index which can impact name mangling.
@@ -3004,7 +3037,13 @@ namespace Module {
     namespace Symbolic::Trait
     {
         using LocusSpan = msvc::pair<SourceLocation, SourceLocation>;
+
         enum class MsvcLabelKey : std::uint32_t { };
+        enum class MsvcLabelType : std::uint32_t { };
+        struct MsvcLabelProperties {
+            MsvcLabelKey key;
+            MsvcLabelType type;
+        };
         enum class MsvcLexicalScopeIndex : std::uint32_t { };
 
         template <typename I>
@@ -3020,10 +3059,9 @@ namespace Module {
         struct DeclAttributes             : AttributeAssociation<DeclIndex>,                    TraitTag<MsvcTraitSort::DeclAttributes> { };
         struct StmtAttributes             : AttributeAssociation<StmtIndex>,                    TraitTag<MsvcTraitSort::StmtAttributes> { };
         struct MsvcVendor                 : AssociatedTrait<DeclIndex, VendorTraits>,           TraitTag<MsvcTraitSort::Vendor> { };
-        struct MsvcBlockLocus             : AssociatedTrait<StmtIndex, LocusSpan>,              TraitTag<MsvcTraitSort::BlockLocus> { };
         struct MsvcCodegenMappingExpr     : AssociatedTrait<DeclIndex, MappingDefinition>,      TraitTag<MsvcTraitSort::CodegenMappingExpr> { };
         struct MsvcDynamicInitVariable    : AssociatedTrait<DeclIndex, DeclIndex>,              TraitTag<MsvcTraitSort::DynamicInitVariable> { };
-        struct MsvcLabelKeys              : AssociatedTrait<ExprIndex, MsvcLabelKey>,           TraitTag<MsvcTraitSort::LabelKey> { };
+        struct MsvcCodegenLabelProperties : AssociatedTrait<ExprIndex, MsvcLabelProperties>,    TraitTag<MsvcTraitSort::CodegenLabelProperties> { };
         struct MsvcCodegenSwitchType      : AssociatedTrait<StmtIndex, TypeIndex>,              TraitTag<MsvcTraitSort::CodegenSwitchType> { };
         struct MsvcCodegenDoWhileStmt     : AssociatedTrait<StmtIndex, StmtIndex>,              TraitTag<MsvcTraitSort::CodegenDoWhileStmt> { };
         struct MsvcLexicalScopeIndices    : AssociatedTrait<DeclIndex, MsvcLexicalScopeIndex>,  TraitTag<MsvcTraitSort::LexicalScopeIndex> { };

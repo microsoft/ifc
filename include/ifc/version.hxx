@@ -16,13 +16,13 @@ namespace Module {
     };
 
     // Minimum supported file format version
-    inline constexpr FormatVersion MinimumFormatVersion { Version{ 0 }, Version{ 42 } };
+    inline constexpr FormatVersion MinimumFormatVersion { Version{ 0 }, Version{ 43 } };
 
     // The current version of file format emitted by the toolset
     inline constexpr FormatVersion CurrentFormatVersion = MinimumFormatVersion;
 
     // The version of file format understood by the latest EDG drop
-    inline constexpr FormatVersion EDGFormatVersion { Version{ 0 }, Version{ 41 } };
+    inline constexpr FormatVersion EDGFormatVersion { Version{ 0 }, Version{ 42 } };
 }
 
 #endif // IFC_VERSION_INCLUDED
