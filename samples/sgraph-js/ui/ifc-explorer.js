@@ -191,13 +191,18 @@ function ifc_explorer_json_replacer(key, value) {
     return value;
 }
 
-function set_ifc_explorer_selected_decl(index, from_history) {
+const SkipNavigation = {};
+
+function set_ifc_explorer_selected_decl(index, from_history, skip_navigation) {
     if (null_index(index)) return;
     ifc_explorer_clear_content(ifc_explorer.decls.content);
     if (!from_history) {
         update_history_with_new_element(DeclIndex, index.sort, index.index);
     }
-    navigate_to_decl_if_possible(index);
+
+    if (!(skip_navigation != undefined && skip_navigation == SkipNavigation)) {
+        navigate_to_decl_if_possible(index);
+    }
 
     // Update edits.
     ifc_explorer.decls.sort_dropdown.selectedIndex = Array

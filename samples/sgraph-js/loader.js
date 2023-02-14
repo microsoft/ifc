@@ -148,7 +148,7 @@ function on_decl_selected(decl) {
     const basic_spec = format_basic_spec(symbolic_decl);
     const json_str = JSON.stringify(symbolic_decl, null, 2);
     set_decl_preview_content("<pre>" + `${decl_index_str}\n${basic_spec}\n${locus_str}\n` + json_str + "</pre>");
-    set_ifc_explorer_selected_decl(resolved_name.index, false);
+    set_ifc_explorer_selected_decl(resolved_name.index, false, SkipNavigation);
 }
 
 function init_sgraph(resolver, header) {
