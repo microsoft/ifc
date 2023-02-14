@@ -1,8 +1,5 @@
 function ifc_explorer_clear_content(content) {
-    // Yes, it is intentional to check for the first and remove the last.
-    while (content.firstChild != null) {
-        content.removeChild(content.lastChild);
-    }
+    remove_all_children(content);
 }
 
 function update_history_sidebar() {
@@ -154,6 +151,8 @@ function ifc_explorer_json_replacer(key, value) {
         return IFCExplorerJSONReplacer.replace_heap_seq(value);
     if (value instanceof BasicSpecifiers)
         return IFCExplorerJSONReplacer.generic_bitset_to_string(BasicSpecifiers, value);
+    if (value instanceof ScopeTraits)
+        return IFCExplorerJSONReplacer.generic_bitset_to_string(ScopeTraits, value);
     if (value instanceof ReachableProperties)
         return IFCExplorerJSONReplacer.generic_bitset_to_string(ReachableProperties, value);
     if (value instanceof FunctionTraits)
@@ -192,11 +191,17 @@ function ifc_explorer_json_replacer(key, value) {
     return value;
 }
 
-function set_ifc_explorer_selected_decl(index, from_history) {
+const SkipNavigation = {};
+
+function set_ifc_explorer_selected_decl(index, from_history, skip_navigation) {
     if (null_index(index)) return;
     ifc_explorer_clear_content(ifc_explorer.decls.content);
     if (!from_history) {
         update_history_with_new_element(DeclIndex, index.sort, index.index);
+    }
+
+    if (!(skip_navigation != undefined && skip_navigation == SkipNavigation)) {
+        navigate_to_decl_if_possible(index);
     }
 
     // Update edits.
