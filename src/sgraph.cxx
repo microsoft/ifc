@@ -77,7 +77,7 @@ namespace Module {
             { DeclSort::Destructor, "decl.destructor" },
             { DeclSort::Reference, "decl.reference" },
             { DeclSort::UsingDeclaration, "decl.using-declaration" },
-            { DeclSort::UsingDirective, "decl.using-directive" },
+            { DeclSort::UnusedSort0, "decl.unused0" },
             { DeclSort::Friend, "decl.friend" },
             { DeclSort::Expansion, "decl.expansion" },
             { DeclSort::DeductionGuide, "decl.deduction-guide" },
@@ -362,6 +362,7 @@ namespace Module {
             { HeapSort::Spec, "heap.spec" },
             { HeapSort::Form, "heap.pp" },
             { HeapSort::Attr, "heap.attr" },
+            { HeapSort::Dir, "heap.dir" },
         };
 
         static_assert(retractible_by_key(heapsort_table));
@@ -486,6 +487,43 @@ namespace Module {
         };
 
         static_assert(retractible_by_key(attrsort_table));
+
+        constexpr SortNameMapEntry<DirSort> dirsort_table[] = {
+            { DirSort::VendorExtension, "dir.vendor-extension" },
+            { DirSort::Empty, "dir.empty" },
+            { DirSort::Attribute, "dir.attribute" },
+            { DirSort::Pragma, "dir.pragma" },
+            { DirSort::Using, "dir.using" },
+            { DirSort::DeclUse, "dir.decl-use" },
+            { DirSort::Expr, "dir.expr" },
+            { DirSort::StructuredBinding, "dir.struct-binding" },
+            { DirSort::SpecifiersSpread, "dir.specifiers-spread" },
+            { DirSort::Unused0, "dir.unused0" },
+            { DirSort::Unused1, "dir.unused1" },
+            { DirSort::Unused2, "dir.unused2" },
+            { DirSort::Unused3, "dir.unused3" },
+            { DirSort::Unused4, "dir.unused4" },
+            { DirSort::Unused5, "dir.unused5" },
+            { DirSort::Unused6, "dir.unused6" },
+            { DirSort::Unused7, "dir.unused7" },
+            { DirSort::Unused8, "dir.unused8" },
+            { DirSort::Unused9, "dir.unused9" },
+            { DirSort::Unused10, "dir.unused10" },
+            { DirSort::Unused11, "dir.unused11" },
+            { DirSort::Unused12, "dir.unused12" },
+            { DirSort::Unused13, "dir.unused13" },
+            { DirSort::Unused14, "dir.unused14" },
+            { DirSort::Unused15, "dir.unused15" },
+            { DirSort::Unused16, "dir.unused16" },
+            { DirSort::Unused17, "dir.unused17" },
+            { DirSort::Unused18, "dir.unused18" },
+            { DirSort::Unused19, "dir.unused19" },
+            { DirSort::Unused20, "dir.unused20" },
+            { DirSort::Unused21, "dir.unused21" },
+            { DirSort::Tuple, "dir.tuple" },
+        };
+
+        static_assert(retractible_by_key(dirsort_table));
 
         // This is a sorted array by the 'name' field in 'SortNameMapEntry'
         template<typename S, int N>
@@ -625,6 +663,7 @@ namespace Module {
             { "pp.", entry_by_name<formsort_table, &TableOfContents::forms> },
             { "trait.", entry_by_name<traitsort_table, &TableOfContents::traits> },
             { "attr.", entry_by_name<attrsort_table, &TableOfContents::attrs> },
+            { "dir.", entry_by_name<dirsort_table, &TableOfContents::dirs> },
             { ".msvc.", &msvc_trait_lookup},
         };
 
@@ -656,6 +695,8 @@ namespace Module {
     const char* sort_name(PragmaSort s) { return retrieve_name<pragma_sort_table>(s); }
 
     const char* sort_name(AttrSort s) { return retrieve_name<attrsort_table>(s); }
+
+    const char* sort_name(DirSort s) { return retrieve_name<dirsort_table>(s); }
 
     const char* sort_name(HeapSort s) { return retrieve_name<heapsort_table>(s); }
 
