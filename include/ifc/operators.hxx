@@ -134,6 +134,8 @@ namespace Module {
         MsvcConfusedPopState,                               // An EH state represented directly in a unary expression for invoking destructors after invoking a ctor.
         MsvcConfusedDtorAction,                             // An EH state represented directly in a unary expression for invoking destructors directly.
         MsvcConfusedVtorDisplacement,                       // The compiler generated expression representing an offset amount to a virtual base pointer address during initialization.
+        MsvcConfusedDependentExpression,                    // At times the old YACC parser will 'give up' parsing a dependent expression and simply return a constant with a dummy bit set.
+                                                            // This operator attempts to catch these offending dependent expression values.
 
         Last
     };

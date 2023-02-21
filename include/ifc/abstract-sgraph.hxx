@@ -219,6 +219,8 @@ namespace Module {
         DynamicInitialization   = 1 << 23,          // Indicates that this entity is used for implementing aspects of dynamic initialization.
         LexicalScopeIndex       = 1 << 24,          // Indicates this entity has a local lexical scope index associated with it.
         ResumableFunction       = 1 << 25,          // Indicates this function was a transformed coroutine function.
+        PersistentTemporary     = 1 << 26,          // a c1xx-ism which will create long-lived temporary symbols when expressions need their
+                                                    // result to live beyond the full expression, e.g. lifetime extended temporaries.
     };
 
     enum class SuppressedWarningSequenceIndex : uint32_t { };
@@ -282,7 +284,7 @@ namespace Module {
         Destructor,             // A destructor declaration.
         Reference,              // A reference to a declaration from a given module.
         UsingDeclaration,       // A using declaration
-        UsingDirective,         // A using-directive
+        UnusedSort0,            // Empty slot
         Friend,                 // A friend declaration
         Expansion,              // A pack-expansion of a declaration
         DeductionGuide,         // C(T) -> C<U>
@@ -635,6 +637,46 @@ namespace Module {
         using Over<AttrSort>::Over;
     };
 
+    enum class DirSort : uint8_t {
+        VendorExtension,   // Vendor-specific extension for directives.
+        Empty,             // An empty declaration - ;
+        Attribute,         // Attribute declaration - [[nodiscard]].
+        Pragma,            // Pragma directive - _Pragma
+        Using,             // Using-directive declaration - using namespace N
+        DeclUse,           // Using declaration - using ::X
+        Expr,              // Phased-evaluation of an expression - static_assert, asm-declaration, etc.
+        StructuredBinding, // Structured binding declaration - auto [a, b, c] = x
+        SpecifiersSpread,  // A spread of sequence of decl-specifiers over a collection of init-declarators in a single grammatical declaration - int* p, i, **x, ...
+        Unused0,           // Empty slot
+        Unused1,           // Empty slot
+        Unused2,           // Empty slot
+        Unused3,           // Empty slot
+        Unused4,           // Empty slot
+        Unused5,           // Empty slot
+        Unused6,           // Empty slot
+        Unused7,           // Empty slot
+        Unused8,           // Empty slot
+        Unused9,           // Empty slot
+        Unused10,          // Empty slot
+        Unused11,          // Empty slot
+        Unused12,          // Empty slot
+        Unused13,          // Empty slot
+        Unused14,          // Empty slot
+        Unused15,          // Empty slot
+        Unused16,          // Empty slot
+        Unused17,          // Empty slot
+        Unused18,          // Empty slot
+        Unused19,          // Empty slot
+        Unused20,          // Empty slot
+        Unused21,          // Empty slot
+        Tuple,             // A collection of directives
+        Count
+    };
+
+    struct DirIndex : index_like::Over<DirSort> {
+        using Over<DirSort>::Over;
+    };
+
     // Symbolic name of the various heaps stored in an IFC.
     enum class HeapSort : uint8_t {
         Decl,                       // DeclIndex heap
@@ -647,6 +689,7 @@ namespace Module {
         Spec,                       // specialization form heap
         Form,                       // FormIndex heap
         Attr,                       // AttrIndex heap
+        Dir,                        // DirIndex heap
         Count
     };
 
@@ -2253,6 +2296,13 @@ namespace Module {
             BasicSpecifiers basic_spec;         // Basic declaration specifiers.
         };
 
+        // Declaration introducing no names, e.g. static_assert, asm-declaration, empty-declaration
+        struct BarrenDecl : Tag<DeclSort::Barren> {
+            DirIndex directive;
+            BasicSpecifiers basic_spec;
+            Access access;
+        };
+
         struct ReferenceDecl : Tag<DeclSort::Reference> {
             ModuleReference translation_unit;   // The owning TU of this decl.
             DeclIndex local_index;              // The core declaration.
@@ -2851,6 +2901,62 @@ namespace Module {
                 PragmaCommentSort sort = PragmaCommentSort::Unknown;
             };
         } // namespace Microsoft
+        enum class Phases : uint32_t {
+            Unknown         = 0,
+            Reading         = 1 << 0,
+            Lexing          = 1 << 1,
+            Preprocessing   = 1 << 2,
+            Parsing         = 1 << 3,
+            Importing       = 1 << 4,
+            NameResolution  = 1 << 5,
+            Typing          = 1 << 6,
+            Evaluation      = 1 << 7,
+            Instantiation   = 1 << 8,
+            Analysis        = 1 << 9,
+            CodeGeneration  = 1 << 10,
+            Linking         = 1 << 11,
+            Loading         = 1 << 12,
+            Execution       = 1 << 13,
+        };
+
+        struct EmptyDirective : Location<DirSort::Empty> { };
+
+        struct AttributeDirective : Location<DirSort::Attribute> {
+            AttrIndex attr { };
+        };
+
+        struct PragmaDirective : Location<DirSort::Pragma> {
+            SentenceIndex words { }; // Sentence index making up the directive.
+        };
+
+        struct UsingDirective : Location<DirSort::Using> {
+            ExprIndex nominated { };  // The in-source name expression designating the namespace.
+            DeclIndex resolution { }; // Denotes the namespace after semantics elaboration on 'nominated'.
+        };
+
+        struct UsingDeclarationDirective : Location<DirSort::DeclUse> {
+            ExprIndex path { };     // The path expression to the declaration target of the using-declaration.
+            DeclIndex result { };  // Denotes the declaration(s) resulting from executing the using-declaration.
+        };
+
+        struct ExprDirective : Location<DirSort::Expr> {
+            ExprIndex expr { };     // Denotes the expression to evaluate.
+            Phases phases { };      // Denotes the set of phases of translation which this directive is to be evaluated.
+        };
+
+        struct StructuredBindingDirective : Location<DirSort::StructuredBinding> {
+            Sequence<DeclIndex> bindings { };   // The set of declarations resulting from the elaboration of a structured bindings declaration.
+            // DeclSpecifierSeq specifiers;     // TODO: we need to know concretely what this should be.
+            Sequence<TextOffset> names { };     // The identifiers which make up the decomposed declarations.
+            // BindingMode ref { };             // TODO: we need to know concretely what this should be.
+        };
+
+        struct SpecifiersSpreadDirective : Location<DirSort::SpecifiersSpread> {
+            // DeclSpecifierSequence specifiers { };    // TODO: we need to know concretely what this should be.
+            // ProclaimerSequence targets { };          // TODO: we need to know concretely what this should be.
+        };
+
+        struct TupleDirective : Tag<DirSort::Tuple>, Sequence<DirIndex, HeapSort::Dir> { };
     } // namespace Symbolic
 
     namespace Symbolic::Preprocessing {
@@ -3098,6 +3204,7 @@ namespace Module {
         PartitionSummaryData macros[count<MacroSort>];              // Table of exported macros.
         PartitionSummaryData pragma_directives[count<PragmaSort>];  // Table of pragma directives.
         PartitionSummaryData attrs[count<AttrSort>];                // Table of all attributes.
+        PartitionSummaryData dirs[count<DirSort>];                  // Table of all directives.
         PartitionSummaryData implementation_pragmas;                // Sequence of PragmaIndex from the TU which can influence semantics of the current TU.
 
         // Facilities for iterating over the ToC as a sequence of partition summaries.
@@ -3194,6 +3301,9 @@ namespace Module {
         PartitionSummaryData& operator[](AttrSort s) { return partition(attrs, s); }
         const PartitionSummaryData& operator[](AttrSort s) const { return partition(attrs, s); }
 
+        PartitionSummaryData& operator[](DirSort s) { return partition(dirs, s); }
+        const PartitionSummaryData& operator[](DirSort s) const { return partition(dirs, s); }
+
         PartitionSummaryData& operator[](HeapSort s) { return partition(heaps, s); }
         const PartitionSummaryData& operator[](HeapSort s) const { return partition(heaps, s); }
 
@@ -3243,6 +3353,7 @@ namespace Module {
     const char* sort_name(MacroSort);
     const char* sort_name(PragmaSort);
     const char* sort_name(AttrSort);
+    const char* sort_name(DirSort);
     const char* sort_name(HeapSort);
     const char* sort_name(FormSort);
     const char* sort_name(TraitSort);

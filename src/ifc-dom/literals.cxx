@@ -23,10 +23,7 @@ namespace Module::util
         {
         case StringSort::UTF8:
             prefix = "u8";
-            /* fall through */
-#ifdef WIN32
-            __fallthrough;
-#endif
+            [[fallthrough]];
         case StringSort::Ordinary:
             return prefix + "\"" + std::string(ctx.reader.get(str.start), (size_t)str.size) + "\"" + suffix;
         case StringSort::UTF16:
