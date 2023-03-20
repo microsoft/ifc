@@ -418,6 +418,8 @@ namespace Module {
             { MsvcTraitSort::CodegenSwitchType, ".msvc.trait.codegen-switch-type" },
             { MsvcTraitSort::CodegenDoWhileStmt, ".msvc.trait.codegen-dowhile-stmt" },
             { MsvcTraitSort::LexicalScopeIndex, ".msvc.trait.lexical-scope-index" },
+            { MsvcTraitSort::FileBoundary, ".msvc.trait.file-boundary" },
+            { MsvcTraitSort::HeaderUnitSourceFile, ".msvc.trait.header-unit-source-file" },
         };
 
         static_assert(retractible_by_key(msvc_traitsort_table));

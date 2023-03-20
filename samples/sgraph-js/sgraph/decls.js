@@ -116,7 +116,6 @@ class ScopeDecl {
         this.alignment = new ExprIndex(reader);
         this.pack_size = reader.read_uint16();
         this.basic_spec = new BasicSpecifiers(reader);
-        this.scope_spec = new ScopeTraits(reader);
         this.access = new Access(reader);
         this.properties = new ReachableProperties(reader);
     }

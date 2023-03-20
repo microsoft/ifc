@@ -507,22 +507,6 @@ class BasicSpecifiers {
     }
 }
 
-class ScopeTraits {
-    static Values = {
-        None:                0,
-        Unnamed:             1 << 0,       // unnamed namespace, or unnamed class types.
-        Inline:              1 << 1,       // inline namespace.
-        InitializerExported: 1 << 2,       // This object has its initializer exported
-        ClosureType:         1 << 3,       // lambda-like scope
-        Final:               1 << 4,       // a derived class marked as 'final'
-        Vendor:              1 << 7        // The scope has extended vendor specific traits
-    };
-
-    constructor(reader) {
-        this.value = reader.read_uint8();
-    }
-};
-
 class ObjectTraits {
     static Values = {
         None:                0,
