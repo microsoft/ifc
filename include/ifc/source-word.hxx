@@ -129,6 +129,7 @@ namespace Module {
             MsvcResolvedType,                                       // Binding of a resolved type
             MsvcDefinedConstant,                                    // UDL constant.  FIXME: Find efficient rep for all UDLs.
             MsvcCastTargetType,                                     // Binding of a resolve type in a cast expression.  FIXME: to be removed along with other YACC oddities.
+            MsvcTemplateId,                                         // A reference to a known template template specialization.
         };
 
         enum class Operator : uint16_t {

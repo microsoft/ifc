@@ -320,6 +320,8 @@ namespace Module {
         constexpr Operator(Category c) : tag(bits::rep(operator_sort(c))), value(bits::rep(c)) { }
         constexpr OperatorSort sort() const { return OperatorSort(tag); }
         constexpr Index index() const { return Index(value); }
+
+        auto operator<=>(const Operator&) const = default;
     private:
         uint16_t tag : sort_precision;
         uint16_t value : index_precision;

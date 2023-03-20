@@ -8,7 +8,6 @@ const sort_filter = document.getElementById('sort-filter');
 const center_view = document.getElementById('center-view');
 const prop_filter_exported = document.getElementById('prop-filter-exported');
 const prop_filter_non_exported = document.getElementById('prop-filter-non-exported');
-const narrow_graph_context = document.getElementById('filter-narrow-context');
 
 // Options dialog
 const decl_color_dropdown = document.getElementById('decl-color-dropdown');
@@ -21,7 +20,6 @@ const reset_class_colors_btn = document.getElementById('reset-class-colors');
 const filter_opacity_edit = document.getElementById('filter-opacity-edit');
 const bad_filter_opacity_text = document.getElementById('bad-filter-opacity-text');
 const graph_fps_toggle = document.getElementById('graph-fps-toggle');
-const graph_animations = document.getElementById('graph-animations');
 
 // IFC explorer dialog
 const ifc_explorer = {
@@ -61,24 +59,6 @@ const ifc_explorer = {
 };
 
 // Scripting globals
-var graph = {
-    data: {
-        original_data: null
-    },
-    drawing: {
-        native_width: 1260.0,
-        native_height: 800.0,
-        custom_base_element: null,
-        working_data: null,
-        last_update_time: 0,
-        timer: null,
-        canvas_dirty: false,
-        backing_canvas_dirty: false,
-        node_mapper: null,
-        partition: null
-    },
-    element: document.getElementById('icicle')
-};
-var graph_filter = null;
+var graph_filter = new GraphFilter();
 var options = null;
 var sgraph = { resolver: null, header: null };
