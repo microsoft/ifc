@@ -149,9 +149,6 @@
                         <label class="btn btn-secondary active">
                             <input id="graph-fps-toggle" type="checkbox"> Graph draw FPS
                         </label>
-                        <label class="btn btn-secondary active">
-                            <input id="graph-animations" type="checkbox"> Disable graph animations
-                        </label>
                         <div class="input-group input-group-sm">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Filtered opacity %</span>
@@ -270,11 +267,6 @@
             <input id="name-filter" type="text" />
             <div>Filter Types:</div>
             <select id="sort-filter"></select>
-            <div class="row-sm-2 pt-1">
-                <label class="btn btn-secondary btn-sm active">
-                    <input id="filter-narrow-context" type="checkbox"> Narrow graph to filter</input>
-                </label>
-            </div>
             <br>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash-fill" viewBox="0 0 16 16">
                 <path d="m10.79 12.912-1.614-1.615a3.5 3.5 0 0 1-4.474-4.474l-2.06-2.06C.938 6.278 0 8 0 8s3 5.5 8 5.5a7.029 7.029 0 0 0 2.79-.588zM5.21 3.088A7.028 7.028 0 0 1 8 2.5c5 0 8 5.5 8 5.5s-.939 1.721-2.641 3.238l-2.062-2.062a3.5 3.5 0 0 0-4.474-4.474L5.21 3.089z"/>
@@ -296,7 +288,7 @@
         </nav>
         <div class="content-container">
             <div id="breadcrumb"></div>
-            <div id="icicle" hidden></div>
+            <div id="icicle"></div>
         </div>
     </div>
 
@@ -305,9 +297,6 @@
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <!-- Note: bootstrap.js must be loaded after JQuery as it depends on JQuery -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF" crossorigin="anonymous"></script>
-
-    <!-- Shared scripts -->
-    <script type='text/javascript' src='globals.js'></script>
 
     <!-- Core -->
     <script type='text/javascript' src='sgraph/decls.js'></script>
@@ -319,7 +308,6 @@
     <script type='text/javascript' src='sgraph/resolve.js'></script>
     <script type='text/javascript' src='sgraph/sgraph.js'></script>
     <script type='text/javascript' src='sgraph/types.js'></script>
-    <script type='text/javascript' src='sgraph/util.js'></script>
 
     <!-- UI Helpers -->
     <script type='text/javascript' src='ui/filter.js'></script>
@@ -329,6 +317,7 @@
     <script type='text/javascript' src='ui/sidebar.js'></script>
 
     <!-- Startup -->
+    <script type='text/javascript' src='globals.js'></script>
     <script type='text/javascript' src='loader.js'></script>
   </body>
 </html>

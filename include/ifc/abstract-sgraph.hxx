@@ -227,6 +227,10 @@ namespace Module {
         ResumableFunction       = 1 << 25,          // Indicates this function was a transformed coroutine function.
         PersistentTemporary     = 1 << 26,          // a c1xx-ism which will create long-lived temporary symbols when expressions need their
                                                     // result to live beyond the full expression, e.g. lifetime extended temporaries.
+        IneligibleForNRVO       = 1 << 27,          // a c1xx-ism in which the front-end conveys to the back-end that a particular function
+                                                    // cannot utilize NRVO on this function.  This is important due to the MSVC C++ calling
+                                                    // convention which passes UDTs on the stack as a hidden parameter to functions returning
+                                                    // that type.
     };
 
     enum class SuppressedWarningSequenceIndex : uint32_t { };
@@ -719,27 +723,42 @@ namespace Module {
         template<auto s>
         struct Tag : index_like::SortTag<s> {
             static constexpr auto algebra_sort = s;
+
+            // For comparison purposes such as inserting into ordered containers, the derived
+            // classes may have to explicitly default 'operator==' which requires this base class
+            // to also have a defined operator==.
+            constexpr bool operator==(const Tag&) const { return true; }
+            // Similar story for ordering.
+            constexpr std::strong_ordering operator<=>(const Tag&) const { return std::strong_ordering::equal; }
         };
 
         struct ConversionFunctionId : Tag<NameSort::Conversion> {
             TypeIndex target { };                       // The type to convert to
             TextOffset name { };                        // The index for the name (if we have one)
+
+            bool operator==(const ConversionFunctionId&) const = default;
         };
 
         struct OperatorFunctionId : Tag<NameSort::Operator> {
             TextOffset name { };                        // The index for the name
             Operator symbol { };                        // The symbolic operator
             // Note: 16 bits hole left.
+
+            bool operator==(const OperatorFunctionId&) const = default;
         };
 
         struct LiteralOperatorId : Tag<NameSort::Literal> {
             TextOffset name_index { };           // Note: ideally should be literal operator suffix, as plain identifier.
+
+            bool operator==(const LiteralOperatorId&) const = default;
         };
 
         struct TemplateName : Tag<NameSort::Template> {
             TemplateName() : name{ } { }
             TemplateName(NameIndex x) : name{ x } { }
             NameIndex name;             // template name; can't be itself another TemplateName.
+
+            bool operator==(const TemplateName&) const = default;
         };
 
         struct TemplateId : Tag<NameSort::Specialization> {
@@ -749,6 +768,8 @@ namespace Module {
                 : primary_template{ primary_template }, arguments{ arguments } { }
             NameIndex primary_template;    // The primary template name.  Note: NameIndex is over-generic here.  E.g. it can't be a decltype, nor can it be another template-id.
             ExprIndex arguments;
+
+            bool operator==(const TemplateId&) const = default;
         };
 
         struct SourceFileName : Tag<NameSort::SourceFile> {
@@ -758,10 +779,14 @@ namespace Module {
                 : name{ name }, include_guard{ include_guard } { }
             TextOffset name;
             TextOffset include_guard;
+
+            bool operator==(const SourceFileName&) const = default;
         };
 
         struct GuideName : Tag<NameSort::Guide> {
             DeclIndex primary_template { };
+
+            bool operator==(const GuideName&) const = default;
         };
 
         // A referenced to a module.
@@ -897,6 +922,8 @@ namespace Module {
             TypeIndex source;                   // Parameter type sequence.
             NoexceptSpecification eh_spec;      // Noexcept specification.
             CallingConvention convention;       // Calling convention.
+
+            bool operator==(const TorType&) const = default;
         };
 
         struct SyntacticType : Tag<TypeSort::Syntactic> {
@@ -3088,14 +3115,19 @@ namespace Module {
         CodegenSwitchType,      // A mapping between a switch statement and its 'control' expression type.
         CodegenDoWhileStmt,     // Captures extra statements associated with a do-while statement condition.
         LexicalScopeIndex,      // A decl has an association with a specific local lexical scope index which can impact name mangling.
+        FileBoundary,           // A begin/end pair of line numbers indicating the first and last lines of the file.
+        HeaderUnitSourceFile,   // A temporary trait to express the mapping between the Header::src_path -> NameIndex representing the source file information.
+                                // FIXME: this goes away once bump the IFC version and have UnitIndex point to a source file instead of a TextOffset for header units.
         Count,
     };
 
     template <typename T>
     concept TraitIndexType = std::same_as<T, DeclIndex>
-                                || std::same_as<T, SyntaxIndex>
-                                || std::same_as<T, ExprIndex>
-                                || std::same_as<T, StmtIndex>;
+                                or std::same_as<T, SyntaxIndex>
+                                or std::same_as<T, ExprIndex>
+                                or std::same_as<T, StmtIndex>
+                                or std::same_as<T, NameIndex>
+                                or std::same_as<T, TextOffset>;
 
     template <typename T>
     concept AnyTraitSort = std::same_as<T, TraitSort> || std::same_as<T, MsvcTraitSort>;
@@ -3164,22 +3196,29 @@ namespace Module {
         template <typename I>
         using AttributeAssociation = AssociatedTrait<I, AttrIndex>;
 
-        struct MsvcUuid                   : AssociatedTrait<DeclIndex, StringIndex>,            TraitTag<MsvcTraitSort::Uuid> { };
-        struct MsvcSegment                : AssociatedTrait<DeclIndex, DeclIndex>,              TraitTag<MsvcTraitSort::Segment> { };
-        struct MsvcSpecializationEncoding : AssociatedTrait<DeclIndex, TextOffset>,             TraitTag<MsvcTraitSort::SpecializationEncoding> { };
-        struct MsvcSalAnnotation          : AssociatedTrait<DeclIndex, TextOffset>,             TraitTag<MsvcTraitSort::SalAnnotation> { };
-        struct MsvcFunctionParameters     : AssociatedTrait<DeclIndex, ChartIndex>,             TraitTag<MsvcTraitSort::FunctionParameters> { };
-        struct MsvcInitializerLocus       : AssociatedTrait<DeclIndex, SourceLocation>,         TraitTag<MsvcTraitSort::InitializerLocus> { };
-        struct MsvcCodegenExpression      : AssociatedTrait<ExprIndex, ExprIndex>,              TraitTag<MsvcTraitSort::CodegenExpression> { };
-        struct DeclAttributes             : AttributeAssociation<DeclIndex>,                    TraitTag<MsvcTraitSort::DeclAttributes> { };
-        struct StmtAttributes             : AttributeAssociation<StmtIndex>,                    TraitTag<MsvcTraitSort::StmtAttributes> { };
-        struct MsvcVendor                 : AssociatedTrait<DeclIndex, VendorTraits>,           TraitTag<MsvcTraitSort::Vendor> { };
-        struct MsvcCodegenMappingExpr     : AssociatedTrait<DeclIndex, MappingDefinition>,      TraitTag<MsvcTraitSort::CodegenMappingExpr> { };
-        struct MsvcDynamicInitVariable    : AssociatedTrait<DeclIndex, DeclIndex>,              TraitTag<MsvcTraitSort::DynamicInitVariable> { };
-        struct MsvcCodegenLabelProperties : AssociatedTrait<ExprIndex, MsvcLabelProperties>,    TraitTag<MsvcTraitSort::CodegenLabelProperties> { };
-        struct MsvcCodegenSwitchType      : AssociatedTrait<StmtIndex, TypeIndex>,              TraitTag<MsvcTraitSort::CodegenSwitchType> { };
-        struct MsvcCodegenDoWhileStmt     : AssociatedTrait<StmtIndex, StmtIndex>,              TraitTag<MsvcTraitSort::CodegenDoWhileStmt> { };
-        struct MsvcLexicalScopeIndices    : AssociatedTrait<DeclIndex, MsvcLexicalScopeIndex>,  TraitTag<MsvcTraitSort::LexicalScopeIndex> { };
+        struct MsvcFileBoundaryProperties {
+            LineNumber first;   // First line in the file (inclusive).
+            LineNumber last;    // The last line in the file (inclusive).
+        };
+
+        struct MsvcUuid                   : AssociatedTrait<DeclIndex, StringIndex>,                 TraitTag<MsvcTraitSort::Uuid> { };
+        struct MsvcSegment                : AssociatedTrait<DeclIndex, DeclIndex>,                   TraitTag<MsvcTraitSort::Segment> { };
+        struct MsvcSpecializationEncoding : AssociatedTrait<DeclIndex, TextOffset>,                  TraitTag<MsvcTraitSort::SpecializationEncoding> { };
+        struct MsvcSalAnnotation          : AssociatedTrait<DeclIndex, TextOffset>,                  TraitTag<MsvcTraitSort::SalAnnotation> { };
+        struct MsvcFunctionParameters     : AssociatedTrait<DeclIndex, ChartIndex>,                  TraitTag<MsvcTraitSort::FunctionParameters> { };
+        struct MsvcInitializerLocus       : AssociatedTrait<DeclIndex, SourceLocation>,              TraitTag<MsvcTraitSort::InitializerLocus> { };
+        struct MsvcCodegenExpression      : AssociatedTrait<ExprIndex, ExprIndex>,                   TraitTag<MsvcTraitSort::CodegenExpression> { };
+        struct DeclAttributes             : AttributeAssociation<DeclIndex>,                         TraitTag<MsvcTraitSort::DeclAttributes> { };
+        struct StmtAttributes             : AttributeAssociation<StmtIndex>,                         TraitTag<MsvcTraitSort::StmtAttributes> { };
+        struct MsvcVendor                 : AssociatedTrait<DeclIndex, VendorTraits>,                TraitTag<MsvcTraitSort::Vendor> { };
+        struct MsvcCodegenMappingExpr     : AssociatedTrait<DeclIndex, MappingDefinition>,           TraitTag<MsvcTraitSort::CodegenMappingExpr> { };
+        struct MsvcDynamicInitVariable    : AssociatedTrait<DeclIndex, DeclIndex>,                   TraitTag<MsvcTraitSort::DynamicInitVariable> { };
+        struct MsvcCodegenLabelProperties : AssociatedTrait<ExprIndex, MsvcLabelProperties>,         TraitTag<MsvcTraitSort::CodegenLabelProperties> { };
+        struct MsvcCodegenSwitchType      : AssociatedTrait<StmtIndex, TypeIndex>,                   TraitTag<MsvcTraitSort::CodegenSwitchType> { };
+        struct MsvcCodegenDoWhileStmt     : AssociatedTrait<StmtIndex, StmtIndex>,                   TraitTag<MsvcTraitSort::CodegenDoWhileStmt> { };
+        struct MsvcLexicalScopeIndices    : AssociatedTrait<DeclIndex, MsvcLexicalScopeIndex>,       TraitTag<MsvcTraitSort::LexicalScopeIndex> { };
+        struct MsvcFileBoundary           : AssociatedTrait<NameIndex, MsvcFileBoundaryProperties>,  TraitTag<MsvcTraitSort::FileBoundary> { };
+        struct MsvcHeaderUnitSourceFile   : AssociatedTrait<TextOffset, NameIndex>,                  TraitTag<MsvcTraitSort::HeaderUnitSourceFile> { };
     }
 
     // Partition summaries for the table of contents.

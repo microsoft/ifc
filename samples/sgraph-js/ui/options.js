@@ -9,7 +9,6 @@ class Options {
         this.transpose = false;
         this.deselected_opacity = 0.1;
         this.show_fps = false;
-        this.graph_animations = true;
     }
 
     color_for_index(index) {
@@ -282,11 +281,6 @@ function toggle_graph_fps(e, checkbox) {
     // No updated needed.  It is checked in the draw() function.
 }
 
-function toggle_disable_graph_animations(e, checkbox) {
-    // This is a 'is x disabled' so we propagate the inverse.
-    options.graph_animations = !checkbox.checked;
-}
-
 function init_options_dialog() {
     options = new Options();
     populate_decl_color_dropdown();
@@ -301,7 +295,6 @@ function init_options_dialog() {
     reset_class_colors_btn.addEventListener("click", e => reset_class_colors());
     filter_opacity_edit.addEventListener("keyup", event => filter_opacity_keyup(event, filter_opacity_edit));
     graph_fps_toggle.addEventListener("click", event => toggle_graph_fps(event, graph_fps_toggle));
-    graph_animations.addEventListener("click", event => toggle_disable_graph_animations(event, graph_animations));
 
     // Defaults
     // Populate the default color box.
