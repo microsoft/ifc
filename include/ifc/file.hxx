@@ -1,20 +1,23 @@
 //
-// Microsoft (R) C/C++ Optimizing Compiler Front-End
-// Copyright (C) Microsoft. All rights reserved.
+// Copyright Microsoft.
 //
 
 #ifndef IFC_FILE_INCLUDED
 #define IFC_FILE_INCLUDED
 
 #include <array>
+#include <string>
+#include <cstring>
 
-#include "runtime-assertions.hxx"
+#include <ifc/assertions.hxx>
 #include "ifc/index-utils.hxx"
 #include "ifc/version.hxx"
-#include "ifc/pathname.hxx"
 #include <gsl/span>
 
 namespace Module {
+    using ifc::implies;
+    using ifc::to_underlying;
+
     using index_like::Index;
 
     // Type for the size of a partition entry
@@ -31,16 +34,16 @@ namespace Module {
     //       than the collection of all declarations from a header file content.
     enum class ByteOffset : uint32_t { };
 
-    constexpr bool zero(ByteOffset x) { return bits::rep(x) == 0; }
+    constexpr bool zero(ByteOffset x) { return to_underlying(x) == 0; }
 
     template<typename S>
-    using if_byte_offset = std::enable_if_t<std::is_same<S, bits::raw<ByteOffset>>::value>;
+    using if_byte_offset = std::enable_if_t<std::is_same<S, std::underlying_type_t<ByteOffset>>::value>;
 
     template<typename T, typename = if_byte_offset<T>>
     constexpr ByteOffset operator+(ByteOffset x, T n)
     {
         // FIXME: Check overflow.
-        return ByteOffset(bits::rep(x) + n);
+        return ByteOffset(to_underlying(x) + n);
     }
 
     template<typename T, typename = if_byte_offset<T>>
@@ -50,20 +53,20 @@ namespace Module {
     }
 
     template<index_like::Unisorted T>
-    constexpr bits::raw<T> operator-(T x, T y)
+    constexpr std::underlying_type_t<T> operator-(T x, T y)
     {
-        DASSERT(x >= y);
-        return bits::rep(x) - bits::rep(y);
+        IFCASSERT(x >= y);
+        return to_underlying(x) - to_underlying(y);
     }
 
     // Data type for assessing the 'size' of a collection.
     enum class Cardinality : uint32_t { };
 
-    constexpr bool zero(Cardinality n) { return bits::rep(n) == 0; }
+    constexpr bool zero(Cardinality n) { return to_underlying(n) == 0; }
 
     inline Cardinality operator+(Cardinality x, Cardinality y)
     {
-        return Cardinality{ bits::rep(x) + bits::rep(y) };              // FIXME: Check for overflow.
+        return Cardinality{to_underlying(x) + to_underlying(y) };              // FIXME: Check for overflow.
     }
 
     inline Cardinality& operator+=(Cardinality& x, Cardinality y)
@@ -73,8 +76,8 @@ namespace Module {
 
     inline Cardinality& operator++(Cardinality& n)
     {
-        auto x = bits::rep(n);
-        DASSERT(x < index_like::wilderness<bits::raw<Cardinality>>);
+        auto x = to_underlying(n);
+        IFCASSERT(x < index_like::wilderness<std::underlying_type_t<Cardinality>>);
         return n = Cardinality(x + 1);
     }
 
@@ -82,7 +85,7 @@ namespace Module {
     constexpr EntitySize operator*(Cardinality n, EntitySize x)
     {
         // FIXME: Check for overflow.
-        return EntitySize{ bits::rep(n) * bits::rep(x) };
+        return EntitySize{to_underlying(n) * to_underlying(x) };
     }
 
     // Module Interface signature
@@ -132,17 +135,17 @@ namespace Module {
         // Non-module units do not have module names.
         constexpr UnitIndex() : Base{ UnitSort::Header, 0 } { }
 
-        constexpr UnitIndex(TextOffset text, UnitSort unit) : Base{ unit, bits::rep(text) } { }
+        constexpr UnitIndex(TextOffset text, UnitSort unit) : Base{ unit, to_underlying(text) } { }
 
         TextOffset module_name() const
         {
-            return TextOffset(bits::rep(index()));
+            return TextOffset(to_underlying(index()));
         }
 
         TextOffset header_name() const
         {
-            DASSERT(sort() == UnitSort::Header);
-            return TextOffset(bits::rep(index()));
+            IFCASSERT(sort() == UnitSort::Header);
+            return TextOffset(to_underlying(index()));
         }
     };
 
@@ -173,7 +176,7 @@ namespace Module {
         template<index_like::Unisorted T>
         ByteOffset tell(T x) const
         {
-            return offset + bits::rep(x) * bits::rep(entry_size);
+            return offset + to_underlying(x) * to_underlying(entry_size);
         }
 
         bool empty() const { return zero(cardinality); }
@@ -186,13 +189,13 @@ namespace Module {
 
     // Exception tag used to signal target architecture mismatch.
     struct IfcArchMismatch {
-        Pathname name;
-        Pathname path;
+        std::string name;
+        std::string path;
     };
 
     // Exception tag used to signal an read failure from an IFC file (either invalid or corrupted.)
     struct IfcReadFailure {
-        Pathname path;
+        std::string path;
     };
 
     // -- failed to match ifc integrity check
@@ -267,12 +270,12 @@ namespace Module {
         {
             if (index_like::null(offset))
                 return {};
-            return reinterpret_cast<const char*>(string_table()->data()) + bits::rep(offset);
+            return reinterpret_cast<const char*>(string_table()->data()) + to_underlying(offset);
         }
 
         bool position(ByteOffset offset)
         {
-            auto n = bits::rep(offset);
+            auto n = to_underlying(offset);
             if (n > span.size())
                 return false;
             cursor = span.begin() + n;
@@ -283,7 +286,7 @@ namespace Module {
 
         bool has_room_left_for(EntitySize amount) const
         {
-            return span.end() - bits::rep(amount) >= cursor;
+            return span.end() - to_underlying(amount) >= cursor;
         }
 
         template<typename T>
@@ -294,7 +297,7 @@ namespace Module {
                 return { };
             const std::byte* byte_ptr = &(*tell());
             auto ptr = reinterpret_cast<const T*>(byte_ptr);
-            cursor += bits::rep(sz);
+            cursor += to_underlying(sz);
             return ptr;
         }
 
@@ -306,8 +309,8 @@ namespace Module {
                 return { };
             const std::byte* byte_ptr = &(*tell());
             auto ptr = reinterpret_cast<const T*>(byte_ptr);
-            cursor += bits::rep(sz);
-            return { ptr, static_cast<typename Table<T>::size_type>(bits::rep(n)) };
+            cursor += to_underlying(sz);
+            return { ptr, static_cast<typename Table<T>::size_type>(to_underlying(n)) };
         }
 
         // View a partition without touching the cursor.
@@ -315,12 +318,12 @@ namespace Module {
         template <typename T>
         Table<T> view_partition(const PartitionSummaryData& summary) const
         {
-            const auto byte_offset = bits::rep(summary.offset);
-            DASSERT(byte_offset < span.size());
+            const auto byte_offset = to_underlying(summary.offset);
+            IFCASSERT(byte_offset < span.size());
 
             const auto byte_ptr = &span[byte_offset];
             const auto ptr = reinterpret_cast<const T*>(byte_ptr);
-            return { ptr, static_cast<typename Table<T>::size_type>(bits::rep(summary.cardinality)) };
+            return { ptr, static_cast<typename Table<T>::size_type>(to_underlying(summary.cardinality)) };
         }
 
         template<typename T>
@@ -388,7 +391,7 @@ namespace Module {
         }
 
         template <UnitSort Kind, typename T>
-        bool validate(const Pathname& path, Architecture arch, const T& ifc_designator, IfcOptions options)
+        bool validate(const std::string& path, Architecture arch, const T& ifc_designator, IfcOptions options)
         {
             if (!has_signature(*this, Module::InterfaceSignature))
                 return false;
@@ -427,8 +430,8 @@ namespace Module {
                 if (!position(header->string_table_bytes))
                     return { };
                 auto bytes = tell();
-                auto nbytes = bits::rep(header->string_table_size);
-                DASSERT(has_room_left_for(EntitySize{ nbytes }));
+                auto nbytes = to_underlying(header->string_table_size);
+                IFCASSERT(has_room_left_for(EntitySize{ nbytes }));
                 str_tab = { &bytes[0], static_cast<StringTable::size_type>(nbytes) };
             }
 
@@ -439,10 +442,10 @@ namespace Module {
                 if (!ifc_designator.empty()
                     && (header->unit.sort() == UnitSort::Primary || header->unit.sort() == UnitSort::ExportedTU))
                 {
-                    auto sz = bits::rep(header->unit.module_name());
-                    DASSERT(sz <= bits::rep(header->string_table_size));
-                    auto chars = reinterpret_cast<const char8_t*>(string_table()->data()) + sz;
-                    std::u8string_view ifc_name{ chars };
+                    auto sz = to_underlying(header->unit.module_name());
+                    IFCASSERT(sz <= to_underlying(header->string_table_size));
+                    auto chars = reinterpret_cast<const char*>(string_table()->data()) + sz;
+                    std::string_view ifc_name{ chars };
                     if (ifc_name != ifc_designator)
                         return false;
                 }
@@ -460,8 +463,8 @@ namespace Module {
                 if (!ifc_designator.partition.empty()
                     && (header->unit.sort() == UnitSort::Partition))
                 {
-                    auto sz = bits::rep(header->unit.module_name());
-                    DASSERT(sz <= bits::rep(header->string_table_size));
+                    auto sz = to_underlying(header->unit.module_name());
+                    IFCASSERT(sz <= to_underlying(header->string_table_size));
                     auto chars = reinterpret_cast<const char8_t*>(string_table()->data()) + sz;
                     std::u8string_view ifc_name{ chars };
                     try

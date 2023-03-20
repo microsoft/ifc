@@ -1,13 +1,12 @@
 //
-// Microsoft (R) C/C++ Optimizing Compiler Front-End
-// Copyright (C) Microsoft. All rights reserved.
+// Copyright Microsoft.
 //
 
 #ifndef IFC_SOURCE_WORD
 #define IFC_SOURCE_WORD
 
 #include <concepts>
-#include "enum-utils.hxx"
+#include <ifc/underlying.hxx>
 
 namespace Module {
 
@@ -396,16 +395,16 @@ namespace Module {
         enum class Index : uint16_t { };
         PPOperator() : tag{}, value{} {}
         template <PPOperatorCategory Category>
-        PPOperator(Category c) : tag(bits::rep(pp_operator_sort(c))), value(bits::rep(c)) {}
+        PPOperator(Category c) : tag(ifc::to_underlying(pp_operator_sort(c))), value(ifc::to_underlying(c)) {}
         WordSort sort() const { return WordSort(tag); }
         Index index() const { return Index(value); }
 
     private:
         uint16_t tag : 3;
         uint16_t value : 13; // MSVC starts at 0x1FFF, so all values prior fit into 13 bits.
-        static_assert(bits::length(bits::rep(WordSort::Count)) == 3);
-        static_assert(bits::length(bits::rep(Source::Operator::Msvc)) == 13);
-        static_assert(bits::length(bits::rep(Source::Punctuator::Msvc)) == 13);
+        static_assert(ifc::bit_length(ifc::to_underlying(WordSort::Count)) == 3);
+        static_assert(ifc::bit_length(ifc::to_underlying(Source::Operator::Msvc)) == 13);
+        static_assert(ifc::bit_length(ifc::to_underlying(Source::Punctuator::Msvc)) == 13);
     };
     static_assert(sizeof(PPOperator) == sizeof(uint16_t));
 }

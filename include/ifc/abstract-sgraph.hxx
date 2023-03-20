@@ -1,6 +1,5 @@
 //
-// Microsoft (R) C/C++ Optimizing Compiler Front-End
-// Copyright (C) Microsoft. All rights reserved.
+// Copyright Microsoft.
 //
 
 #ifndef IFC_ABSTRACT_SGRAPH
@@ -8,7 +7,9 @@
 
 #include <concepts>
 #include <string_view>
+#include <type_traits>
 
+#include <ifc/underlying.hxx>
 #include "ifc/index-utils.hxx"
 #include "ifc/file.hxx"
 #include "ifc/source-word.hxx"
@@ -25,14 +26,19 @@
 
 namespace Module {
     using index_like::Index;
-    using ColumnNumber = msvc::ColumnNumber;
-    using LineNumber = msvc::LineNumber;
+
+    enum class ColumnNumber : int32_t {
+        Invalid = -1
+    };
+    enum LineNumber : int32_t {
+        Max = 0x00ffffff,
+    };
 
     // For every sort-like enumeration, return the maximum value
     // as indicated by its Count enumerator.  This short-hand provides
     // a simpler notation, especially when the enumeration is scoped.
     template<typename S>
-    constexpr auto count = bits::rep(S::Count);
+    constexpr auto count = std::underlying_type_t<S>(S::Count);
 
     // Source line info index into the global line table.
     enum class LineIndex : uint32_t { };
@@ -2045,7 +2051,7 @@ namespace Module {
 
         // A strongly-typed abstraction of ExprIndex which always points to ExprSort::NamedDecl.
         enum class DefaultIndex : uint32_t {
-            UnderlyingSort = bits::rep(ExprSort::NamedDecl)
+            UnderlyingSort = ifc::to_underlying(ExprSort::NamedDecl)
         };
 
         inline ExprIndex as_expr_index(DefaultIndex index)
@@ -2055,7 +2061,7 @@ namespace Module {
             // DefaultIndex == 1 starts us at offset 0, so we retract the index to get the offset.
             const auto n = index_like::pointed<DefaultIndex>::retract(index);
             using SortType = ExprIndex::SortType;
-            constexpr auto sort = SortType{bits::rep(DefaultIndex::UnderlyingSort)};
+            constexpr auto sort = SortType{ifc::to_underlying(DefaultIndex::UnderlyingSort)};
             return index_like::make<ExprIndex>(sort, n);
         }
 
@@ -2064,7 +2070,7 @@ namespace Module {
             if (null(index))
                 return { };
             // Since this is an offset into a known partition, we only need its value.
-            return index_like::pointed<DefaultIndex>::inject(bits::rep(index.index()));
+            return index_like::pointed<DefaultIndex>::inject(ifc::to_underlying(index.index()));
         }
 
         struct ParameterDecl : Tag<DeclSort::Parameter> {
@@ -3142,7 +3148,10 @@ namespace Module {
     // Msvc specific traits. Should they be in their own namespace, like Symbolic::MsvcTrait?
     namespace Symbolic::Trait
     {
-        using LocusSpan = msvc::pair<SourceLocation, SourceLocation>;
+        struct LocusSpan {
+            SourceLocation begin;
+            SourceLocation end;
+        };
 
         enum class MsvcLabelKey : std::uint32_t { };
         enum class MsvcLabelType : std::uint32_t { };
@@ -3220,28 +3229,26 @@ namespace Module {
         auto begin() const { return reinterpret_cast<const PartitionSummaryData*>(this); }
         auto end() const { return begin() + sizeof(*this) / sizeof(PartitionSummaryData); }
 
-        PartitionSummaryData& operator[](StringSort s)
+        PartitionSummaryData& operator[](StringSort)
         {
-            RASSERT(s >= StringSort::Ordinary && s < StringSort::Count);
             return string_literals;
         }
 
-        const PartitionSummaryData& operator[](StringSort s) const
+        const PartitionSummaryData& operator[](StringSort) const
         {
-            RASSERT(s >= StringSort::Ordinary && s < StringSort::Count);
             return string_literals;
         }
 
         PartitionSummaryData& operator[](NameSort s)
         {
-            DASSERT(s > NameSort::Identifier && s < NameSort::Count);
-            return names[bits::rep(s) - 1];
+            IFCASSERT(s > NameSort::Identifier && s < NameSort::Count);
+            return names[ifc::to_underlying(s) - 1];
         }
 
         const PartitionSummaryData& operator[](NameSort s) const
         {
-            DASSERT(s > NameSort::Identifier && s < NameSort::Count);
-            return names[bits::rep(s) - 1];
+            IFCASSERT(s > NameSort::Identifier && s < NameSort::Count);
+            return names[ifc::to_underlying(s) - 1];
         }
 
         PartitionSummaryData& operator[](ChartSort s)
@@ -3252,7 +3259,7 @@ namespace Module {
             }
             else
             {
-                DASSERT(s == ChartSort::Multilevel);
+                IFCASSERT(s == ChartSort::Multilevel);
                 return multi_charts;
             }
         }
@@ -3265,7 +3272,7 @@ namespace Module {
             }
             else
             {
-                DASSERT(s == ChartSort::Multilevel);
+                IFCASSERT(s == ChartSort::Multilevel);
                 return multi_charts;
             }
         }
@@ -3273,8 +3280,8 @@ namespace Module {
         template<typename S, typename T>
         static auto& partition(T& table, S s)
         {
-            DASSERT(s < S::Count);
-            return table[bits::rep(s)];
+            IFCASSERT(s < S::Count);
+            return table[ifc::to_underlying(s)];
         }
 
         PartitionSummaryData& operator[](DeclSort s) { return partition(decls, s); }

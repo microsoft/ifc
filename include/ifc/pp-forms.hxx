@@ -1,6 +1,5 @@
 //
-// Microsoft (R) C/C++ Optimizing Compiler Front-End
-// Copyright (C) Microsoft. All rights reserved.
+// Copyright Microsoft.
 //
 
 #ifndef IFC_PP_FORMS_INCLUDED

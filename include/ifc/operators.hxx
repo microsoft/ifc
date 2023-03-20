@@ -1,13 +1,12 @@
 //
-// Microsoft (R) C/C++ Optimizing Compiler Front-End
-// Copyright (C) Microsoft. All rights reserved.
+// Copyright Microsoft.
 //
 
 #ifndef IFC_OPERATORS
 #define IFC_OPERATORS
 
 #include <concepts>
-#include "enum-utils.hxx"
+#include "ifc/underlying.hxx"
 
 // -- This header file defines symbolic notation for operations needed
 // -- in the elaboration (semantics) of C++ program fragments.  These operations
@@ -284,13 +283,13 @@ namespace Module {
     };
 
     // length of OperatorSort::Variadic, which must be last
-    inline constexpr auto sort_precision = bits::length(bits::rep(OperatorSort::Variadic));
+    inline constexpr auto sort_precision = ifc::bit_length(ifc::to_underlying(OperatorSort::Variadic));
     static_assert(sort_precision == 4);
 
     inline constexpr auto index_precision = 16 - sort_precision;
 
     template <typename T>
-    concept CategoryPrecisionRequirement = (bits::length(bits::rep(T::Last) - 1u) <= index_precision);
+    concept CategoryPrecisionRequirement = (ifc::bit_length(ifc::to_underlying(T::Last) - 1u) <= index_precision);
 
     template <typename T>
     concept CategoryTypeRequirement = std::same_as<T, NiladicOperator>
@@ -317,7 +316,7 @@ namespace Module {
         enum class Index : uint16_t { };
         constexpr Operator() : tag{ }, value{ } { }
         template<OperatorCategory Category>
-        constexpr Operator(Category c) : tag(bits::rep(operator_sort(c))), value(bits::rep(c)) { }
+        constexpr Operator(Category c) : tag(ifc::to_underlying(operator_sort(c))), value(ifc::to_underlying(c)) { }
         constexpr OperatorSort sort() const { return OperatorSort(tag); }
         constexpr Index index() const { return Index(value); }
     private:

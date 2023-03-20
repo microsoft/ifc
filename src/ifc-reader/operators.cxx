@@ -252,12 +252,12 @@ namespace Module::util
     {
         switch (op.sort())
         {
-        case OperatorSort::Niladic: return to_string(NiladicOperator{bits::rep(op.index())});
-        case OperatorSort::Monadic: return to_string(MonadicOperator{bits::rep(op.index())});
-        case OperatorSort::Dyadic: return to_string(DyadicOperator{bits::rep(op.index())});
-        case OperatorSort::Triadic: return to_string(TriadicOperator{bits::rep(op.index())});
-        case OperatorSort::Storage: return to_string(StorageOperator{bits::rep(op.index())});
-        case OperatorSort::Variadic: return to_string(VariadicOperator{bits::rep(op.index())});
+        case OperatorSort::Niladic: return to_string(NiladicOperator{ifc::to_underlying(op.index())});
+        case OperatorSort::Monadic: return to_string(MonadicOperator{ifc::to_underlying(op.index())});
+        case OperatorSort::Dyadic: return to_string(DyadicOperator{ifc::to_underlying(op.index())});
+        case OperatorSort::Triadic: return to_string(TriadicOperator{ifc::to_underlying(op.index())});
+        case OperatorSort::Storage: return to_string(StorageOperator{ifc::to_underlying(op.index())});
+        case OperatorSort::Variadic: return to_string(VariadicOperator{ifc::to_underlying(op.index())});
         default: return "unknown-operator-sort-" + std::to_string((int)op.sort());
         }
     }

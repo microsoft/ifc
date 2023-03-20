@@ -1,3 +1,5 @@
+// Copyright Microsoft.
+
 #ifndef IFC_READER_LIB_H
 #define IFC_READER_LIB_H
 
@@ -37,9 +39,9 @@ namespace Module
         template <typename T>
         const T& view_entry_at(ByteOffset offset) const
         {
-            const auto byte_offset = bits::rep(offset);
+            const auto byte_offset = ifc::to_underlying(offset);
             const auto& contents = ifc.contents();
-            DASSERT(byte_offset < contents.size());
+            IFCASSERT(byte_offset < contents.size());
 
             const auto byte_ptr = &contents[byte_offset];
             const auto ptr = reinterpret_cast<const T*>(byte_ptr);
@@ -73,7 +75,7 @@ namespace Module
         template <typename T, typename Index>
         const T& get(Index index) const
         {
-            DASSERT(T::algebra_sort == index.sort());
+            IFCASSERT(T::algebra_sort == index.sort());
             return view_entry_at<T>(toc.offset(index));
         }
 
@@ -126,11 +128,11 @@ namespace Module
         gsl::span<const T> sequence(Sequence<T> seq)
         {
             const auto partition = this->partition<T>();
-            // We prefer our DASSERT to subspan terminating on out of bounds.
-            const auto start = bits::rep(seq.start);
-            const auto cardinality = bits::rep(seq.cardinality);
+            // We prefer our IFCASSERT to subspan terminating on out of bounds.
+            const auto start = ifc::to_underlying(seq.start);
+            const auto cardinality = ifc::to_underlying(seq.cardinality);
             const auto top = start + cardinality;
-            DASSERT(start <= top && top <= partition.size());
+            IFCASSERT(start <= top && top <= partition.size());
             return partition.subspan(start, cardinality);
         }
 
@@ -139,11 +141,11 @@ namespace Module
         {
             const auto& summary = toc[Tag];
             const auto partition = ifc.view_partition<E>(summary);
-            // We prefer our DASSERT to subspan terminating on out of bounds.
-            const auto start = bits::rep(seq.start);
-            const auto cardinality = bits::rep(seq.cardinality);
+            // We prefer our IFCASSERT to subspan terminating on out of bounds.
+            const auto start = ifc::to_underlying(seq.start);
+            const auto cardinality = ifc::to_underlying(seq.cardinality);
             const auto top = start + cardinality;
-            DASSERT(start <= top && top <= partition.size());
+            IFCASSERT(start <= top && top <= partition.size());
             return partition.subspan(start, cardinality);
         }
 
@@ -164,7 +166,7 @@ namespace Module
         requires index_like::FiberEmbedding<E, Index> Index index_of(const E& item)
         {
             const auto span = partition<E>();
-            DASSERT(!span.empty() && &item >= &span.front() && &item <= &span.back());
+            IFCASSERT(!span.empty() && &item >= &span.front() && &item <= &span.back());
 
             auto offset = &item - &span.front();
             return {E::algebra_sort, static_cast<uint32_t>(offset)};
@@ -377,14 +379,14 @@ namespace Module
     template <>
     inline const int64_t& Reader::get<int64_t, LitIndex>(LitIndex index) const
     {
-        DASSERT(LiteralSort::Integer == index.sort());
+        IFCASSERT(LiteralSort::Integer == index.sort());
         return view_entry_at<int64_t>(toc.u64s.tell(index.index()));
     }
 
     template <>
     inline const double& Reader::get<double, LitIndex>(LitIndex index) const
     {
-        DASSERT(LiteralSort::FloatingPoint == index.sort());
+        IFCASSERT(LiteralSort::FloatingPoint == index.sort());
         return view_entry_at<double>(toc.fps.tell(index.index()));
     }
 
@@ -414,7 +416,7 @@ namespace Module
         if (index_like::null(index))
             return nullptr;
 
-        return &partition<Symbolic::Scope>()[bits::rep(index) - 1];
+        return &partition<Symbolic::Scope>()[ifc::to_underlying(index) - 1];
     }
 }  // namespace Module
 

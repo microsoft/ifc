@@ -1,3 +1,5 @@
+// Copyright Microsoft.
+
 #ifndef IFC_UTILS_H
 #define IFC_UTILS_H
 
