@@ -105,7 +105,8 @@ void process_ifc(const std::string& name, Print_options options)
     auto contents = load_file(name);
 
     Module::InputIfc file{ gsl::span(contents) };
-    file.validate<Module::UnitSort::Primary>(name, Module::Architecture::Unknown, std::string{}, Module::IfcOptions::IntegrityCheck);
+    Module::Pathname path{name.c_str()};
+    file.validate<Module::UnitSort::Primary>(path, Module::Architecture::Unknown, Module::Pathname{}, Module::IfcOptions::IntegrityCheck);
 
     Module::Reader reader(file);
     Module::util::Loader loader(reader);

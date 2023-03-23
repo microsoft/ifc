@@ -11,8 +11,6 @@
 #include <limits>
 #include <ifc/assertions.hxx>
 #include <ifc/underlying.hxx>
-//#include "basic-types.hxx"
-//#include "enum-utils.hxx"
 
 // Provide support infrastructure for common operations for index-like types.
 // These are types that have the same representational characteristics as

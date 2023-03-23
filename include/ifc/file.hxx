@@ -11,6 +11,7 @@
 
 #include <ifc/assertions.hxx>
 #include "ifc/index-utils.hxx"
+#include <ifc/pathname.hxx>
 #include "ifc/version.hxx"
 #include <gsl/span>
 
@@ -189,13 +190,13 @@ namespace Module {
 
     // Exception tag used to signal target architecture mismatch.
     struct IfcArchMismatch {
-        std::string name;
-        std::string path;
+        Pathname name;
+        Pathname path;
     };
 
     // Exception tag used to signal an read failure from an IFC file (either invalid or corrupted.)
     struct IfcReadFailure {
-        std::string path;
+        Pathname path;
     };
 
     // -- failed to match ifc integrity check
@@ -391,7 +392,7 @@ namespace Module {
         }
 
         template <UnitSort Kind, typename T>
-        bool validate(const std::string& path, Architecture arch, const T& ifc_designator, IfcOptions options)
+        bool validate(const Module::Pathname& path, Architecture arch, const T& ifc_designator, IfcOptions options)
         {
             if (!has_signature(*this, Module::InterfaceSignature))
                 return false;
@@ -428,7 +429,7 @@ namespace Module {
             if (!zero(header->string_table_bytes))
             {
                 if (!position(header->string_table_bytes))
-                    return { };
+                    return false;
                 auto bytes = tell();
                 auto nbytes = to_underlying(header->string_table_size);
                 IFCASSERT(has_room_left_for(EntitySize{ nbytes }));
@@ -444,8 +445,8 @@ namespace Module {
                 {
                     auto sz = to_underlying(header->unit.module_name());
                     IFCASSERT(sz <= to_underlying(header->string_table_size));
-                    auto chars = reinterpret_cast<const char*>(string_table()->data()) + sz;
-                    std::string_view ifc_name{ chars };
+                    auto chars = reinterpret_cast<const char8_t*>(string_table()->data()) + sz;
+                    std::u8string_view ifc_name{ chars };
                     if (ifc_name != ifc_designator)
                         return false;
                 }

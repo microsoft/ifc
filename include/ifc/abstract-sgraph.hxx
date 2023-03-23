@@ -10,6 +10,7 @@
 #include <type_traits>
 
 #include <ifc/underlying.hxx>
+#include <ifc/basic-types.hxx>
 #include "ifc/index-utils.hxx"
 #include "ifc/file.hxx"
 #include "ifc/source-word.hxx"
@@ -26,13 +27,6 @@
 
 namespace Module {
     using index_like::Index;
-
-    enum class ColumnNumber : int32_t {
-        Invalid = -1
-    };
-    enum LineNumber : int32_t {
-        Max = 0x00ffffff,
-    };
 
     // For every sort-like enumeration, return the maximum value
     // as indicated by its Count enumerator.  This short-hand provides
@@ -3268,8 +3262,9 @@ namespace Module {
         auto begin() const { return reinterpret_cast<const PartitionSummaryData*>(this); }
         auto end() const { return begin() + sizeof(*this) / sizeof(PartitionSummaryData); }
 
-        PartitionSummaryData& operator[](StringSort)
+        PartitionSummaryData& operator[](StringSort s)
         {
+            IFCVERIFY(s >= StringSort::Ordinary && s < StringSort::Count);
             return string_literals;
         }
 
@@ -3280,13 +3275,13 @@ namespace Module {
 
         PartitionSummaryData& operator[](NameSort s)
         {
-            IFCASSERT(s > NameSort::Identifier && s < NameSort::Count);
+            IFCVERIFY(s > NameSort::Identifier && s < NameSort::Count);
             return names[ifc::to_underlying(s) - 1];
         }
 
         const PartitionSummaryData& operator[](NameSort s) const
         {
-            IFCASSERT(s > NameSort::Identifier && s < NameSort::Count);
+            IFCVERIFY(s > NameSort::Identifier && s < NameSort::Count);
             return names[ifc::to_underlying(s) - 1];
         }
 

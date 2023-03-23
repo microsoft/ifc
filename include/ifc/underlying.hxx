@@ -8,20 +8,12 @@
 
 namespace ifc
 {
-    // std::to_underlying only available in C++23
-#if __cpp_lib_to_underlying
-    template< class Enum >
-    constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept
-    {
-        return std::to_underlying<Enum>(e);
-    }
-#else
+    // Consider moving to std::to_underlying (C++23) at some point.
     template< class Enum >
     constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept
     {
         return static_cast<std::underlying_type_t<Enum>>(e);
     }
-#endif
 
     // The minimum number of bits necessary to represent a whole number, where zero takes 1 bit.
     template<std::unsigned_integral T>

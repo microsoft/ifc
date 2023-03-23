@@ -7,24 +7,7 @@
 #include <string_view>
 #include <algorithm>
 
-// Don't build module right now.
-#if MODULE_ENABLED
-#undef MODULE_ENABLED
-#endif
-
-#if MODULE_ENABLED
-#pragma warning(push)
-// Disable macro redefinition for now.  This fires because of conflicting macro definitions
-// between the windows header inclusion order and the detection of existing macros.
-#pragma warning(disable: 4005)
-// This is a preprocessor bug interaction with header units where the preprocessor thinks a
-// redefinition is not well-formed.  See ADO1218747.
-#pragma warning(disable: 5106)
-import <ifc/abstract-sgraph.hxx>;
-#pragma warning(pop)
-#else
 #include <ifc/abstract-sgraph.hxx>
-#endif
 
 namespace Module {
     namespace {

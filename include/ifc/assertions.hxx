@@ -2,18 +2,35 @@
 // Copyright Microsoft.
 //
 
-#ifndef ASSERTIONS_HXX_INCLUDED
-#define ASSERTIONS_HXX_INCLUDED
+#ifndef IFC_ASSERTIONS_HXX_INCLUDED
+#define IFC_ASSERTIONS_HXX_INCLUDED
 
-#include <cassert>
+void ifc_assert(
+    char const* message,
+    char const* file,
+    int         line
+);
 
-// Consider getting rid of IFCASSERT and just use "assert" directly.
+// IFCVERIFY is always on.
+#define IFCVERIFY(expression) (void)(                                                       \
+            (!!(expression)) ||                                                              \
+            (ifc_assert(#expression, __FILE__, __LINE__), 0) \
+        )
 
-#ifndef IFCASSERT
-#define IFCASSERT(ex) assert(ex)
-#endif // IFCASSERT
+#ifdef NDEBUG
+
+#define IFCASSERT(expression) ((void)0)
+
+#else
+
+#define IFCASSERT(expression) (void)(                                                       \
+            (!!(expression)) ||                                                              \
+            (ifc_assert(#expression, __FILE__, __LINE__), 0) \
+        )
+
+#endif // NDEBUG
 
 /* Note that a consumer of this library that wants to "handle" assertions in a
-   different way should override _wassert (on Windows) or __assert on Linux/Mac. */
+   different way should override ifc_assert. */
 
-#endif // ASSERTIONS_HXX_INCLUDED
+#endif // IFC_ASSERTIONS_HXX_INCLUDED
