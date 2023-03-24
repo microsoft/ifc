@@ -1,6 +1,5 @@
 //
-// Microsoft (R) C/C++ Optimizing Compiler Front-End
-// Copyright (C) Microsoft. All rights reserved.
+// Copyright Microsoft.
 //
 
 #include <iterator>
@@ -8,24 +7,7 @@
 #include <string_view>
 #include <algorithm>
 
-// Don't build module right now.
-#if MODULE_ENABLED
-#undef MODULE_ENABLED
-#endif
-
-#if MODULE_ENABLED
-#pragma warning(push)
-// Disable macro redefinition for now.  This fires because of conflicting macro definitions
-// between the windows header inclusion order and the detection of existing macros.
-#pragma warning(disable: 4005)
-// This is a preprocessor bug interaction with header units where the preprocessor thinks a
-// redefinition is not well-formed.  See ADO1218747.
-#pragma warning(disable: 5106)
-import <ifc/abstract-sgraph.hxx>;
-#pragma warning(pop)
-#else
 #include <ifc/abstract-sgraph.hxx>
-#endif
 
 namespace Module {
     namespace {
@@ -47,8 +29,8 @@ namespace Module {
         {
             if constexpr (N != count<T>)
                 return false;
-            for (bits::raw<T> i = 0; i < count<T>; ++i) {
-                if (i != bits::rep(table[i].sort))
+            for (std::underlying_type_t<T> i = 0; i < count<T>; ++i) {
+                if (i != ifc::to_underlying(table[i].sort))
                     return false;
             }
             return true;
@@ -446,8 +428,8 @@ namespace Module {
             //{ &TableOfContents::stmts, "stmt."  },
             //{ &TableOfContents::exprs, "expr."  },
             //{ &TableOfContents::elements, "syntax."  },
-            { &TableOfContents::charts, chartsort_table[bits::rep(ChartSort::Unilevel)].name },
-            { &TableOfContents::multi_charts, chartsort_table[bits::rep(ChartSort::Multilevel)].name },
+            { &TableOfContents::charts, chartsort_table[ifc::to_underlying(ChartSort::Unilevel)].name },
+            { &TableOfContents::multi_charts, chartsort_table[ifc::to_underlying(ChartSort::Multilevel)].name },
             // { &TableOfContents::heaps, "heap." },
             //{ &TableOfContents::requires_traits, "trait.requires" },
             //{ &TableOfContents::deprecated_traits, "trait.deprecated" },
@@ -612,15 +594,15 @@ namespace Module {
         PartitionSummaryData& entry_by_name(TableOfContents& toc, std::string_view name)
         {
             static constinit auto field_map = order_by_name(table);
-            return (toc.*partitions)[bits::rep(offset(field_map, name))];
+            return (toc.*partitions)[ifc::to_underlying(offset(field_map, name))];
         }
 
         PartitionSummaryData& name_summary_by_partition_name(TableOfContents& toc, std::string_view name)
         {
             static constinit auto field_map = order_by_name(namesort_table);
             auto sort = offset(field_map, name);
-            DASSERT(sort != NameSort::Identifier);          // No name.identifier partition is ever emitted.
-            return toc.names[bits::rep(sort) - 1];          // Off by 1, to reflect TableOfContents::names
+            IFCASSERT(sort != NameSort::Identifier);          // No name.identifier partition is ever emitted.
+            return toc.names[ifc::to_underlying(sort) - 1];          // Off by 1, to reflect TableOfContents::names
         }
 
         bool has_prefix(std::string_view lhs, const char* rhs)
@@ -673,8 +655,8 @@ namespace Module {
         template<auto& table, typename T>
         auto retrieve_name(T s)
         {
-            DASSERT(bits::rep(s) < std::size(table));
-            return table[bits::rep(s)].name;
+            IFCASSERT(ifc::to_underlying(s) < std::size(table));
+            return table[ifc::to_underlying(s)].name;
         }
     }
 

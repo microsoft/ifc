@@ -1,3 +1,5 @@
+// Copyright Microsoft.
+
 #ifndef IFC_VERSION_INCLUDED
 #define IFC_VERSION_INCLUDED
 

@@ -25,6 +25,7 @@
 #include <utility>
 #include <variant>
 #include <stdexcept>
+#include <vector>
 
 namespace Module::util
 {
@@ -78,13 +79,13 @@ namespace Module::util
     {
         // implicit construction intentional
         template <index_like::MultiSorted T>
-        NodeKey(T value) : index_kind(sort_kind(value)), index_sort(bits::rep(value.sort())), index_value(bits::rep(value.index()))
+        NodeKey(T value) : index_kind(sort_kind(value)), index_sort(ifc::to_underlying(value.sort())), index_value(ifc::to_underlying(value.index()))
         {
         }
 
         // implicit construction intentional
         template <index_like::Unisorted T>
-        NodeKey(T value) : index_kind(sort_kind(value)), index_sort(), index_value(bits::rep(value))
+        NodeKey(T value) : index_kind(sort_kind(value)), index_sort(), index_value(ifc::to_underlying(value))
         {
         }
 

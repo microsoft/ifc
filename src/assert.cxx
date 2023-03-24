@@ -1,14 +1,20 @@
 //
-// Microsoft (R) C/C++ Optimizing Compiler Front-End
-// Copyright (C) Microsoft. All rights reserved.
+// Copyright (C) Microsoft.
 //
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "runtime-assertions.hxx"
+#include "ifc/assertions.hxx"
 
-// Lightweight standalone version of C1xx's assertfe
-void assertfe(const char* text, const char* file, msvc::LineNumber line)
+// Lightweight standalone version of ifc_assert. Consumers can replace this.
+void ifc_assert(const char* text, const char* file, int line)
 {
-    fprintf(stderr, "assertion failure: ``%s'' in file ``%s'' at line %d\n", text, file, bits::rep(line));
+    fprintf(stderr, "assertion failure: ``%s'' in file ``%s'' at line %d\n", text, file, line);
+    exit(-1);
+}
+
+void ifc_verify(const char* text, const char* file, int line)
+{
+    fprintf(stderr, "verify failure: ``%s'' in file ``%s'' at line %d\n", text, file, line);
+    exit(-1);
 }

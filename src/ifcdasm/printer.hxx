@@ -12,15 +12,6 @@ namespace Module::util
         Use_color       = 1 << 0,
         Top_level_index = 1 << 1,
     };
-    [[nodiscard]] constexpr Print_options operator|(Print_options e1, Print_options e2) noexcept
-    {
-        return static_cast<Print_options>(ifc::to_underlying(e1) | ifc::to_underlying(e2));
-    }
-    constexpr Print_options& operator|=(Print_options& e1, Print_options e2) noexcept
-    {
-        return e1 = e1 | e2;
-    }
-
     void print(const Node& gs, std::ostream& os, Print_options options = Print_options::None);
 }
 

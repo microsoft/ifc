@@ -11,7 +11,6 @@ endif()
 
 
 add_library(ifc-reader STATIC 
-	../assert.cxx
 	../file.cxx
 	operators.cxx
 	reader.cxx

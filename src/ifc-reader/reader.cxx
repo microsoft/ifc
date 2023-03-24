@@ -34,8 +34,8 @@ namespace Module
     {
         for (auto& summary : ifc.partition_table())
         {
-            DASSERT(!index_like::null(summary.name));
-            DASSERT(!summary.empty());
+            IFCASSERT(!index_like::null(summary.name));
+            IFCASSERT(!summary.empty());
             std::string_view name = get(summary.name);
             // Partitions created by the analysis plugins are not members of the usual table of
             // contents structure.

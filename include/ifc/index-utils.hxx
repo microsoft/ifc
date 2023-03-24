@@ -1,6 +1,5 @@
 //
-// Microsoft (R) C/C++ Optimizing Compiler Front-End
-// Copyright (C) Microsoft. All rights reserved.
+// Copyright Microsoft.
 //
 
 #ifndef IFC_INDEX_UTILS_INCLUDED
@@ -10,9 +9,8 @@
 
 #include <type_traits>
 #include <limits>
-#include "runtime-assertions.hxx"
-#include "basic-types.hxx"
-#include "enum-utils.hxx"
+#include <ifc/assertions.hxx>
+#include <ifc/underlying.hxx>
 
 // Provide support infrastructure for common operations for index-like types.
 // These are types that have the same representational characteristics as
@@ -38,7 +36,7 @@ namespace index_like {
     template<Uint32 T>
     constexpr Index operator+(Index x, T n)
     {
-        return Index{ bits::rep(x) + n };
+        return Index{ifc::to_underlying(x) + n };
     }
 
     // -- An index-like type is either a unisorted algebra, typically implemented as
@@ -47,7 +45,7 @@ namespace index_like {
 
     // This predicate holds for well-behaved enums that are index-like types.
     template<typename T>
-    concept Unisorted = std::is_enum_v<T> and std::same_as<bits::raw<T>, bits::raw<Index>>;
+    concept Unisorted = std::is_enum_v<T> and std::same_as<std::underlying_type_t<T>, std::underlying_type_t<Index>>;
 
     // This predicate holds for any multi-sorted abstract reference type.
     template<typename T>
@@ -145,7 +143,7 @@ namespace index_like {
         }
     }
 
-    // For an index-like type over a sort S, this constant holds the number of bits
+    // For an index-like type over a sort S, this constant holds the number of bitsf
     // necessary to represent the tags from S.
     // Note: There is no satisfactory concept expression of 'sort' at this point.
     //       Just defining that concept as a check for 'Count' enumerator is not
@@ -153,7 +151,7 @@ namespace index_like {
     //       inappropriately elevate an implementation detail/trick to specification.
     // Note: suffices to substract 1 from 'Count' since it is 1 greater than the actual largest value.
     template<typename S>
-    constexpr auto tag_precision = bits::rep(S::Count) == 0 ? 0u : bits::length(bits::rep(S::Count) - 1u);
+    constexpr auto tag_precision = ifc::to_underlying(S::Count) == 0 ? 0u : ifc::bit_length(ifc::to_underlying(S::Count) - 1u);
 
     // For an index-like type T over a sort S, return the number of bits
     // available for representation of indicies over T.
@@ -168,7 +166,7 @@ namespace index_like {
     struct Over {
         using SortType = S;
         constexpr Over() : tag(), value() { }
-        constexpr Over(S s, uint32_t v) : tag(bits::rep(s)), value(v) { }
+        constexpr Over(S s, uint32_t v) : tag(ifc::to_underlying(s)), value(v) { }
 
         constexpr S sort() const
         {
@@ -181,15 +179,15 @@ namespace index_like {
         }
 
     private:
-        bits::raw<Index> tag : tag_precision<S>;
-        bits::raw<Index> value : index_precision<S>;
+        std::underlying_type_t<Index> tag : tag_precision<S>;
+        std::underlying_type_t<Index> value : index_precision<S>;
     };
 
     template<MultiSorted T, Uint32 V>
     constexpr T make(typename T::SortType s, V v)
     {
         using S = typename T::SortType;
-        DASSERT(bits::length(v) <= index_precision<S>);
+        IFCASSERT(ifc::bit_length(v) <= index_precision<S>);
         return { s, v };
     }
 
@@ -206,14 +204,14 @@ namespace index_like {
         template<Uint32 S>
         static T inject(S s)
         {
-            DASSERT(s < std::numeric_limits<S>::max());
+            IFCASSERT(s < std::numeric_limits<S>::max());
             return T(s + 1);
         }
 
         static auto retract(T t)
         {
-            DASSERT(t > T{});
-            auto n = bits::rep(t);
+            IFCASSERT(t > T{});
+            auto n = ifc::to_underlying(t);
             return --n;
         }
 

@@ -295,7 +295,7 @@ namespace Module::util
 
     void load(Loader& ctx, Node& node, TypeIndex index)
     {
-        DASSERT(!null(index));
+        IFCASSERT(!null(index));
         node.id = sort_name(index.sort());
         ctx.reader.visit(index, Type_loader{ctx, node});
     }

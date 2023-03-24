@@ -13,19 +13,24 @@
 #include <string_view>
 #include <vector>
 
-#include "basic-types.hxx"
-
 namespace Module {
 
+    // Evaluate to true if the type parameter is a character type.
+    template<typename T>
+    concept CharType = std::is_same_v<T, char> ||
+        std::is_same_v<T, unsigned char> ||
+        std::is_same_v<T, signed char> ||
+        std::is_same_v<T, char8_t>;
+
     // Return the number of characters in a C-style NUL-terminated byte string.
-    template<msvc::CharType T>
+    template<CharType T>
     inline std::size_t ntbs_length(const T* s)
     {
         using S = const char*;
         return std::strlen(S(s));
     }
 
-    // Data structure for manipulating path names.  The existing VC code base happily mixes
+    // Data structure for manipulating path names.  Existing code happily mixes
     // C-style 'const char*' and 'const unsigned char*' at various places for path names.
     // So this type can be 'std::string' without merry type punning all over the place.
     // It can't be current filesystem path either.  It is somewhere a minimal cross.
@@ -49,14 +54,14 @@ namespace Module {
             Base::push_back({});
         }
 
-        template<msvc::CharType T>
+        template<CharType T>
         Pathname(const T* s, std::size_t len) : Base{ reinterpret_cast<const value_type*>(s),
                                                       reinterpret_cast<const value_type*>(s) + len }
         {
             Base::push_back({});
         }
 
-        template<msvc::CharType T>
+        template<CharType T>
         Pathname(const T* s) : Pathname{ s, ntbs_length(s) } { }
 
         Pathname(std::u8string_view utf8):
@@ -100,7 +105,7 @@ namespace Module {
 
         value_type back() const
         {
-            DASSERT(length() > 0);
+            IFCASSERT(length() > 0);
             return begin()[length() - 1];
         }
 

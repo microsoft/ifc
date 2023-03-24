@@ -2,6 +2,8 @@
 
 namespace Module::util
 {
+    using ifc::implies;
+
     namespace
     {
         void append(std::string& result, std::string_view suffix, std::string sep = " ")

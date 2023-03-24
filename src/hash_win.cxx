@@ -3,6 +3,8 @@
 #include <windows.h>
 #include <gsl/gsl_util>
 #include <ifc/file.hxx>
+#include <vector>
+#include <ifc/assertions.hxx>
 
 namespace {
     // Tags for catch handler.
@@ -77,7 +79,7 @@ namespace {
                     /*dwFlags = */0));
             Module::SHA256Hash hash = { };
             // uint32_t array should map to a uint8_t[32] array
-            DASSERT(hash_byte_length_ == std::size(hash.value) * 4);
+            IFCASSERT(hash_byte_length_ == std::size(hash.value) * 4);
             digest_ntstatus<FinishHashError>(
                 BCryptFinishHash(hash_handle,
                     reinterpret_cast<uint8_t*>(hash.value.data()),
