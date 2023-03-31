@@ -10,6 +10,7 @@ class GraphFilter {
         this.name = '';
         this.sort = -1;
         this.prop_filters = PropertyFilters.None;
+        this.narrow_context = false;
     }
 
     reset() {
@@ -97,7 +98,19 @@ function toggle_filter_non_exported_decls(e, checkbox) {
     apply_graph_filter(graph_filter);
 }
 
+function toggle_narrow_graph_context(e, checkbox) {
+    graph_filter.narrow_context = checkbox.checked;
+    // If this becomes 'unchecked' then we need to rebuild the graph
+    // so the filter overlay shows every node.
+    if (!graph_filter.narrow_context) {
+        rebuild_original_graph();
+    }
+    apply_graph_filter(graph_filter);
+}
+
 function init_filters() {
+    graph_filter = new GraphFilter();
+
     populate_sort_filter();
 
     name_filter.addEventListener("keyup", event => filter_names_keyup(event, name_filter));
@@ -106,4 +119,5 @@ function init_filters() {
     center_view.addEventListener("click", e => reset_view());
     prop_filter_exported.addEventListener("click", event => toggle_filter_exported_decls(event, prop_filter_exported));
     prop_filter_non_exported.addEventListener("click", event => toggle_filter_non_exported_decls(event, prop_filter_non_exported));
+    narrow_graph_context.addEventListener("click", event => toggle_narrow_graph_context(event, narrow_graph_context));
 }
