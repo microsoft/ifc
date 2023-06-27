@@ -21,11 +21,11 @@ namespace index_like {
     // promotes to an integer type with rank less than uint32_t.  This concept
     // is useful mainly to guard against the anarchic implicit conversions
     // between builtin types.  It is a best-effort attempt to prevent value truncation.
-    template <typename S>
+    template<typename S>
     concept Uint32 = std::same_as<S, uint32_t>;
 
     // Note: This really is a variable template in disguise.
-    template <typename T>
+    template<typename T>
     constexpr uint32_t wilderness = std::numeric_limits<uint32_t>::max();
 
     // Generic representational index value type.
@@ -33,7 +33,7 @@ namespace index_like {
     enum class Index : uint32_t {};
 
     // Advance an index by a give amount.
-    template <Uint32 T>
+    template<Uint32 T>
     constexpr Index operator+(Index x, T n)
     {
         return Index{ifc::to_underlying(x) + n};
@@ -44,28 +44,26 @@ namespace index_like {
     // -- implemented as an abstract reference class over a given set of sorts.
 
     // This predicate holds for well-behaved enums that are index-like types.
-    template <typename T>
+    template<typename T>
     concept Unisorted = std::is_enum_v<T> and std::same_as<std::underlying_type_t<T>, std::underlying_type_t<Index>>;
 
     // This predicate holds for any multi-sorted abstract reference type.
-    template <typename T>
+    template<typename T>
     concept MultiSorted = sizeof(T) == sizeof(Index) and requires(T t) {
         typename T::SortType;
-        {
-            t.sort()
-        } -> std::same_as<typename T::SortType>;
-        {
-            t.index()
-        } -> std::same_as<Index>;
+        // clang-format off
+        {t.sort()} -> std::same_as<typename T::SortType>;
+        {t.index()} -> std::same_as<Index>;
+        // clang-format on
     };
 
     // This predicates holds if the type parameter is an index-like algebra.
     // Note: well, this is a crude and simple sanity check.  The full accurate
     //       check is left as an exercise to the reader.
-    template <typename T>
+    template<typename T>
     concept Algebra = Unisorted<T> or MultiSorted<T>;
 
-    template <Algebra T>
+    template<Algebra T>
     inline bool null(T t)
     {
         return t == T{};
@@ -73,7 +71,7 @@ namespace index_like {
 
     // Use the appropriate specialization of this class template as a base class when providing the
     // fiber implementation for a given sort value.  See also Fiber concept.
-    template <auto>
+    template<auto>
     struct SortTag {};
 
     // Return the sort value associated with fiber.
@@ -84,7 +82,7 @@ namespace index_like {
     //                existential quantification can be expressed simply.  E.g. Fiber concept below.
     //           (b) if a data type fails to derive from SortTag<s>, overload resolution fails,
     //               leading to gracious concept-based overloading in the right context.
-    template <auto s>
+    template<auto s>
     constexpr auto sort_value(SortTag<s>)
     {
         return s;
@@ -94,26 +92,26 @@ namespace index_like {
     // Note: it should be noted that the sort value is not explicitly provided.
     //       It is computed/inferred from the data type itself.
     //       In mathematical terms: T is a fiber iff exists s . T derives from SortTag<s>
-    template <typename T>
+    template<typename T>
     concept Fiber = std::derived_from<T, SortTag<sort_value(T{})>>;
 
     // This predicate holds for a given data type that is a fiber at a specified sort value.
-    template <typename T, auto s>
+    template<typename T, auto s>
     concept FiberAt = std::derived_from<T, SortTag<s>>;
 
     // When a data type is certified as a bona fide fiber, return the sort value derived from that certification
-    template <Fiber T>
+    template<Fiber T>
     constexpr auto algebra_sort = sort_value(T{});
 
     // This predicate holds for any fiber U (an implementation for a given sort) with index type embedded in
     // a multi-sorted algebra V.
     // Note: The value U::algebra_sort gives the sort at the base of the fiber U, i.e. the sort for which the fiber U
     //       is an implementation.
-    template <typename U, typename V>
+    template<typename U, typename V>
     concept FiberEmbedding = MultiSorted<V> and requires {
-        {
-            U::algebra_sort
-        } -> std::convertible_to<typename V::SortType>;
+        // clang-format off
+        {U::algebra_sort} -> std::convertible_to<typename V::SortType>;
+        // clang-format on
     };
 
     // -- The next two functions (rep and per) are conceptual inverse of each other.
@@ -126,26 +124,26 @@ namespace index_like {
     //
     //  Convert a value from an index-like type to a canonical abstract representation.
     // Note: This enables a word read of the argument, even if it is of class type.
-    template <Algebra T>
+    template<Algebra T>
     inline Index rep(T t)
     {
         return reinterpret_cast<Index&>(t);
     }
 
     // Convert a concrete index value to an abstract index-like type.
-    template <Algebra T>
+    template<Algebra T>
     inline T per(Index t)
     {
         return reinterpret_cast<T&>(t);
     }
 
     inline namespace operators {
-        template <Algebra T>
+        template<Algebra T>
         constexpr auto operator<=>(T x, T y)
         {
             return rep(x) <=> rep(y);
         }
-        template <Algebra T>
+        template<Algebra T>
         constexpr auto operator==(T x, T y)
         {
             return rep(x) == rep(y);
@@ -159,20 +157,20 @@ namespace index_like {
     //       desirable as that does not capture the notion of sort -- it would only
     //       inappropriately elevate an implementation detail/trick to specification.
     // Note: suffices to substract 1 from 'Count' since it is 1 greater than the actual largest value.
-    template <typename S>
+    template<typename S>
     constexpr auto tag_precision =
         ifc::to_underlying(S::Count) == 0 ? 0u : ifc::bit_length(ifc::to_underlying(S::Count) - 1u);
 
     // For an index-like type T over a sort S, return the number of bits
     // available for representation of indicies over T.
-    template <typename S>
+    template<typename S>
     constexpr auto index_precision = 32 - tag_precision<S>;
 
     // Basic representation of an index-like type with specified bit precision
     // for the sort.  This structure is parameterized directly by the sort type
     // parameter, instead of the bit precision parameter, so we can distinguish
     // multiple index-like instances with same value precision.
-    template <typename S>
+    template<typename S>
     struct Over {
         using SortType = S;
         constexpr Over() : tag(), value() {}
@@ -193,7 +191,7 @@ namespace index_like {
         std::underlying_type_t<Index> value : index_precision<S>;
     };
 
-    template <MultiSorted T, Uint32 V>
+    template<MultiSorted T, Uint32 V>
     constexpr T make(typename T::SortType s, V v)
     {
         using S = typename T::SortType;
@@ -209,9 +207,9 @@ namespace index_like {
     // So we have two operations: (a) inject(), and (b) retract().
     // The inject() operation maps a concrete index value into the abstract index type space.
     // Conversely, the retract() operation pulls back a concrete index value out of an abstract index type space.
-    template <typename T>
+    template<typename T>
     struct pointed {
-        template <Uint32 S>
+        template<Uint32 S>
         static T inject(S s)
         {
             IFCASSERT(s < std::numeric_limits<S>::max());

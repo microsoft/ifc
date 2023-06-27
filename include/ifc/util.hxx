@@ -41,7 +41,7 @@ namespace Module::util {
     std::string to_string(VariadicOperator assort);
 
     // return a single string of the form "decl.variable-N" for various abstract indices
-    template <index_like::MultiSorted Key>
+    template<index_like::MultiSorted Key>
     std::string to_string(Key index)
     {
         return sort_name(index.sort()) + ("-" + std::to_string((int)index.index()));

@@ -294,16 +294,16 @@ namespace Module {
 
     inline constexpr auto index_precision = 16 - sort_precision;
 
-    template <typename T>
+    template<typename T>
     concept CategoryPrecisionRequirement = (ifc::bit_length(ifc::to_underlying(T::Last) - 1u) <= index_precision);
 
-    template <typename T>
+    template<typename T>
     concept CategoryTypeRequirement =
-        std::same_as<T, NiladicOperator> or std::same_as<T, MonadicOperator> or std::same_as<T, DyadicOperator> or
-        std::same_as<T, TriadicOperator> or std::same_as<T, StorageOperator> or std::same_as<T, VariadicOperator>;
+        std::same_as<T, NiladicOperator> or std::same_as<T, MonadicOperator> or std::same_as<T, DyadicOperator>
+        or std::same_as<T, TriadicOperator> or std::same_as<T, StorageOperator> or std::same_as<T, VariadicOperator>;
 
     // Conceptual denotation of C++ abstract machine operation
-    template <typename T>
+    template<typename T>
     concept OperatorCategory = CategoryTypeRequirement<T> and CategoryPrecisionRequirement<T>;
 
     // Mapping from arity-graded operators to their sorts
@@ -336,7 +336,7 @@ namespace Module {
     struct Operator {
         enum class Index : uint16_t {};
         constexpr Operator() : tag{}, value{} {}
-        template <OperatorCategory Category>
+        template<OperatorCategory Category>
         constexpr Operator(Category c) : tag(ifc::to_underlying(operator_sort(c))), value(ifc::to_underlying(c))
         {}
         constexpr OperatorSort sort() const

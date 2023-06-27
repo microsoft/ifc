@@ -27,7 +27,7 @@ namespace Module {
     // Return the number of bytes in the object representation of type T.
     // This is, of course, the same thing as sizeof(T), except that we insist
     // objects must fit in a 32-bit index space.  That is what the braces are for.
-    template <typename T>
+    template<typename T>
     constexpr auto byte_length = EntitySize{sizeof(T)};
 
     // Offset in a byte stream.
@@ -40,23 +40,23 @@ namespace Module {
         return to_underlying(x) == 0;
     }
 
-    template <typename S>
+    template<typename S>
     using if_byte_offset = std::enable_if_t<std::is_same<S, std::underlying_type_t<ByteOffset>>::value>;
 
-    template <typename T, typename = if_byte_offset<T>>
+    template<typename T, typename = if_byte_offset<T>>
     constexpr ByteOffset operator+(ByteOffset x, T n)
     {
         // FIXME: Check overflow.
         return ByteOffset(to_underlying(x) + n);
     }
 
-    template <typename T, typename = if_byte_offset<T>>
+    template<typename T, typename = if_byte_offset<T>>
     inline ByteOffset& operator+=(ByteOffset& x, T n)
     {
         return x = x + n;
     }
 
-    template <index_like::Unisorted T>
+    template<index_like::Unisorted T>
     constexpr std::underlying_type_t<T> operator-(T x, T y)
     {
         IFCASSERT(x >= y);
@@ -181,7 +181,7 @@ namespace Module {
         Cardinality cardinality;
         EntitySize entry_size;
 
-        template <index_like::Unisorted T>
+        template<index_like::Unisorted T>
         ByteOffset tell(T x) const
         {
             return offset + to_underlying(x) * to_underlying(entry_size);
@@ -193,7 +193,7 @@ namespace Module {
         }
     };
 
-    template <typename T>
+    template<typename T>
     struct PartitionSummary : PartitionSummaryData {
         PartitionSummary() : PartitionSummaryData{}
         {
@@ -250,7 +250,7 @@ namespace Module {
     struct InputIfc {
         using StringTable    = gsl::span<const std::byte>;
         using PartitionTable = gsl::span<const PartitionSummaryData>;
-        template <typename T>
+        template<typename T>
         using Table    = gsl::span<const T>;
         using SpanType = gsl::span<const std::byte>;
 
@@ -311,7 +311,7 @@ namespace Module {
             return span.end() - to_underlying(amount) >= cursor;
         }
 
-        template <typename T>
+        template<typename T>
         const T* read()
         {
             constexpr auto sz = byte_length<T>;
@@ -323,7 +323,7 @@ namespace Module {
             return ptr;
         }
 
-        template <typename T>
+        template<typename T>
         Table<T> read_array(Cardinality n)
         {
             const auto sz = n * byte_length<T>;
@@ -337,7 +337,7 @@ namespace Module {
 
         // View a partition without touching the cursor.
         // PartitionSummaryData is assumed to be validated on read of toc and not checked in this function.
-        template <typename T>
+        template<typename T>
         Table<T> view_partition(const PartitionSummaryData& summary) const
         {
             const auto byte_offset = to_underlying(summary.offset);
@@ -348,7 +348,7 @@ namespace Module {
             return {ptr, static_cast<typename Table<T>::size_type>(to_underlying(summary.cardinality))};
         }
 
-        template <typename T>
+        template<typename T>
         static bool has_signature(InputIfc& file, const T& sig)
         {
             auto start = &(*file.tell());
@@ -412,7 +412,7 @@ namespace Module {
             return OwningModuleAndPartition{module_name, partition_name};
         }
 
-        template <UnitSort Kind, typename T>
+        template<UnitSort Kind, typename T>
         bool validate(const Module::Pathname& path, Architecture arch, const T& ifc_designator, IfcOptions options)
         {
             if (!has_signature(*this, Module::InterfaceSignature))
@@ -427,8 +427,8 @@ namespace Module {
             if (header == nullptr)
                 return false;
 
-            if (header->version > CurrentFormatVersion ||
-                (header->version < MinimumFormatVersion && header->version != EDGFormatVersion))
+            if (header->version > CurrentFormatVersion
+                || (header->version < MinimumFormatVersion && header->version != EDGFormatVersion))
                 throw UnsupportedFormatVersion{header->version};
 
             // If the user requested an unknown architecture, we do not perform architecture check.
@@ -461,8 +461,8 @@ namespace Module {
             {
                 // If we are reading module to merge then the final module name (which can be provided on the
                 // command-line) may not match the name of the module we are loading. So there is no need to check.
-                if (!ifc_designator.empty() &&
-                    (header->unit.sort() == UnitSort::Primary || header->unit.sort() == UnitSort::ExportedTU))
+                if (!ifc_designator.empty()
+                    && (header->unit.sort() == UnitSort::Primary || header->unit.sort() == UnitSort::ExportedTU))
                 {
                     auto sz = to_underlying(header->unit.module_name());
                     IFCASSERT(sz <= to_underlying(header->string_table_size));

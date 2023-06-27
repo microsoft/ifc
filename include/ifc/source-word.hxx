@@ -384,7 +384,7 @@ namespace Module {
         };
     }                            // namespace Source
 
-    template <typename T>
+    template<typename T>
     concept PPOperatorCategory = std::same_as<T, Source::Punctuator> or std::same_as<T, Source::Operator>;
 
     constexpr WordSort pp_operator_sort(Source::Operator)
@@ -400,7 +400,7 @@ namespace Module {
     struct PPOperator {
         enum class Index : uint16_t {};
         PPOperator() : tag{}, value{} {}
-        template <PPOperatorCategory Category>
+        template<PPOperatorCategory Category>
         PPOperator(Category c) : tag(ifc::to_underlying(pp_operator_sort(c))), value(ifc::to_underlying(c))
         {}
         WordSort sort() const

@@ -35,8 +35,9 @@ BraceWrapping:
   SplitEmptyFunction:                       false
   SplitEmptyRecord:                         false
   SplitEmptyNamespace:                      true
-BreakBeforeBinaryOperators:                 None
+BreakBeforeBinaryOperators:                 NonAssignment
 BreakBeforeBraces:                          Custom
+BreakBeforeConceptDeclarations:             Always
 BreakBeforeInheritanceComma:                false
 BreakBeforeTernaryOperators:                false
 BreakConstructorInitializers:               BeforeColon
@@ -75,10 +76,11 @@ PenaltyReturnTypeOnItsOwnLine:              1000
 PointerAlignment:                           Left
 RawStringFormats:                           []
 ReflowComments:                             true
+RequiresExpressionIndentation:              OuterScope
 SortIncludes:                               false
 SortUsingDeclarations:                      true
 SpaceAfterCStyleCast:                       false
-SpaceAfterTemplateKeyword:                  true
+SpaceAfterTemplateKeyword:                  false
 SpaceBeforeAssignmentOperators:             true
 SpaceBeforeParens:                          ControlStatements
 SpaceInEmptyParentheses:                    false

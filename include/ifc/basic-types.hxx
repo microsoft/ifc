@@ -8,7 +8,9 @@
 #include <ifc/underlying.hxx>
 
 namespace Module {
-    enum class ColumnNumber : int32_t { Invalid = -1 };
+    enum class ColumnNumber : int32_t {
+        Invalid = -1,
+    };
     enum LineNumber : int32_t {
         Max = 0x00ffffff,
     };

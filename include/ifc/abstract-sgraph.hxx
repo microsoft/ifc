@@ -31,7 +31,7 @@ namespace Module {
     // For every sort-like enumeration, return the maximum value
     // as indicated by its Count enumerator.  This short-hand provides
     // a simpler notation, especially when the enumeration is scoped.
-    template <typename S>
+    template<typename S>
     constexpr auto count = std::underlying_type_t<S>(S::Count);
 
     // Source line info index into the global line table.
@@ -589,7 +589,12 @@ namespace Module {
         using Over<ExprSort>::Over;
     };
 
-    enum class InheritanceSort : uint8_t { None, Single, Multiple, Count };
+    enum class InheritanceSort : uint8_t {
+        None,
+        Single,
+        Multiple,
+        Count,
+    };
 
     // Type qualifiers.
     // Note: VC's __unaligned qualifier is made a type constructor of its own.
@@ -613,7 +618,10 @@ namespace Module {
         using Over<MacroSort>::Over;
     };
 
-    enum class PragmaSort : uint8_t { VendorExtension, Count };
+    enum class PragmaSort : uint8_t {
+        VendorExtension,
+        Count,
+    };
 
     struct PragmaIndex : index_like::Over<PragmaSort> {
         using Over<PragmaSort>::Over;
@@ -694,7 +702,7 @@ namespace Module {
     };
 
     // Typed projection of a homogeneous sequence.
-    template <typename, auto... s>
+    template<typename, auto... s>
         requires(sizeof...(s) < 2)
     struct Sequence {
         Index start             = {}; // Offset of the first member of this sequence
@@ -711,7 +719,7 @@ namespace Module {
         // A tag embedding an abstract reference sort value in the static type.  We are doing this only because of
         // a weakness in the implementation language (C++).  What we really want is to define a function
         // from types to values without going through the usual cumbersome explicit specialization dance.
-        template <auto s>
+        template<auto s>
         struct Tag : index_like::SortTag<s> {
             static constexpr auto algebra_sort = s;
 
@@ -903,7 +911,10 @@ namespace Module {
         };
 
         // Template parameter pack and template-id expansion mode.
-        enum class ExpansionMode : uint8_t { Full, Partial };
+        enum class ExpansionMode : uint8_t {
+            Full,
+            Partial,
+        };
 
         // Designation of a type by a declared name.
         struct DesignatedType : Tag<TypeSort::Designated> {
@@ -1496,7 +1507,12 @@ namespace Module {
             };
 
             struct LabeledStatement : Tag<SyntaxSort::LabeledStatement> {
-                enum class Kind : uint8_t { None, Case, Default, Label };
+                enum class Kind : uint8_t {
+                    None,
+                    Case,
+                    Default,
+                    Label,
+                };
                 SentenceIndex pragma_tokens{}; // The index for any preceding #pragma tokens.
                 ExprIndex expression{};        // The expression for a case statement or the name for a label
                 SyntaxIndex statement{};       // The sub-statement
@@ -1981,8 +1997,15 @@ namespace Module {
                     ExprIndex argument;         // expression
                 };
                 struct IfExists {
-                    enum class Kind : uint8_t { Statement, Initializer, MemberDeclaration };
-                    enum class Keyword : uint8_t { IfExists, IfNotExists };
+                    enum class Kind : uint8_t {
+                        Statement,
+                        Initializer,
+                        MemberDeclaration,
+                    };
+                    enum class Keyword : uint8_t {
+                        IfExists,
+                        IfNotExists,
+                    };
                     Kind kind;                  // the declaration context of __if_exists
                     Keyword keyword;            // distinction between __if_exists and __if_not_exists
                     ExprIndex subject;          // the id-expression to be tested
@@ -2048,7 +2071,7 @@ namespace Module {
             StmtIndex body{};         // The body of the function
         };
 
-        template <typename T>
+        template<typename T>
         struct Identity {
             T name;               // The name of the entity (either 'NameIndex' or 'TextOffset')
             SourceLocation locus; // Source location of this entity
@@ -2092,7 +2115,9 @@ namespace Module {
         };
 
         // A strongly-typed abstraction of ExprIndex which always points to ExprSort::NamedDecl.
-        enum class DefaultIndex : uint32_t { UnderlyingSort = ifc::to_underlying(ExprSort::NamedDecl) };
+        enum class DefaultIndex : uint32_t {
+            UnderlyingSort = ifc::to_underlying(ExprSort::NamedDecl),
+        };
 
         inline ExprIndex as_expr_index(DefaultIndex index)
         {
@@ -2426,7 +2451,7 @@ namespace Module {
         //       If the many isomorphic specializations are demonstrated to induce undue
         //       compile-time memory pressure, then this parameterization can be refactored
         //       into the parameterized empty class Tag + the non-parameterized class.
-        template <auto s>
+        template<auto s>
         struct LocationAndType : Tag<s> {
             SourceLocation locus{}; // The source location (span) of this node.
             TypeIndex type{};       // The (possibly generalized) type of this node.
@@ -2435,7 +2460,7 @@ namespace Module {
         // Like the structure above, but drops the 'type' field in favor of the node deriving the
         // type from its children.  This can be useful in compressing the on-disk representation
         // due to collapsing redundant semantic information.
-        template <auto s>
+        template<auto s>
         struct Location : Tag<s> {
             SourceLocation locus{}; // The source location of this node.
         };
@@ -2634,7 +2659,11 @@ namespace Module {
         };
 
         struct DestructorCall : LocationAndType<ExprSort::DestructorCall> {
-            enum class Kind : uint8_t { Unknown, Destructor, Finalizer };
+            enum class Kind : uint8_t {
+                Unknown,
+                Destructor,
+                Finalizer,
+            };
             ExprIndex name{};                 // The name of the object being destructor (if present)
             SyntaxIndex decltype_specifier{}; // The decltype specifier (if present)
             Kind kind = Kind::Unknown;        // Do we have a destructor or a finalizer?
@@ -2676,7 +2705,11 @@ namespace Module {
             SyntaxIndex body{};       // The requirement body
         };
 
-        enum class Associativity : uint8_t { Unspecified, Left, Right };
+        enum class Associativity : uint8_t {
+            Unspecified,
+            Left,
+            Right,
+        };
 
         struct UnaryFoldExpression : LocationAndType<ExprSort::UnaryFoldExpression> {
             ExprIndex expr{};    // The associated expression
@@ -2765,7 +2798,11 @@ namespace Module {
 
         // FIXME: Remove at earliest convenience.
         struct ExpressionList : Tag<ExprSort::ExpressionList> {
-            enum class Delimiter : uint8_t { Unknown, Brace, Parenthesis };
+            enum class Delimiter : uint8_t {
+                Unknown,
+                Brace,
+                Parenthesis,
+            };
             SourceLocation left_delimiter{};  // The source location of the left delimiter
             SourceLocation right_delimiter{}; // The source location of the right delimiter
             ExprIndex expressions{};          // The expressions in the list
@@ -2864,7 +2901,7 @@ namespace Module {
         };
 
         // Note: this class is not meant to be used to create objects -- it is just a traits class.
-        template <typename T, LiteralSort s>
+        template<typename T, LiteralSort s>
         struct constant_traits : Tag<s> {
             using ValueType = T;
         };
@@ -3127,16 +3164,16 @@ namespace Module {
         Count,
     };
 
-    template <typename T>
-    concept TraitIndexType = std::same_as<T, DeclIndex> or std::same_as<T, SyntaxIndex> or std::same_as<T, ExprIndex> or
-                             std::same_as<T, StmtIndex> or std::same_as<T, NameIndex> or std::same_as<T, TextOffset>;
+    template<typename T>
+    concept TraitIndexType = std::same_as<T, DeclIndex> or std::same_as<T, SyntaxIndex> or std::same_as<T, ExprIndex>
+                             or std::same_as<T, StmtIndex> or std::same_as<T, NameIndex> or std::same_as<T, TextOffset>;
 
-    template <typename T>
+    template<typename T>
     concept AnyTraitSort = std::same_as<T, TraitSort> || std::same_as<T, MsvcTraitSort>;
 
     // Declarations have various extension traits, such as deprecation message, code segment allocation, etc.
     // This is the data type used as entry into the decl-trait association table.
-    template <TraitIndexType T, typename U>
+    template<TraitIndexType T, typename U>
     struct AssociatedTrait {
         using KeyType   = T;
         using ValueType = U;
@@ -3144,30 +3181,30 @@ namespace Module {
         U trait;  // The index of the associated trait
     };
 
-    template <AnyTraitSort auto Tag>
+    template<AnyTraitSort auto Tag>
     struct TraitTag : index_like::SortTag<Tag> {
         static constexpr auto partition_tag = Tag;
     };
 
-    template <typename T>
-    concept AnyTrait = std::derived_from<T, AssociatedTrait<typename T::KeyType, typename T::ValueType>> &&
-                       std::derived_from<T, TraitTag<T::partition_tag>>;
+    template<typename T>
+    concept AnyTrait = std::derived_from<T, AssociatedTrait<typename T::KeyType, typename T::ValueType>>
+                       && std::derived_from<T, TraitTag<T::partition_tag>>;
 
     // Ordering used for traits
     struct TraitOrdering {
-        template <AnyTrait T>
+        template<AnyTrait T>
         bool operator()(T& x, T& y) const
         {
             return x.entity < y.entity;
         }
 
-        template <AnyTrait T>
+        template<AnyTrait T>
         bool operator()(typename T::KeyType x, T& y) const
         {
             return x < y.entity;
         }
 
-        template <AnyTrait T>
+        template<AnyTrait T>
         bool operator()(T& x, typename T::KeyType y) const
         {
             return x.entity < y;
@@ -3201,7 +3238,7 @@ namespace Module {
         };
         enum class MsvcLexicalScopeIndex : std::uint32_t {};
 
-        template <typename I>
+        template<typename I>
         using AttributeAssociation = AssociatedTrait<I, AttrIndex>;
 
         struct MsvcFileBoundaryProperties {
@@ -3350,7 +3387,7 @@ namespace Module {
             }
         }
 
-        template <typename S, typename T>
+        template<typename S, typename T>
         static auto& partition(T& table, S s)
         {
             IFCASSERT(s < S::Count);
@@ -3474,13 +3511,13 @@ namespace Module {
             return partition(msvc_traits, s);
         }
 
-        template <typename S>
+        template<typename S>
         auto at(S s) const
         {
             return (*this)[s];
         }
 
-        template <typename Index>
+        template<typename Index>
         ByteOffset offset(Index idx) const
         {
             return at(idx.sort()).tell(idx.index());
