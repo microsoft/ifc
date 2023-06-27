@@ -7,12 +7,10 @@
 
 #include "index-utils.hxx"
 
-namespace Module
-{
+namespace Module {
     // Classification of pre-syntactic forms used to group
     // pp-tokens during, and out of, translation phases 1-4.
-    enum class FormSort : uint8_t
-    {
+    enum class FormSort : uint8_t {
         Identifier,    // identifier form
         Number,        // number form
         Character,     // built-in or ud-suffixed character literal form
@@ -31,8 +29,7 @@ namespace Module
         Count
     };
 
-    struct FormIndex : index_like::Over<FormSort>
-    {
+    struct FormIndex : index_like::Over<FormSort> {
         using Over<FormSort>::Over;
     };
 } // namespace Module

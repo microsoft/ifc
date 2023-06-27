@@ -6,8 +6,7 @@
 #include "ifc/abstract-sgraph.hxx"
 #include <string>
 
-namespace Module::util
-{
+namespace Module::util {
     // return a single string for various IFC flags and enums
 
     std::string to_string(Access access);
@@ -52,5 +51,5 @@ namespace Module::util
     {
         return "sentence-" + std::to_string((int)index);
     }
-}
+} // namespace Module::util
 #endif // IFC_UTILS_H

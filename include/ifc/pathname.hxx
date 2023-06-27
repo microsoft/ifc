@@ -16,14 +16,12 @@
 namespace Module {
 
     // Evaluate to true if the type parameter is a character type.
-    template<typename T>
-    concept CharType = std::is_same_v<T, char> ||
-        std::is_same_v<T, unsigned char> ||
-        std::is_same_v<T, signed char> ||
-        std::is_same_v<T, char8_t>;
+    template <typename T>
+    concept CharType = std::is_same_v<T, char> || std::is_same_v<T, unsigned char> || std::is_same_v<T, signed char> ||
+                       std::is_same_v<T, char8_t>;
 
     // Return the number of characters in a C-style NUL-terminated byte string.
-    template<CharType T>
+    template <CharType T>
     inline std::size_t ntbs_length(const T* s)
     {
         using S = const char*;
@@ -45,28 +43,27 @@ namespace Module {
     //          (3) The standard allocators are always ready when the global objects are initialized.
     struct Pathname : private std::vector<char8_t> {
         using Base = std::vector<char8_t>;
-        using Base::value_type;
-        using Base::iterator;
         using Base::const_iterator;
+        using Base::iterator;
+        using Base::value_type;
 
         Pathname()
         {
             Base::push_back({});
         }
 
-        template<CharType T>
-        Pathname(const T* s, std::size_t len) : Base{ reinterpret_cast<const value_type*>(s),
-                                                      reinterpret_cast<const value_type*>(s) + len }
+        template <CharType T>
+        Pathname(const T* s, std::size_t len)
+          : Base{reinterpret_cast<const value_type*>(s), reinterpret_cast<const value_type*>(s) + len}
         {
             Base::push_back({});
         }
 
-        template<CharType T>
-        Pathname(const T* s) : Pathname{ s, ntbs_length(s) } { }
+        template <CharType T>
+        Pathname(const T* s) : Pathname{s, ntbs_length(s)}
+        {}
 
-        Pathname(std::u8string_view utf8):
-            Base{ utf8.begin(),
-                  utf8.end() }
+        Pathname(std::u8string_view utf8) : Base{utf8.begin(), utf8.end()}
         {
             Base::push_back({});
         }
@@ -143,7 +140,7 @@ namespace Module {
         }
 
         std::strong_ordering operator<=>(const Pathname&) const = default;
-        bool operator==(const Pathname&) const = default;
+        bool operator==(const Pathname&) const                  = default;
 
         bool operator==(std::u8string_view sv) const
         {
