@@ -8,7 +8,7 @@ If you want to participate in the development of the IFC SDK, welcome! You can r
 
 Finally, you can take our code and use it in other apps and libraries (according to the terms of our license, like everything else)
 
-## Building and Running
+# Building and Running
 This project uses CMake for defining projects, and the code has been tested to work on Windows and Linux. It can be built and run under WSL (Windows Subsystem for Linux) as well.
 
 The JavaScript IFC viewer can be run by loading the [index.html](samples/sgraph-js/index.html) file in a browser.
@@ -19,10 +19,26 @@ able to generate IFC files using the SDK itself. To generate an IFC file, you ca
 
 cl /std:c++20 /exportHeader test.cpp
 
-## Trademarks
+# Trademarks
 
 This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
 trademarks or logos is subject to and must follow 
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.
+
+# Microsoft Open Source Code of Conduct
+
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
+
+Resources:
+
+- [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/)
+- [Microsoft Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/)
+- Contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with questions or concerns
+
+# License
+
+Copyright (c) Microsoft Corporation.
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception

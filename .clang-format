@@ -76,7 +76,7 @@ PenaltyReturnTypeOnItsOwnLine:              1000
 PointerAlignment:                           Left
 RawStringFormats:                           []
 ReflowComments:                             true
-RequiresExpressionIndentation:              OuterScope
+#RequiresExpressionIndentation:              OuterScope
 SortIncludes:                               false
 SortUsingDeclarations:                      true
 SpaceAfterCStyleCast:                       false
