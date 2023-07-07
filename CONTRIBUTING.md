@@ -40,10 +40,10 @@ To gain insight into our Code Review process, you can check out:
 
 Before submitting a pull request, please ensure:
 
-1. Code has been formatted using the provided .clang-format file.
-2. Naming conventions are following the recommendations.
-3. Tests have been run locally (for at least one platform).
-4. Changes that will impact the binary format of an IFC will need to synchronize with the compiler(s) affected and will likely require a version change.
+* Code has been formatted using the provided .clang-format file.
+* Naming conventions are following the recommendations.
+* Tests have been run locally (for at least one platform).
+* Changes that will impact the binary format of an IFC will need to synchronize with the compiler(s) affected and will likely require a version change.
 
 If your changes are derived from any other project, you _must_ mention it in the pull request description,
 so we can determine whether the license is compatible and whether any other steps need to be taken.
