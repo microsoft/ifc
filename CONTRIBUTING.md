@@ -11,10 +11,12 @@ provided by the bot. You will only need to do this once across all repos using o
 ## Formatting
 There is a .clang-format file in the repo that should work with many editors automatically. Use "// clang format off" and "// clang format on" to prevent automatic formatting when necessary to preserve specific formatting.
 
-## Naming Conventions
+## Coding Conventions
 Namespaces, classes, and enums should use Pascal casing, although some namespaces such as "util" and "detail" are all lower case.
 
 Functions, methods, data members, parameters, and locals should use snake case (e.g. bit_length).
+
+Use the keywords "and", "or", and "not" rather than "&&", "||", and "!".
 
 ## Submitting a Pull Request
 
