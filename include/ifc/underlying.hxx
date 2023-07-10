@@ -6,9 +6,10 @@
 #include <utility>
 #include <bit>
 
-namespace ifc {
+namespace ifc
+{
     // Consider moving to std::to_underlying (C++23) at some point.
-    template<class Enum>
+    template< class Enum >
     constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept
     {
         return static_cast<std::underlying_type_t<Enum>>(e);
@@ -26,5 +27,5 @@ namespace ifc {
     {
         return (to_underlying(x) & to_underlying(y)) == to_underlying(y);
     }
-} // namespace ifc
+}
 #endif // IFC_UNDERLYING_H

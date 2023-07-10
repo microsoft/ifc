@@ -5,10 +5,17 @@
 #ifndef IFC_ASSERTIONS_HXX_INCLUDED
 #define IFC_ASSERTIONS_HXX_INCLUDED
 
-void ifc_assert(char const* message, char const* file, int line);
+void ifc_assert(
+    char const* message,
+    char const* file,
+    int         line
+);
 
 // IFCVERIFY is always on.
-#define IFCVERIFY(expression) (void)((!!(expression)) || (ifc_assert(#expression, __FILE__, __LINE__), 0))
+#define IFCVERIFY(expression) (void)(                                                       \
+            (!!(expression)) ||                                                              \
+            (ifc_assert(#expression, __FILE__, __LINE__), 0) \
+        )
 
 #ifdef NDEBUG
 
@@ -16,7 +23,10 @@ void ifc_assert(char const* message, char const* file, int line);
 
 #else
 
-#define IFCASSERT(expression) (void)((!!(expression)) || (ifc_assert(#expression, __FILE__, __LINE__), 0))
+#define IFCASSERT(expression) (void)(                                                       \
+            (!!(expression)) ||                                                              \
+            (ifc_assert(#expression, __FILE__, __LINE__), 0) \
+        )
 
 #endif // NDEBUG
 

@@ -6,9 +6,10 @@
 #include "gsl/span"
 #include "ifc/abstract-sgraph.hxx"
 #include "ifc/file.hxx"
-// #include "ifc/io.hxx"
+//#include "ifc/io.hxx"
 
-namespace Module {
+namespace Module
+{
     // error reporting functions
 
     [[noreturn]] void not_implemented(std::string_view);
@@ -16,7 +17,7 @@ namespace Module {
     [[noreturn]] void unexpected(std::string_view);
     [[noreturn]] void unexpected(std::string_view, int);
 
-    template<typename SortTag>
+    template <typename SortTag>
     [[noreturn]] void unexpected(std::string_view message, SortTag tag)
     {
         std::string result(message);
@@ -24,7 +25,7 @@ namespace Module {
         unexpected(result);
     }
 
-    template<typename SortTag>
+    template <typename SortTag>
     [[noreturn]] void not_implemented(std::string_view message, SortTag tag)
     {
         std::string result(message);
@@ -32,17 +33,18 @@ namespace Module {
         not_implemented(result);
     }
 
-    //    class Reader : public MemoryMapped::InputIfcFile
-    class Reader {
-        template<typename T>
+//    class Reader : public MemoryMapped::InputIfcFile
+    class Reader
+    {
+        template <typename T>
         const T& view_entry_at(ByteOffset offset) const
         {
             const auto byte_offset = ifc::to_underlying(offset);
-            const auto& contents   = ifc.contents();
+            const auto& contents = ifc.contents();
             IFCASSERT(byte_offset < contents.size());
 
             const auto byte_ptr = &contents[byte_offset];
-            const auto ptr      = reinterpret_cast<const T*>(byte_ptr);
+            const auto ptr = reinterpret_cast<const T*>(byte_ptr);
             return *ptr;
         }
 
@@ -63,14 +65,14 @@ namespace Module {
         // element, otherwise nullptr
         //    Example: "if (auto* decl = ctx.reader.get_if<Symbolic::DeclStatement>(stmt)) ... "
 
-        // using MemoryMapped::InputIfcFile::get;
+        //using MemoryMapped::InputIfcFile::get;
 
         const char* get(TextOffset offset) const
         {
             return ifc.get(offset);
         }
 
-        template<typename T, typename Index>
+        template <typename T, typename Index>
         const T& get(Index index) const
         {
             IFCASSERT(T::algebra_sort == index.sort());
@@ -92,10 +94,11 @@ namespace Module {
             return view_entry_at<Symbolic::SpecializationForm>(toc.spec_forms.tell(index));
         }
 
-        template<typename T, typename Index>
+        template <typename T, typename Index>
         const T* get_if(Index index) const
         {
-            return (T::algebra_sort == index.sort()) ? &view_entry_at<T>(toc.offset(index)) : nullptr;
+            return (T::algebra_sort == index.sort()) ? &view_entry_at<T>(toc.offset(index)) :
+                                                       nullptr;
         }
 
         // ScopeIndex has a dedicated value to indicate absence of a scope,
@@ -104,14 +107,14 @@ namespace Module {
 
         // partition<T> - returns a span of all items in a partition.
 
-        template<typename E>
+        template <typename E>
         gsl::span<const E> partition() const
         {
             const auto& summary = toc[E::algebra_sort];
             return ifc.view_partition<E>(summary);
         }
 
-        template<AnyTrait E>
+        template <AnyTrait E>
         gsl::span<const E> partition() const
         {
             const auto& summary = toc[E::partition_tag];
@@ -121,37 +124,37 @@ namespace Module {
         // sequence(seq) - will return a span of all elements in the sequence.
         //                 the type is deduced from a seq.
 
-        template<typename T>
+        template <typename T>
         gsl::span<const T> sequence(Sequence<T> seq)
         {
             const auto partition = this->partition<T>();
             // We prefer our IFCASSERT to subspan terminating on out of bounds.
-            const auto start       = ifc::to_underlying(seq.start);
+            const auto start = ifc::to_underlying(seq.start);
             const auto cardinality = ifc::to_underlying(seq.cardinality);
-            const auto top         = start + cardinality;
+            const auto top = start + cardinality;
             IFCASSERT(start <= top && top <= partition.size());
             return partition.subspan(start, cardinality);
         }
 
-        template<index_like::MultiSorted E, HeapSort Tag>
+        template <index_like::MultiSorted E, HeapSort Tag>
         gsl::span<const E> sequence(Sequence<E, Tag> seq) const
         {
-            const auto& summary  = toc[Tag];
+            const auto& summary = toc[Tag];
             const auto partition = ifc.view_partition<E>(summary);
             // We prefer our IFCASSERT to subspan terminating on out of bounds.
-            const auto start       = ifc::to_underlying(seq.start);
+            const auto start = ifc::to_underlying(seq.start);
             const auto cardinality = ifc::to_underlying(seq.cardinality);
-            const auto top         = start + cardinality;
+            const auto top = start + cardinality;
             IFCASSERT(start <= top && top <= partition.size());
             return partition.subspan(start, cardinality);
         }
 
         // Lookup associative traits by key.
-        template<AnyTrait E>
+        template <AnyTrait E>
         const E* try_find(typename E::KeyType key) const
         {
             auto table = partition<E>();
-            auto iter  = std::lower_bound(table.begin(), table.end(), key, TraitOrdering{});
+            auto iter = std::lower_bound(table.begin(), table.end(), key, TraitOrdering{});
             if (iter != table.end() && iter->entity == key)
                 return &*iter;
             return nullptr;
@@ -159,9 +162,8 @@ namespace Module {
 
         // Build an abstract index for the item, by calculating
         // its relative position in its partition.
-        template<index_like::MultiSorted Index, typename E>
-            requires index_like::FiberEmbedding<E, Index>
-        Index index_of(const E& item)
+        template <index_like::MultiSorted Index, typename E>
+        requires index_like::FiberEmbedding<E, Index> Index index_of(const E& item)
         {
             const auto span = partition<E>();
             IFCASSERT(!span.empty() && &item >= &span.front() && &item <= &span.back());
@@ -170,7 +172,7 @@ namespace Module {
             return {E::algebra_sort, static_cast<uint32_t>(offset)};
         }
 
-        template<typename F>
+        template <typename F>
         decltype(auto) visit(TypeIndex index, F&& f)
         {
             // clang-format off
@@ -208,7 +210,7 @@ namespace Module {
             // clang-format on
         }
 
-        template<typename F>
+        template <typename F>
         decltype(auto) visit(StmtIndex index, F&& f)
         {
             // clang-format off
@@ -236,7 +238,7 @@ namespace Module {
             // clang-format on
         }
 
-        template<typename F>
+        template <typename F>
         decltype(auto) visit(NameIndex index, F&& f)
         {
             // clang-format off
@@ -256,7 +258,7 @@ namespace Module {
             // clang-format on
         }
 
-        template<typename F>
+        template <typename F>
         decltype(auto) visit_with_index(DeclIndex index, F&& f)
         {
             // clang-format off
@@ -300,7 +302,7 @@ namespace Module {
             // clang-format on
         }
 
-        template<typename F>
+        template <typename F>
         decltype(auto) visit(ExprIndex index, F&& f)
         {
             // clang-format off

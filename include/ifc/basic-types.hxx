@@ -9,7 +9,7 @@
 
 namespace Module {
     enum class ColumnNumber : int32_t {
-        Invalid = -1,
+        Invalid = -1
     };
     enum LineNumber : int32_t {
         Max = 0x00ffffff,
@@ -34,4 +34,4 @@ namespace Module {
     }
 } // namespace Module
 
-#endif // IFC_BASIC_TYPES
+#endif      // IFC_BASIC_TYPES
