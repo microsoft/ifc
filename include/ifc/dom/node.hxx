@@ -27,7 +27,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace Module::util
+namespace ifc::util
 {
     enum class SortKind : uint16_t
     {
@@ -71,7 +71,7 @@ namespace Module::util
     constexpr SortKind sort_kind(ChartIndex) { return SortKind::Chart;}
     constexpr SortKind sort_kind(StmtIndex) { return SortKind::Stmt;}
     constexpr SortKind sort_kind(SyntaxIndex) { return SortKind::Syntax;}
-    constexpr SortKind sort_kind(Symbolic::DefaultIndex) { return SortKind::Expr; }
+    constexpr SortKind sort_kind(symbolic::DefaultIndex) { return SortKind::Expr; }
     // clang-format on
 
     // Type-erased abstract index.
@@ -154,13 +154,13 @@ namespace Module::util
     // value, not by index, thus, the getter need to be aware of that.
     template <typename T>
     concept EnumeratorOrParameterDecl =
-        std::same_as<T, Symbolic::EnumeratorDecl> or std::same_as<T, Symbolic::ParameterDecl>;
+        std::same_as<T, symbolic::EnumeratorDecl> or std::same_as<T, symbolic::ParameterDecl>;
 
     // Loader is responsible for loading the nodes and resolving references.
     // It is also hosts the storage for all the nodes.
     struct Loader
     {
-        Module::Reader& reader;
+        ifc::Reader& reader;
 
         explicit Loader(Reader& reader) : reader(reader) {}
 
@@ -174,8 +174,8 @@ namespace Module::util
 
         template <index_like::MultiSorted T>
         std::string ref(T index);
-        std::string ref(const Symbolic::Identity<TextOffset>& id);
-        std::string ref(const Symbolic::Identity<NameIndex>& id);
+        std::string ref(const symbolic::Identity<TextOffset>& id);
+        std::string ref(const symbolic::Identity<NameIndex>& id);
 
         std::set<NodeKey> referenced_nodes;
 
@@ -195,7 +195,7 @@ namespace Module::util
     void load(Loader& ctx, Node& node, SyntaxIndex index);
     void load(Loader& ctx, Node& node, ChartIndex index);
     void load(Loader& ctx, Node& node, StmtIndex index);
-    void load(Loader& ctx, Node& node, Symbolic::DefaultIndex index);
+    void load(Loader& ctx, Node& node, symbolic::DefaultIndex index);
 
     // Will return a nice short string for a type, such as "int*" if it can.
     // Empty string otherwise.
@@ -249,6 +249,6 @@ namespace Module::util
         return get(abstract_index);
     }
 
-}  // namespace Module::util
+}  // namespace ifc::util
 
 #endif  // IFC_UTIL_NODE_H

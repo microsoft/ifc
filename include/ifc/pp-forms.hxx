@@ -7,7 +7,7 @@
 
 #include "index-utils.hxx"
 
-namespace Module
+namespace ifc
 {
     // Classification of pre-syntactic forms used to group
     // pp-tokens during, and out of, translation phases 1-4.
@@ -35,6 +35,6 @@ namespace Module
     {
         using Over<FormSort>::Over;
     };
-} // namespace Module
+} // namespace ifc
 
 #endif // IFC_PP_FORMS_INCLUDED

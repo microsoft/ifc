@@ -13,13 +13,13 @@
 #include <string_view>
 #include <vector>
 
-namespace Module {
+namespace ifc {
 
     // Evaluate to true if the type parameter is a character type.
     template<typename T>
-    concept CharType = std::is_same_v<T, char> ||
-        std::is_same_v<T, unsigned char> ||
-        std::is_same_v<T, signed char> ||
+    concept CharType = std::is_same_v<T, char> or
+        std::is_same_v<T, unsigned char> or
+        std::is_same_v<T, signed char> or
         std::is_same_v<T, char8_t>;
 
     // Return the number of characters in a C-style NUL-terminated byte string.
@@ -83,7 +83,7 @@ namespace Module {
 
         explicit operator bool() const
         {
-            return !empty();
+            return not empty();
         }
 
         using Base::begin;
@@ -151,6 +151,6 @@ namespace Module {
         }
     };
 
-} // namespace Module
+} // namespace ifc
 
 #endif // IFC_PATHNAME_INCLUDED

@@ -15,7 +15,7 @@
 #include "ifc/version.hxx"
 #include <gsl/span>
 
-namespace Module {
+namespace ifc {
     using ifc::implies;
     using ifc::to_underlying;
 
@@ -331,7 +331,7 @@ namespace Module {
         static bool has_signature(InputIfc& file, const T& sig)
         {
             auto start = &(*file.tell());
-            return file.position(ByteOffset{ sizeof sig }) && memcmp(start, sig, sizeof sig) == 0;
+            return file.position(ByteOffset{ sizeof sig }) and memcmp(start, sig, sizeof sig) == 0;
         }
 
         static void validate_content_integrity(const InputIfc& file);
@@ -392,9 +392,9 @@ namespace Module {
         }
 
         template <UnitSort Kind, typename T>
-        bool validate(const Module::Pathname& path, Architecture arch, const T& ifc_designator, IfcOptions options)
+        bool validate(const ifc::Pathname& path, Architecture arch, const T& ifc_designator, IfcOptions options)
         {
-            if (!has_signature(*this, Module::InterfaceSignature))
+            if (!has_signature(*this, ifc::InterfaceSignature))
                 return false;
 
             if (implies(options, IfcOptions::IntegrityCheck))
@@ -407,7 +407,7 @@ namespace Module {
                 return false;
 
             if (header->version > CurrentFormatVersion
-                || (header->version < MinimumFormatVersion && header->version != EDGFormatVersion))
+                or (header->version < MinimumFormatVersion and header->version != EDGFormatVersion))
                 throw UnsupportedFormatVersion{ header->version };
 
             // If the user requested an unknown architecture, we do not perform architecture check.
@@ -436,12 +436,12 @@ namespace Module {
                 str_tab = { &bytes[0], static_cast<StringTable::size_type>(nbytes) };
             }
 
-            if constexpr (Kind == UnitSort::Primary || Kind == UnitSort::ExportedTU)
+            if constexpr (Kind == UnitSort::Primary or Kind == UnitSort::ExportedTU)
             {
                 // If we are reading module to merge then the final module name (which can be provided on the command-line) may not
                 // match the name of the module we are loading. So there is no need to check.
                 if (!ifc_designator.empty()
-                    && (header->unit.sort() == UnitSort::Primary || header->unit.sort() == UnitSort::ExportedTU))
+                    and (header->unit.sort() == UnitSort::Primary or header->unit.sort() == UnitSort::ExportedTU))
                 {
                     auto sz = to_underlying(header->unit.module_name());
                     IFCASSERT(sz <= to_underlying(header->string_table_size));
@@ -462,7 +462,7 @@ namespace Module {
                 // If we are reading module to merge then the final module name (which can be provided on the command-line) may not
                 // match the name of the module we are loading. So there is no need to check.
                 if (!ifc_designator.partition.empty()
-                    && (header->unit.sort() == UnitSort::Partition))
+                    and (header->unit.sort() == UnitSort::Partition))
                 {
                     auto sz = to_underlying(header->unit.module_name());
                     IFCASSERT(sz <= to_underlying(header->string_table_size));

@@ -1,6 +1,6 @@
 #include "common.hxx"
 
-namespace Module::util
+namespace ifc::util
 {
     void load(Loader& ctx, Node& node, SentenceIndex index)
     {

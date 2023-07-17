@@ -7,7 +7,7 @@
 
 #include <ifc/underlying.hxx>
 
-namespace Module {
+namespace ifc {
     enum class ColumnNumber : int32_t {
         Invalid = -1
     };
@@ -32,6 +32,6 @@ namespace Module {
     {
         return ColumnNumber{ifc::to_underlying(n) + 1};
     }
-} // namespace Module
+} // namespace ifc
 
 #endif      // IFC_BASIC_TYPES

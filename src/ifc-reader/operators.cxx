@@ -1,7 +1,7 @@
 #include "ifc/util.hxx"
 #include <map>
 
-namespace Module::util
+namespace ifc::util
 {
     namespace
     {
@@ -263,4 +263,4 @@ namespace Module::util
     }
     // clang-format on
 
-}  // namespace Module::util
+}  // namespace ifc::util

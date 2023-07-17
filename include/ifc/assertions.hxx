@@ -13,7 +13,7 @@ void ifc_assert(
 
 // IFCVERIFY is always on.
 #define IFCVERIFY(expression) (void)(                                                       \
-            (!!(expression)) ||                                                              \
+            (not not(expression)) or                                                              \
             (ifc_assert(#expression, __FILE__, __LINE__), 0) \
         )
 
@@ -24,7 +24,7 @@ void ifc_assert(
 #else
 
 #define IFCASSERT(expression) (void)(                                                       \
-            (!!(expression)) ||                                                              \
+            (not not(expression)) or                                                              \
             (ifc_assert(#expression, __FILE__, __LINE__), 0) \
         )
 

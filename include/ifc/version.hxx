@@ -7,7 +7,7 @@
 
 #include <compare>
 
-namespace Module {
+namespace ifc {
     // File format versioning description
     enum class Version : std::uint8_t { };
     struct FormatVersion {

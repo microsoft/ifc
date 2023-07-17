@@ -51,7 +51,7 @@ namespace {
             }
         }
 
-        Module::SHA256Hash hash(const std::byte* first, const std::byte* last)
+        ifc::SHA256Hash hash(const std::byte* first, const std::byte* last)
         {
             BCRYPT_HASH_HANDLE hash_handle = nullptr;
 
@@ -77,7 +77,7 @@ namespace {
                     (PUCHAR)first,
                     static_cast<ULONG>(std::distance(first, last)),
                     /*dwFlags = */0));
-            Module::SHA256Hash hash = { };
+            ifc::SHA256Hash hash = { };
             // uint32_t array should map to a uint8_t[32] array
             IFCASSERT(hash_byte_length_ == std::size(hash.value) * 4);
             digest_ntstatus<FinishHashError>(
@@ -106,7 +106,7 @@ namespace {
 
 }
 
-namespace Module {
+namespace ifc {
     SHA256Hash hash_bytes(const std::byte* first, const std::byte* last)
     {
         SHA256Helper helper;

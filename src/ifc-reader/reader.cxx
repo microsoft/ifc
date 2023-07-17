@@ -19,11 +19,11 @@ public:
     }
 };
 
-namespace Module
+namespace ifc
 {
     constexpr std::string_view analysis_partition_prefix = ".msvc.code-analysis.";
 
-    Reader::Reader(const Module::InputIfc& ifc) : ifc(ifc)
+    Reader::Reader(const ifc::InputIfc& ifc) : ifc(ifc)
     {
          if (not ifc.header())
             throw "file not found";
@@ -34,8 +34,8 @@ namespace Module
     {
         for (auto& summary : ifc.partition_table())
         {
-            IFCASSERT(!index_like::null(summary.name));
-            IFCASSERT(!summary.empty());
+            IFCASSERT(not index_like::null(summary.name));
+            IFCASSERT(not summary.empty());
             std::string_view name = get(summary.name);
             // Partitions created by the analysis plugins are not members of the usual table of
             // contents structure.

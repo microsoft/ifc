@@ -4,7 +4,7 @@
 #include <stack>
 #include <set>
 
-namespace Module::util
+namespace ifc::util
 {
     namespace
     {
@@ -121,7 +121,7 @@ namespace Module::util
                     stream << n.id;
                     // Only declarations have an index embedded in the id, but, if a
                     // use requested printing of index, we will print it as requested.
-                    if (depth == 0 && implies(options, Print_options::Top_level_index) &&
+                    if (depth == 0 and implies(options, PrintOptions::Top_level_index) and
                         n.key.kind() != SortKind::Decl)
                         stream << "-" << (int)n.key.index();
                 }
@@ -161,7 +161,7 @@ namespace Module::util
 
                 for (auto& entry : n.props)
                     if (not known.contains(entry.first))
-                        if (std::string str = get_string_prop(entry.second); !str.empty())
+                        if (std::string str = get_string_prop(entry.second); not str.empty())
                             stream << ' ' << str;
 
                 stream << std::endl;
@@ -189,7 +189,7 @@ namespace Module::util
 
             void update_indent(size_t, Child_type);
 
-            explicit Tree_printer(std::ostream& stream, Print_options options = {}) :
+            explicit Tree_printer(std::ostream& stream, PrintOptions options = {}) :
                 stream(stream), options(options)
             {
             }
@@ -198,7 +198,7 @@ namespace Module::util
             {
                 Color_setter(Tree_printer& pp, Console_color color) :
                     Scoped_console_color(
-                        pp.stream, color, implies(pp.options, Print_options::Use_color))
+                        pp.stream, color, implies(pp.options, PrintOptions::Use_color))
                 {
                 }
             };
@@ -207,7 +207,7 @@ namespace Module::util
             size_t depth{0};
 
             std::ostream& stream;
-            Print_options options;
+            PrintOptions options;
 
             std::string indent;
             std::stack<Indent_action> indents;
@@ -229,7 +229,7 @@ namespace Module::util
                 indents.push(action);
                 indent += indent_strs[static_cast<enum_type>(action)];
             }
-            else if (!indents.empty())
+            else if (not indents.empty())
             {
                 auto indent_size = indent_strs[static_cast<enum_type>(indents.top())].size();
                 indent = indent.substr(0, indent.size() - indent_size);
@@ -243,8 +243,8 @@ namespace Module::util
         {
             if (depth != 0)
             {
-                if (!indents.empty() &&
-                    (child_type == Child_type::First || child_type == Child_type::Only_child))
+                if (not indents.empty() and
+                    (child_type == Child_type::First or child_type == Child_type::Only_child))
                 {
                     if (indents.top() == Indent_action::Child)
                     {
@@ -261,7 +261,7 @@ namespace Module::util
                     *this << Indent_action::Undo;
                 }
 
-                if (child_type == Child_type::First || child_type == Child_type::Regular)
+                if (child_type == Child_type::First or child_type == Child_type::Regular)
                 {
                     *this << Indent_action::Child;
                 }
@@ -273,10 +273,10 @@ namespace Module::util
         }
     }  // namespace
 
-    void print(const Node& node, std::ostream& os, Print_options options)
+    void print(const Node& node, std::ostream& os, PrintOptions options)
     {
         Tree_printer tree(os, options);
         tree.visit(node);
     }
 
-}  // namespace Module::util
+}  // namespace ifc::util

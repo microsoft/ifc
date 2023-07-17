@@ -8,7 +8,7 @@
 #include <concepts>
 #include <ifc/underlying.hxx>
 
-namespace Module {
+namespace ifc {
 
     // The many sorts of words that make up a sentence
     enum class WordSort : uint8_t {
@@ -27,7 +27,7 @@ namespace Module {
     // temporary measure, those c1xx-tokens are abtracted into words of various sorts, 
     // shielded from the token-du-jour update vagaries.  These temporary measures will be
     // removed as c1xx gains more a principled internal representation.
-    namespace Source {
+    namespace source {
         enum class Directive : uint16_t {
             Unknown = 0x0000,
 
@@ -384,11 +384,11 @@ namespace Module {
     }
 
     template<typename T>
-    concept PPOperatorCategory = std::same_as<T, Source::Punctuator>
-        or std::same_as<T, Source::Operator>;
+    concept PPOperatorCategory = std::same_as<T, source::Punctuator>
+        or std::same_as<T, source::Operator>;
 
-    constexpr WordSort pp_operator_sort(Source::Operator) { return WordSort::Operator; }
-    constexpr WordSort pp_operator_sort(Source::Punctuator) { return WordSort::Punctuator; }
+    constexpr WordSort pp_operator_sort(source::Operator) { return WordSort::Operator; }
+    constexpr WordSort pp_operator_sort(source::Punctuator) { return WordSort::Punctuator; }
 
     // Stores preprocessing operators and punctuators, before any semantic conversion is done.
     struct PPOperator
@@ -404,8 +404,8 @@ namespace Module {
         uint16_t tag : 3;
         uint16_t value : 13; // MSVC starts at 0x1FFF, so all values prior fit into 13 bits.
         static_assert(ifc::bit_length(ifc::to_underlying(WordSort::Count)) == 3);
-        static_assert(ifc::bit_length(ifc::to_underlying(Source::Operator::Msvc)) == 13);
-        static_assert(ifc::bit_length(ifc::to_underlying(Source::Punctuator::Msvc)) == 13);
+        static_assert(ifc::bit_length(ifc::to_underlying(source::Operator::Msvc)) == 13);
+        static_assert(ifc::bit_length(ifc::to_underlying(source::Punctuator::Msvc)) == 13);
     };
     static_assert(sizeof(PPOperator) == sizeof(uint16_t));
 }

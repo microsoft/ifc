@@ -25,7 +25,7 @@
 // The intent is that these data structures can be shared with external module-support tooling.  Consequently,
 // it must be independent of c1xx internal data structures, while faithful to the core C++ semantics.
 
-namespace Module {
+namespace ifc {
     using index_like::Index;
 
     // For every sort-like enumeration, return the maximum value
@@ -706,7 +706,7 @@ namespace Module {
 
     // All entities are externally represented in a symbolic form.
     // The data structures for symbolic representation are defined in this namespace.
-    namespace Symbolic {
+    namespace symbolic {
         struct Declaration {
             DeclIndex index;
         };
@@ -807,12 +807,12 @@ namespace Module {
             };
             union {
                 WordCategory category = { };                // FIXME: Horrible workaround deficiencies.  Remove.
-                Source::Directive src_directive;
-                Source::Punctuator src_punctuator;
-                Source::Literal src_literal;
-                Source::Operator src_operator;
-                Source::Keyword src_keyword;
-                Source::Identifier src_identifier;
+                source::Directive src_directive;
+                source::Punctuator src_punctuator;
+                source::Literal src_literal;
+                source::Operator src_operator;
+                source::Keyword src_keyword;
+                source::Identifier src_identifier;
             };
             WordSort algebra_sort = { };
         };
@@ -1084,7 +1084,7 @@ namespace Module {
         };
 
         // The types that provide a syntactic representation of a program
-        namespace Syntax
+        namespace syntax
         {
             // DecltypeSpecifer is 'decltype(expression)'. DecltypeAutoSpecifier is 'decltype(auto)'. See below.
             struct DecltypeSpecifier : Tag<SyntaxSort::DecltypeSpecifier> {
@@ -1095,7 +1095,7 @@ namespace Module {
             };
 
             struct PlaceholderTypeSpecifier : Tag<SyntaxSort::PlaceholderTypeSpecifier> {
-                Symbolic::PlaceholderType type { };      // The placeholder type of the placeholder-type-specifier
+                symbolic::PlaceholderType type{};        // The placeholder type of the placeholder-type-specifier
                 SourceLocation keyword { };              // The source location of the 'auto'/'decltype(auto)'
                 SourceLocation locus { };                // The source location of the placeholder-type-specifier.
                                                             // This can be different from keyword_ if type-constraint
@@ -1910,7 +1910,7 @@ namespace Module {
                 Tuple(Index f, Cardinality n) : Sequence{ f, n } { }
             };
 
-            namespace Microsoft
+            namespace microsoft
             {
                 // There are a few operators that accept either a type or an expression -- or in some cases template name.
                 // Usually such an operator will establish a default kind (choose either type or expression) and have
@@ -2910,7 +2910,7 @@ namespace Module {
         // Sequence of one or more attributes.
         struct TupleAttr : Tag<AttrSort::Tuple>, Sequence<AttrIndex, HeapSort::Attr> { };
 
-        namespace Microsoft
+        namespace microsoft
         {
             enum class PragmaCommentSort : uint8_t {
                 Unknown,
@@ -2927,7 +2927,7 @@ namespace Module {
                 TextOffset comment_text = { };
                 PragmaCommentSort sort = PragmaCommentSort::Unknown;
             };
-        } // namespace Microsoft
+        } // namespace microsoft
         enum class Phases : uint32_t {
             Unknown         = 0,
             Reading         = 1 << 0,
@@ -2984,9 +2984,9 @@ namespace Module {
         };
 
         struct TupleDirective : Tag<DirSort::Tuple>, Sequence<DirIndex, HeapSort::Dir> { };
-    } // namespace Symbolic
+    } // namespace symbolic
 
-    namespace Symbolic::Preprocessing {
+    namespace symbolic::preprocessing {
         struct IdentifierForm : Tag<FormSort::Identifier>
         {
             SourceLocation locus = {};
@@ -3124,7 +3124,7 @@ namespace Module {
                                 or std::same_as<T, TextOffset>;
 
     template <typename T>
-    concept AnyTraitSort = std::same_as<T, TraitSort> || std::same_as<T, MsvcTraitSort>;
+    concept AnyTraitSort = std::same_as<T, TraitSort> or std::same_as<T, MsvcTraitSort>;
 
     // Declarations have various extension traits, such as deprecation message, code segment allocation, etc.
     // This is the data type used as entry into the decl-trait association table.
@@ -3144,7 +3144,7 @@ namespace Module {
     template <typename T>
     concept AnyTrait =
         std::derived_from<T, AssociatedTrait<typename T::KeyType, typename T::ValueType>>
-           && std::derived_from<T, TraitTag<T::partition_tag>>;
+           and std::derived_from<T, TraitTag<T::partition_tag>>;
 
     // Ordering used for traits
     struct TraitOrdering
@@ -3159,7 +3159,7 @@ namespace Module {
         bool operator()(T& x, typename T::KeyType y) const { return x.entity < y; }
     };
 
-    namespace Symbolic::Trait
+    namespace symbolic::trait
     {
         struct MappingExpr     : AssociatedTrait<DeclIndex, MappingDefinition>,     TraitTag<TraitSort::MappingExpr> { };
         struct AliasTemplate   : AssociatedTrait<DeclIndex, SyntaxIndex>,           TraitTag<TraitSort::AliasTemplate> { };
@@ -3171,8 +3171,8 @@ namespace Module {
         struct DeductionGuides : AssociatedTrait<DeclIndex, DeclIndex>,             TraitTag<TraitSort::DeductionGuides> { };
     }
 
-    // Msvc specific traits. Should they be in their own namespace, like Symbolic::MsvcTrait?
-    namespace Symbolic::Trait
+    // Msvc specific traits. Should they be in their own namespace, like symbolic::MsvcTrait?
+    namespace symbolic::trait
     {
         struct LocusSpan {
             SourceLocation begin;
@@ -3264,7 +3264,7 @@ namespace Module {
 
         PartitionSummaryData& operator[](StringSort s)
         {
-            IFCVERIFY(s >= StringSort::Ordinary && s < StringSort::Count);
+            IFCVERIFY(s >= StringSort::Ordinary and s < StringSort::Count);
             return string_literals;
         }
 
@@ -3275,13 +3275,13 @@ namespace Module {
 
         PartitionSummaryData& operator[](NameSort s)
         {
-            IFCVERIFY(s > NameSort::Identifier && s < NameSort::Count);
+            IFCVERIFY(s > NameSort::Identifier and s < NameSort::Count);
             return names[ifc::to_underlying(s) - 1];
         }
 
         const PartitionSummaryData& operator[](NameSort s) const
         {
-            IFCVERIFY(s > NameSort::Identifier && s < NameSort::Count);
+            IFCVERIFY(s > NameSort::Identifier and s < NameSort::Count);
             return names[ifc::to_underlying(s) - 1];
         }
 
@@ -3400,6 +3400,6 @@ namespace Module {
     const char* sort_name(TraitSort);
     const char* sort_name(MsvcTraitSort);
 
-} // namespace Module
+} // namespace ifc
 
 #endif      // IFC_ABSTRACT_SGRAPH

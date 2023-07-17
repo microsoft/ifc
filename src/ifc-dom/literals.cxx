@@ -1,7 +1,7 @@
 #include "common.hxx"
 #include "ifc/util.hxx"
 
-namespace Module::util
+namespace ifc::util
 {
     std::string to_string(Loader& ctx, LitIndex index)
     {

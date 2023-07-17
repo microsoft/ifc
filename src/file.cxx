@@ -4,7 +4,7 @@
 
 #include <ifc/file.hxx>
 
-namespace Module {
+namespace ifc {
     void InputIfc::validate_content_integrity(const InputIfc& file)
     {
         // Verify integrity of ifc.  To do this we know that the header content after the hash
@@ -18,7 +18,7 @@ namespace Module {
         auto actual_last = actual_first + std::size(result.value) * 4;
         auto expected_first = reinterpret_cast<const uint8_t*>(&contents[hash_start]);
         auto expected_last = expected_first + sizeof(SHA256Hash);
-        if (!std::equal(actual_first,
+        if (not std::equal(actual_first,
             actual_last,
             expected_first,
             expected_last))

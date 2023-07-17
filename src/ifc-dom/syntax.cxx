@@ -1,6 +1,6 @@
 #include "common.hxx"
 
-namespace Module::util
+namespace ifc::util
 {
     void load(Loader&, Node& node, SyntaxIndex index)
     {
@@ -8,4 +8,4 @@ namespace Module::util
         node.id = to_string(index);
     }
 
-}  // namespace Module::util
+}  // namespace ifc::util

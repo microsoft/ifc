@@ -17,7 +17,7 @@
 
 
 // Note: These probably belong to a different namespace.  Will move when all comes together.
-namespace Module {
+namespace ifc {
     // The many sort of operators.
     // Note: Valid values of this type must fit in 4 bits.  See Operator class below.
     enum class OperatorSort : uint8_t {

@@ -4,12 +4,12 @@
 #include "ifc/dom/node.hxx"
 #include "ifc/reader.hxx"
 
-namespace Module::util
+namespace ifc::util
 {
     std::string to_string(Loader&, NameIndex);
     std::string to_string(Loader&, LitIndex);
     std::string to_string(Loader&, StringIndex);
-    std::string to_string(Loader&, Symbolic::NoexceptSpecification);
+    std::string to_string(Loader&, symbolic::NoexceptSpecification);
     std::string expr_list(Loader&, ExprIndex, std::string delimiters = "");
 
     namespace detail
@@ -58,6 +58,6 @@ namespace Module::util
             }
         };
     }  // namespace detail
-}  // namespace Module::util
+}  // namespace ifc::util
 
 #endif // IFC_UTIL_DOM_COMMON_H

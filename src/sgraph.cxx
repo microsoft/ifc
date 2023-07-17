@@ -9,7 +9,7 @@
 
 #include <ifc/abstract-sgraph.hxx>
 
-namespace Module {
+namespace ifc {
     namespace {
         template<typename T>
         struct SortNameMapEntry {
@@ -562,7 +562,7 @@ namespace Module {
                     {
                         return entry.name < name;
                     });
-                if ((iter != end()) && (iter->name == name))
+                if ((iter != end()) and (iter->name == name))
                 {
                     return iter;
                 }
@@ -623,7 +623,7 @@ namespace Module {
         PartitionSummaryData& msvc_trait_lookup(TableOfContents& toc, std::string_view name)
         {
             // A couple of msvc traits are not AssociatedTraits and require special handling
-            if (has_prefix(name, ".msvc.trait.impl-pragmas") || has_prefix(name, ".msvc.trait.suppressed-warnings"))
+            if (has_prefix(name, ".msvc.trait.impl-pragmas") or has_prefix(name, ".msvc.trait.suppressed-warnings"))
                 return uncategorized_partition_lookup(toc, name);
 
             return entry_by_name<msvc_traitsort_table, &TableOfContents::msvc_traits>(toc, name);

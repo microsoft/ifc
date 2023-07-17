@@ -128,9 +128,9 @@ namespace {
         v = ((v & 0xff000000) >> 24) | ((v & 0xff0000) >> 8) | ((v & 0xff00) << 8) | ((v & 0xff) << 24);
     }
 
-    constexpr Module::SHA256Hash sha256(gsl::span<const std::byte> span)
+    constexpr ifc::SHA256Hash sha256(gsl::span<const std::byte> span)
     {
-        Module::SHA256Hash hash = { initial_hash_values };
+        ifc::SHA256Hash hash = {initial_hash_values};
 
         auto length = span.size();
         auto base = span.data();
@@ -196,17 +196,19 @@ namespace {
 
     // "", "E3B0C442 98FC1C14 9AFBF4C8 996FB924 27AE41E4 649B934C A495991B 7852B855");
     constexpr const std::byte test1[1] = {};
-    constexpr Module::SHA256Hash hash1 = { 0x42C4B0E3,  0x141CFC98, 0xC8F4FB9A, 0x24B96F99, 0xE441AE27, 0x4C939B64, 0x1B9995A4, 0x55B85278 };
+    constexpr ifc::SHA256Hash hash1    = {0x42C4B0E3, 0x141CFC98, 0xC8F4FB9A, 0x24B96F99,
+                                          0xE441AE27, 0x4C939B64, 0x1B9995A4, 0x55B85278};
     static_assert(sha256(gsl::span<const std::byte>(test1, test1)).value == hash1.value);
 
     // "a" "CA978112 CA1BBDCA FAC231B3 9A23DC4D A786EFF8 147C4E72 B9807785 AFEE48BB");
     constexpr const std::byte test2[1] = { std::byte{'a'} };
-    constexpr Module::SHA256Hash hash2 = { 0x128197CA,  0xCABD1BCA, 0xB331C2FA, 0x4DDC239A, 0xF8EF86A7, 0x724E7C14, 0x857780B9, 0xBB48EEAF };
+    constexpr ifc::SHA256Hash hash2    = {0x128197CA, 0xCABD1BCA, 0xB331C2FA, 0x4DDC239A,
+                                          0xF8EF86A7, 0x724E7C14, 0x857780B9, 0xBB48EEAF};
     static_assert(sha256(gsl::span<const std::byte>(test2, 1)).value == hash2.value);
 #endif
 }
 
-namespace Module {
+namespace ifc {
     SHA256Hash hash_bytes(const std::byte* first, const std::byte* last)
     {
         gsl::span<const std::byte> span(first, last);
