@@ -1,9 +1,7 @@
 #include "common.hxx"
 
-namespace ifc::util
-{
-    struct Name_visitor
-    {
+namespace ifc::util {
+    struct NameVisitor {
         Loader& ctx;
 
         std::string operator()(const symbolic::OperatorFunctionId& val)
@@ -45,7 +43,7 @@ namespace ifc::util
 
     std::string to_string(Loader& ctx, NameIndex index)
     {
-        return ctx.reader.visit(index, Name_visitor{ctx});
+        return ctx.reader.visit(index, NameVisitor{ctx});
     }
 
     std::string Loader::ref(const symbolic::Identity<NameIndex>& id)
@@ -65,4 +63,4 @@ namespace ifc::util
         node.id = to_string(index);
     }
 
-}
+} // namespace ifc::util

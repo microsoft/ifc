@@ -1,7 +1,6 @@
 #include "common.hxx"
 
-namespace ifc::util
-{
+namespace ifc::util {
     Node* Loader::try_get(ChartIndex index)
     {
         if (index.sort() == ChartSort::None)
@@ -19,15 +18,13 @@ namespace ifc::util
         node.id = sort_name(index.sort());
         switch (index.sort())
         {
-        case ChartSort::Unilevel:
-        {
+        case ChartSort::Unilevel: {
             auto& params = ctx.reader.get<symbolic::UnilevelChart>(index);
             for (auto& item : ctx.reader.sequence(params))
                 node.children.push_back(&ctx.get(item));
             break;
         }
-        case ChartSort::Multilevel:
-        {
+        case ChartSort::Multilevel: {
             auto& params = ctx.reader.get<symbolic::MultiChart>(index);
             for (auto& item : ctx.reader.sequence(params))
                 node.children.push_back(&ctx.get(item));
@@ -39,4 +36,4 @@ namespace ifc::util
     }
 
 
-}  // namespace ifc::util
+} // namespace ifc::util

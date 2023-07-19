@@ -1,16 +1,11 @@
 #include "common.hxx"
 #include "ifc/util.hxx"
 
-namespace ifc::util
-{
-    namespace
-    {
+namespace ifc::util {
+    namespace {
         // we add to_string property for those items that can have be represented as a "short" by value string.
-        struct Expr_loader : detail::Loader_visitor_base
-        {
-            void operator()(const symbolic::EmptyExpression& expr)
-            {
-            }
+        struct ExprLoader : detail::LoaderVisitorBase {
+            void operator()(const symbolic::EmptyExpression& expr) {}
 
             void operator()(const symbolic::LiteralExpr& expr)
             {
@@ -281,9 +276,7 @@ namespace ifc::util
                 node.props.emplace("ref", ctx.ref(expr.function));
             }
 
-            void operator()(const symbolic::PlaceholderExpr& expr)
-            {
-            }
+            void operator()(const symbolic::PlaceholderExpr& expr) {}
 
             void operator()(const symbolic::ExpansionExpr& expr)
             {
@@ -296,13 +289,9 @@ namespace ifc::util
                     add_child(item);
             }
 
-            void operator()(const symbolic::Nullptr& expr)
-            {
-            }
+            void operator()(const symbolic::Nullptr& expr) {}
 
-            void operator()(const symbolic::This& expr)
-            {
-            }
+            void operator()(const symbolic::This& expr) {}
 
             void operator()(const symbolic::TemplateReference& expr)
             {
@@ -343,15 +332,14 @@ namespace ifc::util
                 add_child(expr.designator);
             }
 
-            template <typename T>
+            template<typename T>
             void operator()(const T&)
             {
                 // a new expression was added?
                 node.id = "!!!!! TODO: " + node.id;
             }
-
         };
-    }  // namespace [anon]
+    } // namespace
 
     void load(Loader& ctx, Node& node, ExprIndex expr)
     {
@@ -366,7 +354,7 @@ namespace ifc::util
             return;
         }
         node.id = sort_name(expr.sort());
-        ctx.reader.visit(expr, Expr_loader{ctx, node});
+        ctx.reader.visit(expr, ExprLoader{ctx, node});
     }
 
     void load(Loader& ctx, Node& node, symbolic::DefaultIndex index)
@@ -380,7 +368,7 @@ namespace ifc::util
         if (index.sort() == ExprSort::Tuple)
         {
             auto& tuple = ctx.reader.get<symbolic::TupleExpression>(index);
-            bool first = true;
+            bool first  = true;
             for (auto item : ctx.reader.sequence(tuple))
             {
                 if (not result.empty())
@@ -401,10 +389,8 @@ namespace ifc::util
 
     // Try to produce a short string for an expression, if possible.
 
-    namespace
-    {
-        struct Expr_translator
-        {
+    namespace {
+        struct ExpxTranslator {
             Loader& ctx;
 
             std::string operator()(const symbolic::EmptyExpression& expr)
@@ -437,14 +423,14 @@ namespace ifc::util
                 return std::string("decl-ref(") + ctx.ref(expr.decl) + ")";
             }
 
-            template <typename T>
+            template<typename T>
             std::string operator()(const T&)
             {
                 return "";
             }
         };
 
-    }  // namespace [anon]
+    } // namespace
 
     std::string get_string_if_possible(Loader& ctx, ExprIndex expr)
     {
@@ -452,7 +438,7 @@ namespace ifc::util
             return "no-expr";
         if (expr.sort() == ExprSort::VendorExtension)
             return "expr-vendor-" + std::to_string((int)expr.index());
-        return ctx.reader.visit(expr, Expr_translator{ctx});
+        return ctx.reader.visit(expr, ExpxTranslator{ctx});
     }
 
 } // namespace ifc::util

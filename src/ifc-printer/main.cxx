@@ -32,8 +32,7 @@ void translate_exception()
 using namespace ifc::util;
 using namespace std::literals;
 
-struct Arguments
-{
+struct Arguments {
     PrintOptions options = PrintOptions::None;
 
     // Files to process.
@@ -58,7 +57,7 @@ Arguments process_args(int argc, char** argv)
             print_help(argv[0]);
             exit(0);
         }
-        else if(argv[i] == "--color"sv or argv[i] == "-c"sv)
+        else if (argv[i] == "--color"sv or argv[i] == "-c"sv)
         {
             result.options |= PrintOptions::Use_color;
         }
@@ -91,7 +90,7 @@ Arguments process_args(int argc, char** argv)
 
 std::vector<std::byte> load_file(const std::string& name)
 {
-    std::filesystem::path path { name };
+    std::filesystem::path path{name};
     auto size = std::filesystem::file_size(path);
     std::vector<std::byte> v;
     v.resize(size);
@@ -104,9 +103,10 @@ void process_ifc(const std::string& name, PrintOptions options)
 {
     auto contents = load_file(name);
 
-    ifc::InputIfc file{ gsl::span(contents) };
+    ifc::InputIfc file{gsl::span(contents)};
     ifc::Pathname path{name.c_str()};
-    file.validate<ifc::UnitSort::Primary>(path, ifc::Architecture::Unknown, ifc::Pathname{}, ifc::IfcOptions::IntegrityCheck);
+    file.validate<ifc::UnitSort::Primary>(path, ifc::Architecture::Unknown, ifc::Pathname{},
+                                          ifc::IfcOptions::IntegrityCheck);
 
     ifc::Reader reader(file);
     ifc::util::Loader loader(reader);
@@ -118,7 +118,7 @@ void process_ifc(const std::string& name, PrintOptions options)
     options |= PrintOptions::Top_level_index;
     while (not loader.referenced_nodes.empty())
     {
-        auto it = loader.referenced_nodes.begin();
+        auto it             = loader.referenced_nodes.begin();
         const auto node_key = *it;
         loader.referenced_nodes.erase(it);
 
@@ -133,7 +133,7 @@ int main(int argc, char** argv)
 
     try
     {
-        for (const auto& file: arguments.files)
+        for (const auto& file : arguments.files)
             process_ifc(file, arguments.options);
     }
     catch (...)

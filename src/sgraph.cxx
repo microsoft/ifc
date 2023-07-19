@@ -490,7 +490,7 @@ namespace ifc {
         template<typename S, int N>
         class FieldOffsetTable {
         public:
-            struct entry {
+            struct Entry {
                 std::string_view name;
                 S sort;
             };
@@ -538,7 +538,7 @@ namespace ifc {
             }
 
         private:
-            std::array<entry, N> sorted_data;
+            std::array<Entry, N> sorted_data;
         };
 
         template<typename S, int N>

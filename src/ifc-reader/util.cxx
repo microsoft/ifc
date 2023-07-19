@@ -1,28 +1,31 @@
 #include "ifc/util.hxx"
 
-namespace ifc::util
-{
+namespace ifc::util {
     using ifc::implies;
 
-    namespace
-    {
+    namespace {
         void append(std::string& result, std::string_view suffix, std::string sep = " ")
         {
             if (not result.empty() and not suffix.empty())
                 result.append(sep);
             result.append(suffix);
         }
-    }  // namespace
+    } // namespace
 
     std::string to_string(Access access)
     {
         switch (access)
         {
-        case Access::None: return "";
-        case Access::Private: return "private";
-        case Access::Protected: return "protected";
-        case Access::Public: return "public";
-        default: return "unknown-access-" + std::to_string((int)access);
+        case Access::None:
+            return "";
+        case Access::Private:
+            return "private";
+        case Access::Protected:
+            return "protected";
+        case Access::Public:
+            return "public";
+        default:
+            return "unknown-access-" + std::to_string((int)access);
         }
     }
 
@@ -165,12 +168,18 @@ namespace ifc::util
         using Kind = symbolic::ReadExpression::Kind;
         switch (kind)
         {
-        case Kind::Unknown: return "unknown";
-        case Kind::Indirection: return "indirection";
-        case Kind::RemoveReference: return "remove-reference";
-        case Kind::LvalueToRvalue: return "lvalue-to-rvalue";
-        case Kind::IntegralConversion: return "integral-conversion";
-        default: return "unknown-read-kind-" + std::to_string((int)kind);
+        case Kind::Unknown:
+            return "unknown";
+        case Kind::Indirection:
+            return "indirection";
+        case Kind::RemoveReference:
+            return "remove-reference";
+        case Kind::LvalueToRvalue:
+            return "lvalue-to-rvalue";
+        case Kind::IntegralConversion:
+            return "integral-conversion";
+        default:
+            return "unknown-read-kind-" + std::to_string((int)kind);
         }
     }
 
@@ -178,14 +187,22 @@ namespace ifc::util
     {
         switch (conv)
         {
-        case CallingConvention::Cdecl: return "__cdecl";
-        case CallingConvention::Fast: return "__fastcall";
-        case CallingConvention::Std: return "__stdcall";
-        case CallingConvention::This: return "__thiscall";
-        case CallingConvention::Clr: return "__clrcall";
-        case CallingConvention::Vector: return "__vectorcall";
-        case CallingConvention::Eabi: return "__eabi";
-        default: return "calling-conv-" + std::to_string((int)conv);
+        case CallingConvention::Cdecl:
+            return "__cdecl";
+        case CallingConvention::Fast:
+            return "__fastcall";
+        case CallingConvention::Std:
+            return "__stdcall";
+        case CallingConvention::This:
+            return "__thiscall";
+        case CallingConvention::Clr:
+            return "__clrcall";
+        case CallingConvention::Vector:
+            return "__vectorcall";
+        case CallingConvention::Eabi:
+            return "__eabi";
+        default:
+            return "calling-conv-" + std::to_string((int)conv);
         }
     }
 
@@ -193,12 +210,18 @@ namespace ifc::util
     {
         switch (sort)
         {
-        case NoexceptSort::False: return "noexcept(false)";
-        case NoexceptSort::True: return "noexcept(true)";
-        case NoexceptSort::Expression: return "noexcept(<expression>)";
-        case NoexceptSort::InferredSpecialMember: return "noexcept(<inferred-special-member>)";
-        case NoexceptSort::Unenforced: return "noexcept(<unenforced>)";
-        default: return "unknown-noexcept-sort-" + std::to_string((int)sort);
+        case NoexceptSort::False:
+            return "noexcept(false)";
+        case NoexceptSort::True:
+            return "noexcept(true)";
+        case NoexceptSort::Expression:
+            return "noexcept(<expression>)";
+        case NoexceptSort::InferredSpecialMember:
+            return "noexcept(<inferred-special-member>)";
+        case NoexceptSort::Unenforced:
+            return "noexcept(<unenforced>)";
+        default:
+            return "unknown-noexcept-sort-" + std::to_string((int)sort);
         }
     }
 
@@ -207,10 +230,14 @@ namespace ifc::util
         using Kind = symbolic::ExpressionList::Delimiter;
         switch (delimiter)
         {
-        case Kind::Unknown: return "Unknown";
-        case Kind::Brace: return "Brace";
-        case Kind::Parenthesis: return "Parenthesis";
-        default: return "unknown-delimiter-kind-" + std::to_string((int)delimiter);
+        case Kind::Unknown:
+            return "Unknown";
+        case Kind::Brace:
+            return "Brace";
+        case Kind::Parenthesis:
+            return "Parenthesis";
+        default:
+            return "unknown-delimiter-kind-" + std::to_string((int)delimiter);
         }
     }
 
@@ -219,10 +246,14 @@ namespace ifc::util
         using Kind = symbolic::DestructorCall::Kind;
         switch (kind)
         {
-        case Kind::Unknown: return "UnknownDtorKind";
-        case Kind::Destructor: return "Destructor";
-        case Kind::Finalizer: return "Finalizer";
-        default: return "unknown-dtor-kind-constant-" + std::to_string((int)kind);
+        case Kind::Unknown:
+            return "UnknownDtorKind";
+        case Kind::Destructor:
+            return "Destructor";
+        case Kind::Finalizer:
+            return "Finalizer";
+        default:
+            return "unknown-dtor-kind-constant-" + std::to_string((int)kind);
         }
     }
 
@@ -231,10 +262,14 @@ namespace ifc::util
         using Kind = symbolic::Initializer::Kind;
         switch (kind)
         {
-        case Kind::Unknown: return "unknown";
-        case Kind::DirectInitialization: return "direct";
-        case Kind::CopyInitialization: return "copy";
-        default: return "unknown-initializer-kind-constant-" + std::to_string((int)kind);
+        case Kind::Unknown:
+            return "unknown";
+        case Kind::DirectInitialization:
+            return "direct";
+        case Kind::CopyInitialization:
+            return "copy";
+        default:
+            return "unknown-initializer-kind-constant-" + std::to_string((int)kind);
         }
     }
 
@@ -243,10 +278,14 @@ namespace ifc::util
         using Kind = symbolic::Associativity;
         switch (kind)
         {
-        case Kind::Unspecified: return "unspecified";
-        case Kind::Left: return "left";
-        case Kind::Right: return "right";
-        default: return "unknown-associativity-constant-" + std::to_string((int)kind);
+        case Kind::Unspecified:
+            return "unspecified";
+        case Kind::Left:
+            return "left";
+        case Kind::Right:
+            return "right";
+        default:
+            return "unknown-associativity-constant-" + std::to_string((int)kind);
         }
     }
 
@@ -276,8 +315,7 @@ namespace ifc::util
 
     // simple type printing
 
-    namespace
-    {
+    namespace {
         std::string add_type_sign(std::string base, symbolic::TypeSign sign)
         {
             if (sign == symbolic::TypeSign::Signed)
@@ -311,7 +349,7 @@ namespace ifc::util
             }
             // clang-format on
         }
-    }  // namespace
+    } // namespace
 
     std::string to_string(const symbolic::FundamentalType& type)
     {
@@ -351,4 +389,4 @@ namespace ifc::util
         return to_string(symbolic::FundamentalType{basis, {}, {}});
     }
 
-}  // namespace ifc::util
+} // namespace ifc::util

@@ -1,14 +1,13 @@
 #include "common.hxx"
 #include "ifc/util.hxx"
 
-namespace ifc::util
-{
+namespace ifc::util {
     void load(Loader& ctx, Node& node, ScopeIndex index)
     {
         if (auto* scope = ctx.reader.try_get(index))
         {
             const auto seq = ctx.reader.sequence(*scope);
-            node.id = "scope-" + std::to_string((int)index);
+            node.id        = "scope-" + std::to_string((int)index);
             node.children.reserve(seq.size());
 
             for (auto& decl : seq)
@@ -24,8 +23,7 @@ namespace ifc::util
         return result;
     }
 
-    namespace
-    {
+    namespace {
         symbolic::TypeBasis get_type_basis(Loader& pp, TypeIndex index)
         {
             // Must be a fundamental type.
@@ -37,26 +35,25 @@ namespace ifc::util
             auto& fundamental = pp.reader.get<symbolic::FundamentalType>(index);
             return fundamental.basis;
         }
-    }  // namespace [anon]
+    } // namespace
 
-    template <index_like::Algebra Index>
+    template<index_like::Algebra Index>
     void load_initializer(Loader& ctx, Node& n, Index index)
     {
         if (not index_like::null(index))
             n.children.push_back(&ctx.get(index));
     }
 
-    template <typename T, auto... Tags>
+    template<typename T, auto... Tags>
     void load_initializer(Loader& ctx, Node& n, const Sequence<T, Tags...>& seq)
     {
-        for (const auto& item: ctx.reader.sequence(seq))
+        for (const auto& item : ctx.reader.sequence(seq))
             n.children.push_back(&ctx.get(item));
     }
 
     void load_specializations(Loader& ctx, DeclIndex decl_index)
     {
-        if (auto* specializations =
-                ctx.reader.try_find<symbolic::trait::Specializations>(decl_index))
+        if (auto* specializations = ctx.reader.try_find<symbolic::trait::Specializations>(decl_index))
             for (auto& decl : ctx.reader.sequence(specializations->trait))
                 ctx.referenced_nodes.insert(decl.index);
     }
@@ -81,7 +78,7 @@ namespace ifc::util
     template <class T> concept HasHomeScope = requires(T x) { x.home_scope; };
     // clang-format on
 
-    template <typename T>
+    template<typename T>
     void load_common_props(Loader& ctx, Node& n, const T& val)
     {
         if constexpr (HasType<T>)
@@ -100,7 +97,7 @@ namespace ifc::util
             if (not null(val.base))
                 n.props.emplace("base", ctx.ref(val.base)); // type
 
-        if constexpr (HasBaseCtor<T>) // reusing 'base' key intentionally
+        if constexpr (HasBaseCtor<T>)                        // reusing 'base' key intentionally
             n.props.emplace("base", ctx.ref(val.base_ctor)); // declref
 
         if constexpr (HasBasicSpec<T>)
@@ -156,8 +153,7 @@ namespace ifc::util
             node.children.push_back(&ctx.get(mapping_def->trait.body));
         }
         // Inline functions (and all other under a switch to be added).
-        else if (auto* mapping_def =
-                     ctx.reader.try_find<symbolic::trait::MsvcCodegenMappingExpr>(fn_index))
+        else if (auto* mapping_def = ctx.reader.try_find<symbolic::trait::MsvcCodegenMappingExpr>(fn_index))
         {
             if (auto* params = ctx.try_get(mapping_def->trait.parameters))
                 node.children.push_back(params);
@@ -174,8 +170,7 @@ namespace ifc::util
         }
     }
 
-    struct Decl_loader : detail::Loader_visitor_base
-    {
+    struct DeclLoader : detail::LoaderVisitorBase {
         void load_friends(DeclIndex decl_index)
         {
             if (auto* friends = ctx.reader.try_find<symbolic::trait::Friends>(decl_index))
@@ -265,7 +260,6 @@ namespace ifc::util
         {
             load_common_props(ctx, node, alias);
             node.props.emplace("aliasee", ctx.ref(alias.aliasee));
-
         }
 
         void operator()(DeclIndex, const symbolic::TemploidDecl& decl)
@@ -291,7 +285,7 @@ namespace ifc::util
             // Indentity stores mangled name for partial specializations,
             // Replace the name property with a proper name.
             node.props["mangled"] = node.props["name"];
-            node.props["name"] = to_string(ctx, decl.specialization_form);
+            node.props["name"]    = to_string(ctx, decl.specialization_form);
             if (auto* params = ctx.try_get(decl.chart))
                 node.children.push_back(params);
             add_child(decl.entity.decl);
@@ -324,8 +318,8 @@ namespace ifc::util
         void operator()(DeclIndex, const symbolic::ReferenceDecl& decl)
         {
             std::string name = index_like::null(decl.translation_unit.owner) ?
-                "<global>" :
-                ctx.reader.get(decl.translation_unit.owner);
+                                   "<global>" :
+                                   ctx.reader.get(decl.translation_unit.owner);
             if (not index_like::null(decl.translation_unit.partition))
                 name += ":" + std::string(ctx.reader.get(decl.translation_unit.partition));
 
@@ -393,8 +387,8 @@ namespace ifc::util
         }
 
         node.id = to_string(index);
-        Decl_loader loader{ctx, node};
+        DeclLoader loader{ctx, node};
         ctx.reader.visit_with_index(index, loader);
     }
 
-}  // namespace ifc::dom
+} // namespace ifc::util

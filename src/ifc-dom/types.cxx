@@ -1,13 +1,10 @@
 #include "common.hxx"
 
-namespace ifc::util
-{
+namespace ifc::util {
     // Try to produce a short string for an type, if possible.
 
-    namespace
-    {
-        struct Type_translator
-        {
+    namespace {
+        struct TypeTranslator {
             Loader& ctx;
 
             std::string operator()(const symbolic::FundamentalType& type)
@@ -141,7 +138,6 @@ namespace ifc::util
 
             std::string operator()(const symbolic::SyntaxTreeType& syntax)
             {
-
                 return "syntax-tree(" + ctx.ref(syntax.syntax) + ")";
             }
 
@@ -156,21 +152,19 @@ namespace ifc::util
             }
         };
 
-    }  // namespace [anon]
+    } // namespace
 
     std::string get_string_if_possible(Loader& ctx, TypeIndex index)
     {
         if (not null(index))
-            return ctx.reader.visit(index, Type_translator{ctx});
+            return ctx.reader.visit(index, TypeTranslator{ctx});
         return "no-type";
     }
 
     // Load types as full blown nodes.
 
-    namespace
-    {
-        struct Type_loader : detail::Loader_visitor_base
-        {
+    namespace {
+        struct TypeLoader : detail::LoaderVisitorBase {
             void operator()(const symbolic::FundamentalType& type)
             {
                 node.props.emplace("type", to_string(type));
@@ -291,13 +285,13 @@ namespace ifc::util
             }
         };
 
-    }  // namespace
+    } // namespace
 
     void load(Loader& ctx, Node& node, TypeIndex index)
     {
         IFCASSERT(not null(index));
         node.id = sort_name(index.sort());
-        ctx.reader.visit(index, Type_loader{ctx, node});
+        ctx.reader.visit(index, TypeLoader{ctx, node});
     }
 
-}  // namespace ifc::util
+} // namespace ifc::util

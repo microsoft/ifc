@@ -1,12 +1,9 @@
 #include "common.hxx"
 #include "ifc/util.hxx"
 
-namespace ifc::util
-{
-    namespace
-    {
-        struct Stmt_loader : detail::Loader_visitor_base
-        {
+namespace ifc::util {
+    namespace {
+        struct StmtLoader : detail::LoaderVisitorBase {
             void operator()(const symbolic::ReturnStatement& ret)
             {
                 node.props.emplace("function_type", ctx.ref(ret.function_type));
@@ -16,7 +13,7 @@ namespace ifc::util
 
             void operator()(const symbolic::TupleStatement& stmt_tuple)
             {
-                for (auto item: ctx.reader.sequence(stmt_tuple))
+                for (auto item : ctx.reader.sequence(stmt_tuple))
                     add_child(item);
             }
 
@@ -90,14 +87,14 @@ namespace ifc::util
             void operator()(const symbolic::ContinueStatement&){}
             // clang-format on
 
-            template <typename T>
+            template<typename T>
             void operator()(const T&)
             {
                 // a new statement was added?
                 node.id = "!!!!! TODO: " + node.id;
             }
         };
-    }  // namespace [anon]
+    } // namespace
 
     void load(Loader& ctx, Node& node, StmtIndex index)
     {
@@ -108,7 +105,7 @@ namespace ifc::util
         }
 
         node.id = sort_name(index.sort());
-        ctx.reader.visit(index, Stmt_loader{ctx, node});
+        ctx.reader.visit(index, StmtLoader{ctx, node});
     }
 
 } // namespace ifc::util
