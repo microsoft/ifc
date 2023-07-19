@@ -6,8 +6,7 @@
 #include "ifc/abstract-sgraph.hxx"
 #include <string>
 
-namespace ifc::util
-{
+namespace ifc::util {
     // return a single string for various IFC flags and enums
 
     std::string to_string(Access access);
@@ -42,7 +41,7 @@ namespace ifc::util
     std::string to_string(VariadicOperator assort);
 
     // return a single string of the form "decl.variable-N" for various abstract indices
-    template <index_like::MultiSorted Key>
+    template<index_like::MultiSorted Key>
     std::string to_string(Key index)
     {
         return sort_name(index.sort()) + ("-" + std::to_string((int)index.index()));
@@ -52,5 +51,5 @@ namespace ifc::util
     {
         return "sentence-" + std::to_string((int)index);
     }
-}
+} // namespace ifc::util
 #endif // IFC_UTILS_H

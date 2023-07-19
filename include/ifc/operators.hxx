@@ -21,24 +21,24 @@ namespace ifc {
     // The many sort of operators.
     // Note: Valid values of this type must fit in 4 bits.  See Operator class below.
     enum class OperatorSort : uint8_t {
-        Niladic,                            // no argument
-        Monadic,                            // one argument
-        Dyadic,                             // two arguments
-        Triadic,                            // three arguments
-        Storage = 0xE,                      // storage allocation and deallocation
-        Variadic = 0xF,                     // any number of arguments
+        Niladic,        // no argument
+        Monadic,        // one argument
+        Dyadic,         // two arguments
+        Triadic,        // three arguments
+        Storage  = 0xE, // storage allocation and deallocation
+        Variadic = 0xF, // any number of arguments
     };
 
     // The set of operators taking exactly no argument.
     // Note: Valid values of this type must fit in 12 bits.  See Operator class below.
     enum class NiladicOperator : uint16_t {
-        Unknown,                            // also serves as a placeholder for undefined
-        Phantom,                            // no expression -- not the same as Nil, which has type void
-        Constant,                           // scalar or string literal constants, constants of class types
-        Nil,                                // void() -- regularize void! (or not; but be ready)
+        Unknown,  // also serves as a placeholder for undefined
+        Phantom,  // no expression -- not the same as Nil, which has type void
+        Constant, // scalar or string literal constants, constants of class types
+        Nil,      // void() -- regularize void! (or not; but be ready)
 
         Msvc = 0x0400,
-        MsvcConstantObject,                 // MSVC internal representation of a class type object that is a constant
+        MsvcConstantObject, // MSVC internal representation of a class type object that is a constant
         MsvcLambda,
 
         Last
@@ -46,6 +46,7 @@ namespace ifc {
 
     // The set of operators taking exactly one argument.
     // Note: Valid values of this type must fit in 12 bits.  See Operator class below.
+    // clang-format off
     enum class MonadicOperator : uint16_t {
         Unknown,
         Plus,                                               // +x                   -- unethtical on non-literals, operator at source level
@@ -138,9 +139,11 @@ namespace ifc {
 
         Last
     };
+    // clang-format on
 
     // The set of operators taking exactly two arguments.
     // Note: Valid values of this type must fit in 12 bits.  See Operator class below.
+    // clang-format off
     enum class DyadicOperator : uint16_t {
         Unknown,
         Plus,                               // x + y
@@ -234,9 +237,11 @@ namespace ifc {
 
         Last
     };
+    // clang-format on
 
     // The set of operators taking exactly three arguments.
     // Note: Valid values of this type must fit in 12 bits.  See Operator class below.
+    // clang-format off
     enum class TriadicOperator : uint16_t {
         Unknown,
         Choice,                             // x ? : y: z
@@ -251,15 +256,16 @@ namespace ifc {
 
         Last
     };
+    // clang-format on
 
     // The set of operators for dynamic storage manipulation, not classified by arity.
     // Note: Valid values of this type must fit in 12 bits.  See Operator class below.
     enum class StorageOperator : uint16_t {
         Unknown,
-        AllocateSingle,                     // operator new
-        AllocateArray,                      // operator new[]
-        DeallocateSingle,                   // operator delete
-        DeallocateArray,                    // operator delete[]
+        AllocateSingle,   // operator new
+        AllocateArray,    // operator new[]
+        DeallocateSingle, // operator delete
+        DeallocateArray,  // operator delete[]
 
         Msvc = 0x0400,
 
@@ -270,14 +276,14 @@ namespace ifc {
     // Note: Valid values of this type must fit in 12 bits.  See Operator class below.
     enum class VariadicOperator : uint16_t {
         Unknown,
-        Collection,                             // x, y, z  -- collection of expressions, not the comma expression; no order of evaluation
-        Sequence,                               // Like Collection, but with a left-to-right sequencing order of evaluation
+        Collection, // x, y, z  -- collection of expressions, not the comma expression; no order of evaluation
+        Sequence,   // Like Collection, but with a left-to-right sequencing order of evaluation
 
         Msvc = 0x0400,
-        MsvcHasTrivialConstructor,          // __has_trivial_constructor(U, V, W, ...)
-        MsvcIsConstructible,                // __is_constructible(U, V, W, ...)
-        MsvcIsNothrowConstructible,         // __is_nothrow_constructible(U, V, W, ...)
-        MsvcIsTriviallyConstructible,       // __is_trivially_constructible(U, V, W, ...)
+        MsvcHasTrivialConstructor,    // __has_trivial_constructor(U, V, W, ...)
+        MsvcIsConstructible,          // __is_constructible(U, V, W, ...)
+        MsvcIsNothrowConstructible,   // __is_nothrow_constructible(U, V, W, ...)
+        MsvcIsTriviallyConstructible, // __is_trivially_constructible(U, V, W, ...)
 
         Last
     };
@@ -288,45 +294,74 @@ namespace ifc {
 
     inline constexpr auto index_precision = 16 - sort_precision;
 
-    template <typename T>
+    template<typename T>
     concept CategoryPrecisionRequirement = (ifc::bit_length(ifc::to_underlying(T::Last) - 1u) <= index_precision);
 
-    template <typename T>
-    concept CategoryTypeRequirement = std::same_as<T, NiladicOperator>
+    template<typename T>
+    // clang-format off
+    concept CategoryTypeRequirement =
+        std::same_as<T, NiladicOperator>
         or std::same_as<T, MonadicOperator>
         or std::same_as<T, DyadicOperator>
         or std::same_as<T, TriadicOperator>
         or std::same_as<T, StorageOperator>
         or std::same_as<T, VariadicOperator>;
+    // clang-format on
 
     // Conceptual denotation of C++ abstract machine operation
     template<typename T>
     concept OperatorCategory = CategoryTypeRequirement<T> and CategoryPrecisionRequirement<T>;
 
     // Mapping from arity-graded operators to their sorts
-    constexpr OperatorSort operator_sort(NiladicOperator) { return OperatorSort::Niladic; }
-    constexpr OperatorSort operator_sort(MonadicOperator) { return OperatorSort::Monadic; }
-    constexpr OperatorSort operator_sort(DyadicOperator) { return OperatorSort::Dyadic; }
-    constexpr OperatorSort operator_sort(TriadicOperator) { return OperatorSort::Triadic; }
-    constexpr OperatorSort operator_sort(StorageOperator) { return OperatorSort::Storage; }
-    constexpr OperatorSort operator_sort(VariadicOperator) { return OperatorSort::Variadic; }
+    constexpr OperatorSort operator_sort(NiladicOperator)
+    {
+        return OperatorSort::Niladic;
+    }
+    constexpr OperatorSort operator_sort(MonadicOperator)
+    {
+        return OperatorSort::Monadic;
+    }
+    constexpr OperatorSort operator_sort(DyadicOperator)
+    {
+        return OperatorSort::Dyadic;
+    }
+    constexpr OperatorSort operator_sort(TriadicOperator)
+    {
+        return OperatorSort::Triadic;
+    }
+    constexpr OperatorSort operator_sort(StorageOperator)
+    {
+        return OperatorSort::Storage;
+    }
+    constexpr OperatorSort operator_sort(VariadicOperator)
+    {
+        return OperatorSort::Variadic;
+    }
 
     // Universal representation of arity-graded operators
     struct Operator {
-        enum class Index : uint16_t { };
-        constexpr Operator() : tag{ }, value{ } { }
+        enum class Index : uint16_t {};
+        constexpr Operator() : tag{}, value{} {}
         template<OperatorCategory Category>
-        constexpr Operator(Category c) : tag(ifc::to_underlying(operator_sort(c))), value(ifc::to_underlying(c)) { }
-        constexpr OperatorSort sort() const { return OperatorSort(tag); }
-        constexpr Index index() const { return Index(value); }
+        constexpr Operator(Category c) : tag(ifc::to_underlying(operator_sort(c))), value(ifc::to_underlying(c))
+        {}
+        constexpr OperatorSort sort() const
+        {
+            return OperatorSort(tag);
+        }
+        constexpr Index index() const
+        {
+            return Index(value);
+        }
 
         auto operator<=>(const Operator&) const = default;
+
     private:
         uint16_t tag : sort_precision;
         uint16_t value : index_precision;
     };
 
     static_assert(sizeof(Operator) == sizeof(uint16_t));
-}
+} // namespace ifc
 
 #endif // IFC_OPERATORS

@@ -16,11 +16,13 @@
 namespace ifc {
 
     // Evaluate to true if the type parameter is a character type.
+    // clang-format off
     template<typename T>
-    concept CharType = std::is_same_v<T, char> or
-        std::is_same_v<T, unsigned char> or
-        std::is_same_v<T, signed char> or
-        std::is_same_v<T, char8_t>;
+    concept CharType = std::is_same_v<T, char>
+        or std::is_same_v<T, unsigned char>
+        or std::is_same_v<T, signed char>
+        or std::is_same_v<T, char8_t>;
+    // clang-format on
 
     // Return the number of characters in a C-style NUL-terminated byte string.
     template<CharType T>
@@ -45,9 +47,9 @@ namespace ifc {
     //          (3) The standard allocators are always ready when the global objects are initialized.
     struct Pathname : private std::vector<char8_t> {
         using Base = std::vector<char8_t>;
-        using Base::value_type;
-        using Base::iterator;
         using Base::const_iterator;
+        using Base::iterator;
+        using Base::value_type;
 
         Pathname()
         {
@@ -55,18 +57,17 @@ namespace ifc {
         }
 
         template<CharType T>
-        Pathname(const T* s, std::size_t len) : Base{ reinterpret_cast<const value_type*>(s),
-                                                      reinterpret_cast<const value_type*>(s) + len }
+        Pathname(const T* s, std::size_t len)
+          : Base{reinterpret_cast<const value_type*>(s), reinterpret_cast<const value_type*>(s) + len}
         {
             Base::push_back({});
         }
 
         template<CharType T>
-        Pathname(const T* s) : Pathname{ s, ntbs_length(s) } { }
+        Pathname(const T* s) : Pathname{s, ntbs_length(s)}
+        {}
 
-        Pathname(std::u8string_view utf8):
-            Base{ utf8.begin(),
-                  utf8.end() }
+        Pathname(std::u8string_view utf8) : Base{utf8.begin(), utf8.end()}
         {
             Base::push_back({});
         }
@@ -143,8 +144,8 @@ namespace ifc {
         }
 
         std::strong_ordering operator<=>(const Pathname&) const = default;
-        bool operator==(const Pathname&) const = default;
 
+        bool operator==(const Pathname&) const = default;
         bool operator==(std::u8string_view sv) const
         {
             return std::equal(begin(), end(), std::begin(sv), std::end(sv));

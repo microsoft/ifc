@@ -27,10 +27,8 @@
 #include <stdexcept>
 #include <vector>
 
-namespace ifc::util
-{
-    enum class SortKind : uint16_t
-    {
+namespace ifc::util {
+    enum class SortKind : uint16_t {
         Expr,
         Decl,
         Type,
@@ -46,18 +44,26 @@ namespace ifc::util
     {
         switch (kind)
         {
-        // clang-format off
-        case SortKind::Expr: return "expr";
-        case SortKind::Decl: return "decl";
-        case SortKind::Type: return "type";
-        case SortKind::Name: return "name";
-        case SortKind::Scope: return "scope";
-        case SortKind::Sentence: return "sentence";
-        case SortKind::Chart: return "chart";
-        case SortKind::Syntax: return "syntax";
-        case SortKind::Stmt: return "stmt";
-        default: return "unexpected-sort-kind-" + std::to_string((int)kind);
-        // clang-format on
+        case SortKind::Expr:
+            return "expr";
+        case SortKind::Decl:
+            return "decl";
+        case SortKind::Type:
+            return "type";
+        case SortKind::Name:
+            return "name";
+        case SortKind::Scope:
+            return "scope";
+        case SortKind::Sentence:
+            return "sentence";
+        case SortKind::Chart:
+            return "chart";
+        case SortKind::Syntax:
+            return "syntax";
+        case SortKind::Stmt:
+            return "stmt";
+        default:
+            return "unexpected-sort-kind-" + std::to_string((int)kind);
         }
     }
 
@@ -75,21 +81,20 @@ namespace ifc::util
     // clang-format on
 
     // Type-erased abstract index.
-    struct NodeKey
-    {
+    struct NodeKey {
         // implicit construction intentional
-        template <index_like::MultiSorted T>
-        NodeKey(T value) : index_kind(sort_kind(value)), index_sort(ifc::to_underlying(value.sort())), index_value(ifc::to_underlying(value.index()))
-        {
-        }
+        template<index_like::MultiSorted T>
+        NodeKey(T value)
+          : index_kind(sort_kind(value)), index_sort(ifc::to_underlying(value.sort())),
+            index_value(ifc::to_underlying(value.index()))
+        {}
 
         // implicit construction intentional
-        template <index_like::Unisorted T>
+        template<index_like::Unisorted T>
         NodeKey(T value) : index_kind(sort_kind(value)), index_sort(), index_value(ifc::to_underlying(value))
-        {
-        }
+        {}
 
-        bool operator==(const NodeKey&) const = default;
+        bool operator==(const NodeKey&) const  = default;
         auto operator<=>(const NodeKey&) const = default;
 
         SortKind kind() const
@@ -103,7 +108,7 @@ namespace ifc::util
         }
 
         // convert back to abstract indices
-        template <typename F>
+        template<typename F>
         decltype(auto) visit(F&& f);
 
     private:
@@ -112,12 +117,12 @@ namespace ifc::util
         const uint32_t index_value;
     };
 
-    template <typename F>
+    template<typename F>
     inline decltype(auto) NodeKey::visit(F&& f)
     {
+        // clang-format off
         switch (index_kind)
         {
-        // clang-format off
         case SortKind::Expr: return std::forward<F>(f)(index_like::make<ExprIndex>((ExprSort)index_sort, index_value));
         case SortKind::Decl: return std::forward<F>(f)(index_like::make<DeclIndex>((DeclSort)index_sort, index_value));
         case SortKind::Type: return std::forward<F>(f)(index_like::make<TypeIndex>((TypeSort)index_sort, index_value));
@@ -128,22 +133,21 @@ namespace ifc::util
         case SortKind::Syntax: return std::forward<F>(f)(index_like::make<SyntaxIndex>((SyntaxSort)index_sort, index_value));
         case SortKind::Stmt: return std::forward<F>(f)(index_like::make<StmtIndex>((StmtSort)index_sort, index_value));
         default: throw std::logic_error("unexpected SortKind-" + std::to_string((int)index_kind));
-        // clang-format on
         }
+        // clang-format on
     }
 
     struct Node;
 
     using PropertyMap = std::map<std::string, std::string>;
-    using Nodes = std::vector<const Node*>;
+    using Nodes       = std::vector<const Node*>;
 
-    struct Node
-    {
+    struct Node {
         const NodeKey key;
         std::string id;
 
         explicit Node(NodeKey key) : key(key) {}
-        Node(const Node&) = delete;
+        Node(const Node&)            = delete;
         Node& operator=(const Node&) = delete;
 
         PropertyMap props;
@@ -152,27 +156,26 @@ namespace ifc::util
 
     // Enumerators and parameters are represented in their sequences by
     // value, not by index, thus, the getter need to be aware of that.
-    template <typename T>
+    template<typename T>
     concept EnumeratorOrParameterDecl =
         std::same_as<T, symbolic::EnumeratorDecl> or std::same_as<T, symbolic::ParameterDecl>;
 
     // Loader is responsible for loading the nodes and resolving references.
     // It is also hosts the storage for all the nodes.
-    struct Loader
-    {
+    struct Loader {
         ifc::Reader& reader;
 
         explicit Loader(Reader& reader) : reader(reader) {}
 
-        template <index_like::Algebra Key>
+        template<index_like::Algebra Key>
         const Node& get(Key abstract_index);
-        template <EnumeratorOrParameterDecl T>
+        template<EnumeratorOrParameterDecl T>
         const Node& get(const T&);
         const Node& get(NodeKey);
         // Convenience helper that returns nullptr for ChartSort::None
         Node* try_get(ChartIndex);
 
-        template <index_like::MultiSorted T>
+        template<index_like::MultiSorted T>
         std::string ref(T index);
         std::string ref(const symbolic::Identity<TextOffset>& id);
         std::string ref(const symbolic::Identity<NameIndex>& id);
@@ -202,13 +205,13 @@ namespace ifc::util
     std::string get_string_if_possible(Loader&, TypeIndex);
     std::string get_string_if_possible(Loader&, ExprIndex);
 
-    template <index_like::MultiSorted Index>
+    template<index_like::MultiSorted Index>
     std::string get_string_if_possible(Loader&, Index)
     {
         return "";
     }
 
-    template <index_like::MultiSorted T>
+    template<index_like::MultiSorted T>
     std::string Loader::ref(T index)
     {
         if (null(index))
@@ -223,7 +226,7 @@ namespace ifc::util
         return to_string(index);
     }
 
-    template <index_like::Algebra Key>
+    template<index_like::Algebra Key>
     const Node& Loader::get(Key abstract_index)
     {
         NodeKey key(abstract_index);
@@ -242,13 +245,13 @@ namespace ifc::util
         return key.visit([this](auto index) -> const Node& { return get(index); });
     }
 
-    template <EnumeratorOrParameterDecl T>
+    template<EnumeratorOrParameterDecl T>
     inline const Node& Loader::get(const T& decl)
     {
         const auto abstract_index = reader.index_of<DeclIndex>(decl);
         return get(abstract_index);
     }
 
-}  // namespace ifc::util
+} // namespace ifc::util
 
-#endif  // IFC_UTIL_NODE_H
+#endif // IFC_UTIL_NODE_H
