@@ -351,7 +351,7 @@ namespace ifc {
         static bool has_signature(InputIfc& file, const T& sig)
         {
             auto start = &(*file.tell());
-            return file.position(ByteOffset{sizeof sig}) and memcmp(start, sig, sizeof sig) == 0;
+            return file.position(ByteOffset{sizeof(sig)}) and memcmp(start, sig, sizeof(sig)) == 0;
         }
 
         static void validate_content_integrity(const InputIfc& file);
@@ -525,7 +525,7 @@ namespace ifc {
                 }
             }
 
-            if (not position(ByteOffset(sizeof InterfaceSignature)))
+            if (not position(ByteOffset(sizeof(InterfaceSignature))))
                 throw IfcReadFailure{path};
             return true;
         }

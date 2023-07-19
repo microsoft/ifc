@@ -10,8 +10,7 @@
 
 namespace {
     // Defined values of K for SHA-256
-    constexpr uint32_t K[64] =
-    {
+    constexpr uint32_t K[64] = {
         0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
         0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
         0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
@@ -19,14 +18,11 @@ namespace {
         0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
         0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
         0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
-    };
+        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
 
     // Initial hash values for SHA-256
-    constexpr std::array<uint32_t, 8> initial_hash_values
-    {
-        0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19
-    };
+    constexpr std::array<uint32_t, 8> initial_hash_values{0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+                                                          0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
 
     // Various functions performing operations as defined by SHA-256.
     constexpr uint32_t ch(uint32_t x, uint32_t y, uint32_t z)
@@ -62,7 +58,7 @@ namespace {
     constexpr void process_chunk(std::array<uint32_t, 8>& hash, const std::byte* p)
     {
         // w is the message schedule array.
-        uint32_t w[64] = { 0 };
+        uint32_t w[64] = {0};
         for (int i = 0, j = 0; i < 16; ++i, j += 4)
         {
             // Can't do a memcpy and then change_endianness as memcpy is not constexpr.
@@ -133,7 +129,7 @@ namespace {
         ifc::SHA256Hash hash = {initial_hash_values};
 
         auto length = span.size();
-        auto base = span.data();
+        auto base   = span.data();
         // Process whole chunks first
         auto iterations = length / 64;
         for (size_t iter = 0; iter < iterations; ++iter)
@@ -150,9 +146,9 @@ namespace {
         auto remainder = length % 64;
 
         // Room for one or two chunks (as needed)
-        std::byte v[128] = { std::byte{0} }; // Fill with zeros
+        std::byte v[128] = {std::byte{0}}; // Fill with zeros
         std::copy(base + iterations * 64, base + iterations * 64 + remainder, v);
-        v[remainder] = std::byte{ 0x80 }; // Put 10000000 after data
+        v[remainder] = std::byte{0x80}; // Put 10000000 after data
         // The data, the "1" bit, and zero bits are now in place.
 
         // Put total number of bits in message at end.
@@ -164,7 +160,7 @@ namespace {
             for (int i = 0; i < 8; ++i)
             {
                 uint8_t byte = static_cast<uint8_t>(total_bits >> (7 - i) * 8);
-                *pbits++ = std::byte{ byte };
+                *pbits++     = std::byte{byte};
             }
             process_chunk(hash.value, v);
             process_chunk(hash.value, v + 64);
@@ -176,7 +172,7 @@ namespace {
             for (int i = 0; i < 8; ++i)
             {
                 uint8_t byte = static_cast<uint8_t>(total_bits >> (7 - i) * 8);
-                *pbits++ = std::byte{ byte };
+                *pbits++     = std::byte{byte};
             }
             process_chunk(hash.value, v);
         }
@@ -201,12 +197,12 @@ namespace {
     static_assert(sha256(gsl::span<const std::byte>(test1, test1)).value == hash1.value);
 
     // "a" "CA978112 CA1BBDCA FAC231B3 9A23DC4D A786EFF8 147C4E72 B9807785 AFEE48BB");
-    constexpr const std::byte test2[1] = { std::byte{'a'} };
+    constexpr const std::byte test2[1] = {std::byte{'a'}};
     constexpr ifc::SHA256Hash hash2    = {0x128197CA, 0xCABD1BCA, 0xB331C2FA, 0x4DDC239A,
                                           0xF8EF86A7, 0x724E7C14, 0x857780B9, 0xBB48EEAF};
     static_assert(sha256(gsl::span<const std::byte>(test2, 1)).value == hash2.value);
 #endif
-}
+} // namespace
 
 namespace ifc {
     SHA256Hash hash_bytes(const std::byte* first, const std::byte* last)
@@ -214,4 +210,4 @@ namespace ifc {
         gsl::span<const std::byte> span(first, last);
         return sha256(span);
     }
-}
+} // namespace ifc
