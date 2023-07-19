@@ -793,6 +793,8 @@ namespace Module {
         struct SourceLocation {
             LineIndex line = { };
             ColumnNumber column = { };
+
+            bool operator==(const SourceLocation&) const = default;
         };
 
         // Conceptually, this is a token; but we have too many token type and it would be confusing to call this Token.
@@ -2032,7 +2034,7 @@ namespace Module {
 
         template<typename T>
         struct Identity {
-            T name;                 // The name of the entity (either 'NameIndex' or 'TextOffset')
+            T name{};               // The name of the entity (either 'NameIndex' or 'TextOffset')
             SourceLocation locus;   // Source location of this entity
         };
 
@@ -2098,11 +2100,11 @@ namespace Module {
             Identity<TextOffset> identity;  // The name and location of this function parameter
             TypeIndex type;                 // Sort and index of this decl's type.  Null means no type.
             ExprIndex type_constraint;      // Optional type-constraint on the parameter type.
-            DefaultIndex initializer;       // Default argument. Null means none was provided.
-            uint32_t level;                 // The nesting depth of this parameter (template or function).
-            uint32_t position;              // The 1-based position of this parameter.
-            ParameterSort sort;             // The kind of parameter.
-            ReachableProperties properties; // The set of semantic properties reaching to outside importers.
+            DefaultIndex initializer{};     // Default argument. Null means none was provided.
+            uint32_t level{};               // The nesting depth of this parameter (template or function).
+            uint32_t position{};            // The 1-based position of this parameter.
+            ParameterSort sort{};           // The kind of parameter.
+            ReachableProperties properties{}; // The set of semantic properties reaching to outside importers.
         };
 
         // A variable declaration, including static data members.
@@ -2871,7 +2873,9 @@ namespace Module {
             uint32_t exec_charset : 8;                      // value of #pragma execution_character_set
             uint32_t vtor_disp : 8;                         // value of #pragma vtordisp
             uint32_t std_for_scope : 1;                     // value of #pragma conform(forScope)
-            uint32_t pure_cil : 1;                          // value of #pragma managed
+            uint32_t unused : 1;                            // unused bit - was previously pure_cil, which was meant to be the captured
+                                                            //  state of #pragma managed(off/on). This is not actually required as we
+                                                            //  don't support module export for /clr, and it's always the case for native code.
             uint32_t strict_gs_check : 1;                   // value of #pragma strict_gs_check
         };
 
