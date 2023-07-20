@@ -7,9 +7,9 @@
 
 #include <ifc/underlying.hxx>
 
-namespace Module {
+namespace ifc {
     enum class ColumnNumber : int32_t {
-        Invalid = -1
+        Invalid = -1,
     };
     enum LineNumber : int32_t {
         Max = 0x00ffffff,
@@ -32,6 +32,6 @@ namespace Module {
     {
         return ColumnNumber{ifc::to_underlying(n) + 1};
     }
-} // namespace Module
+} // namespace ifc
 
-#endif      // IFC_BASIC_TYPES
+#endif // IFC_BASIC_TYPES

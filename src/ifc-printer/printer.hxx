@@ -4,24 +4,22 @@
 #include "ifc/dom/node.hxx"
 #include <ostream>
 
-namespace Module::util
-{
-    enum class Print_options : int8_t
-    {
-        None = 0,
+namespace ifc::util {
+    enum class PrintOptions : int8_t {
+        None            = 0,
         Use_color       = 1 << 0,
         Top_level_index = 1 << 1,
     };
-    [[nodiscard]] constexpr Print_options operator|(Print_options e1, Print_options e2) noexcept
+    [[nodiscard]] constexpr PrintOptions operator|(PrintOptions e1, PrintOptions e2) noexcept
     {
-        return static_cast<Print_options>(ifc::to_underlying(e1) | ifc::to_underlying(e2));
+        return static_cast<PrintOptions>(ifc::to_underlying(e1) | ifc::to_underlying(e2));
     }
-    constexpr Print_options& operator|=(Print_options& e1, Print_options e2) noexcept
+    constexpr PrintOptions& operator|=(PrintOptions& e1, PrintOptions e2) noexcept
     {
         return e1 = e1 | e2;
     }
 
-    void print(const Node& gs, std::ostream& os, Print_options options = Print_options::None);
-}
+    void print(const Node& gs, std::ostream& os, PrintOptions options = PrintOptions::None);
+} // namespace ifc::util
 
 #endif // IFC_TOOLS_PRINTER_HXX

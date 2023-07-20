@@ -1,31 +1,26 @@
 #include "ifc/reader.hxx"
 #include <stdexcept>
 
-class Not_yet_implemented : public std::logic_error
-{
+class NotYetImplemented : public std::logic_error {
 public:
-    Not_yet_implemented(std::string_view what_is_not_implemented) :
-        logic_error("'" + std::string(what_is_not_implemented) + "' is not yet implemented")
-    {
-    }
+    NotYetImplemented(std::string_view what_is_not_implemented)
+      : logic_error("'" + std::string(what_is_not_implemented) + "' is not yet implemented")
+    {}
 };
 
-class Unexpected : public std::logic_error
-{
+class Unexpected : public std::logic_error {
 public:
-    Unexpected(std::string_view what_is_not_expected) :
-        logic_error("unexpected: '" + std::string(what_is_not_expected) + "'")
-    {
-    }
+    Unexpected(std::string_view what_is_not_expected)
+      : logic_error("unexpected: '" + std::string(what_is_not_expected) + "'")
+    {}
 };
 
-namespace Module
-{
+namespace ifc {
     constexpr std::string_view analysis_partition_prefix = ".msvc.code-analysis.";
 
-    Reader::Reader(const Module::InputIfc& ifc) : ifc(ifc)
+    Reader::Reader(const ifc::InputIfc& ifc) : ifc(ifc)
     {
-         if (not ifc.header())
+        if (not ifc.header())
             throw "file not found";
         read_table_of_contents();
     }
@@ -34,8 +29,8 @@ namespace Module
     {
         for (auto& summary : ifc.partition_table())
         {
-            IFCASSERT(!index_like::null(summary.name));
-            IFCASSERT(!summary.empty());
+            IFCASSERT(not index_like::null(summary.name));
+            IFCASSERT(not summary.empty());
             std::string_view name = get(summary.name);
             // Partitions created by the analysis plugins are not members of the usual table of
             // contents structure.
@@ -53,7 +48,7 @@ namespace Module
 
     void not_implemented(std::string_view message)
     {
-        throw Not_yet_implemented(message);
+        throw NotYetImplemented(message);
     }
 
     void not_implemented(std::string_view message, int payload)
@@ -75,4 +70,4 @@ namespace Module
         unexpected(result);
     }
 
-}  // namespace Module
+} // namespace ifc

@@ -15,7 +15,7 @@ void translate_exception()
     {
         std::cout << "caught: " << e.what() << '\n';
     }
-    catch (Module::IfcArchMismatch&)
+    catch (ifc::IfcArchMismatch&)
     {
         std::cout << "ifc architecture mismatch\n";
     }
@@ -29,12 +29,11 @@ void translate_exception()
     }
 }
 
-using namespace Module::util;
+using namespace ifc::util;
 using namespace std::literals;
 
-struct Arguments
-{
-    Print_options options = Print_options::None;
+struct Arguments {
+    PrintOptions options = PrintOptions::None;
 
     // Files to process.
     std::vector<std::string> files;
@@ -53,14 +52,14 @@ Arguments process_args(int argc, char** argv)
     Arguments result;
     for (int i = 1; i < argc; ++i)
     {
-        if (argv[i] == "--help"sv || argv[i] == "-h"sv)
+        if (argv[i] == "--help"sv or argv[i] == "-h"sv)
         {
             print_help(argv[0]);
             exit(0);
         }
-        else if(argv[i] == "--color"sv || argv[i] == "-c"sv)
+        else if (argv[i] == "--color"sv or argv[i] == "-c"sv)
         {
-            result.options |= Print_options::Use_color;
+            result.options |= PrintOptions::Use_color;
         }
         // Future flags to add as needed
         //   -l --location: print locations
@@ -91,7 +90,7 @@ Arguments process_args(int argc, char** argv)
 
 std::vector<std::byte> load_file(const std::string& name)
 {
-    std::filesystem::path path { name };
+    std::filesystem::path path{name};
     auto size = std::filesystem::file_size(path);
     std::vector<std::byte> v;
     v.resize(size);
@@ -100,25 +99,26 @@ std::vector<std::byte> load_file(const std::string& name)
     return v;
 }
 
-void process_ifc(const std::string& name, Print_options options)
+void process_ifc(const std::string& name, PrintOptions options)
 {
     auto contents = load_file(name);
 
-    Module::InputIfc file{ gsl::span(contents) };
-    Module::Pathname path{name.c_str()};
-    file.validate<Module::UnitSort::Primary>(path, Module::Architecture::Unknown, Module::Pathname{}, Module::IfcOptions::IntegrityCheck);
+    ifc::InputIfc file{gsl::span(contents)};
+    ifc::Pathname path{name.c_str()};
+    file.validate<ifc::UnitSort::Primary>(path, ifc::Architecture::Unknown, ifc::Pathname{},
+                                          ifc::IfcOptions::IntegrityCheck);
 
-    Module::Reader reader(file);
-    Module::util::Loader loader(reader);
+    ifc::Reader reader(file);
+    ifc::util::Loader loader(reader);
     auto& gs = loader.get(reader.ifc.header()->global_scope);
     print(gs, std::cout, options);
 
     // Make sure that we resolve and print all
     // referenced nodes.
-    options |= Print_options::Top_level_index;
+    options |= PrintOptions::Top_level_index;
     while (not loader.referenced_nodes.empty())
     {
-        auto it = loader.referenced_nodes.begin();
+        auto it             = loader.referenced_nodes.begin();
         const auto node_key = *it;
         loader.referenced_nodes.erase(it);
 
@@ -133,7 +133,7 @@ int main(int argc, char** argv)
 
     try
     {
-        for (const auto& file: arguments.files)
+        for (const auto& file : arguments.files)
             process_ifc(file, arguments.options);
     }
     catch (...)

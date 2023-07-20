@@ -1,14 +1,13 @@
 #include "common.hxx"
 #include "ifc/util.hxx"
 
-namespace Module::util
-{
+namespace ifc::util {
     void load(Loader& ctx, Node& node, ScopeIndex index)
     {
         if (auto* scope = ctx.reader.try_get(index))
         {
             const auto seq = ctx.reader.sequence(*scope);
-            node.id = "scope-" + std::to_string((int)index);
+            node.id        = "scope-" + std::to_string((int)index);
             node.children.reserve(seq.size());
 
             for (auto& decl : seq)
@@ -24,9 +23,8 @@ namespace Module::util
         return result;
     }
 
-    namespace
-    {
-        Symbolic::TypeBasis get_type_basis(Loader& pp, TypeIndex index)
+    namespace {
+        symbolic::TypeBasis get_type_basis(Loader& pp, TypeIndex index)
         {
             // Must be a fundamental type.
             // variable template => TypeBasis::VariableTemplate.
@@ -34,29 +32,28 @@ namespace Module::util
             // class template => TypeBasis::Struct or TypeBasis::Class
             // alias template => TypeBasis::Typename
             // enum => TypeBasis::Enum (legacy) or TypeBasis::Struct or TypeBasis::Class
-            auto& fundamental = pp.reader.get<Symbolic::FundamentalType>(index);
+            auto& fundamental = pp.reader.get<symbolic::FundamentalType>(index);
             return fundamental.basis;
         }
-    }  // namespace [anon]
+    } // namespace
 
-    template <index_like::Algebra Index>
+    template<index_like::Algebra Index>
     void load_initializer(Loader& ctx, Node& n, Index index)
     {
         if (not index_like::null(index))
             n.children.push_back(&ctx.get(index));
     }
 
-    template <typename T, auto... Tags>
+    template<typename T, auto... Tags>
     void load_initializer(Loader& ctx, Node& n, const Sequence<T, Tags...>& seq)
     {
-        for (const auto& item: ctx.reader.sequence(seq))
+        for (const auto& item : ctx.reader.sequence(seq))
             n.children.push_back(&ctx.get(item));
     }
 
     void load_specializations(Loader& ctx, DeclIndex decl_index)
     {
-        if (auto* specializations =
-                ctx.reader.try_find<Symbolic::Trait::Specializations>(decl_index))
+        if (auto* specializations = ctx.reader.try_find<symbolic::trait::Specializations>(decl_index))
             for (auto& decl : ctx.reader.sequence(specializations->trait))
                 ctx.referenced_nodes.insert(decl.index);
     }
@@ -81,7 +78,7 @@ namespace Module::util
     template <class T> concept HasHomeScope = requires(T x) { x.home_scope; };
     // clang-format on
 
-    template <typename T>
+    template<typename T>
     void load_common_props(Loader& ctx, Node& n, const T& val)
     {
         if constexpr (HasType<T>)
@@ -100,7 +97,7 @@ namespace Module::util
             if (not null(val.base))
                 n.props.emplace("base", ctx.ref(val.base)); // type
 
-        if constexpr (HasBaseCtor<T>) // reusing 'base' key intentionally
+        if constexpr (HasBaseCtor<T>)                        // reusing 'base' key intentionally
             n.props.emplace("base", ctx.ref(val.base_ctor)); // declref
 
         if constexpr (HasBasicSpec<T>)
@@ -145,7 +142,7 @@ namespace Module::util
     void load_function_body(Loader& ctx, Node& node, DeclIndex fn_index, ChartIndex chart = {})
     {
         // Constexpr functions
-        if (auto* mapping_def = ctx.reader.try_find<Symbolic::Trait::MappingExpr>(fn_index))
+        if (auto* mapping_def = ctx.reader.try_find<symbolic::trait::MappingExpr>(fn_index))
         {
             if (auto* params = ctx.try_get(mapping_def->trait.parameters))
                 node.children.push_back(params);
@@ -156,8 +153,7 @@ namespace Module::util
             node.children.push_back(&ctx.get(mapping_def->trait.body));
         }
         // Inline functions (and all other under a switch to be added).
-        else if (auto* mapping_def =
-                     ctx.reader.try_find<Symbolic::Trait::MsvcCodegenMappingExpr>(fn_index))
+        else if (auto* mapping_def = ctx.reader.try_find<symbolic::trait::MsvcCodegenMappingExpr>(fn_index))
         {
             if (auto* params = ctx.try_get(mapping_def->trait.parameters))
                 node.children.push_back(params);
@@ -174,39 +170,38 @@ namespace Module::util
         }
     }
 
-    struct Decl_loader : detail::Loader_visitor_base
-    {
+    struct DeclLoader : detail::LoaderVisitorBase {
         void load_friends(DeclIndex decl_index)
         {
-            if (auto* friends = ctx.reader.try_find<Symbolic::Trait::Friends>(decl_index))
+            if (auto* friends = ctx.reader.try_find<symbolic::trait::Friends>(decl_index))
                 for (auto& decl : ctx.reader.sequence(friends->trait))
                     add_child(decl.index);
         }
 
         void load_deduction_guides(DeclIndex decl_index)
         {
-            if (auto* guides = ctx.reader.try_find<Symbolic::Trait::DeductionGuides>(decl_index))
+            if (auto* guides = ctx.reader.try_find<symbolic::trait::DeductionGuides>(decl_index))
                 add_child(guides->trait);
         }
 
-        void operator()(DeclIndex decl_index, const Symbolic::ScopeDecl& udt)
+        void operator()(DeclIndex decl_index, const symbolic::ScopeDecl& udt)
         {
             load_common_props(ctx, node, udt);
             load_friends(decl_index);
             load_deduction_guides(decl_index);
         }
 
-        void operator()(DeclIndex, const Symbolic::FieldDecl& field)
+        void operator()(DeclIndex, const symbolic::FieldDecl& field)
         {
             load_common_props(ctx, node, field);
         }
 
-        void operator()(DeclIndex, const Symbolic::VariableDecl& var)
+        void operator()(DeclIndex, const symbolic::VariableDecl& var)
         {
             load_common_props(ctx, node, var);
         }
 
-        void operator()(DeclIndex, const Symbolic::ParameterDecl& param)
+        void operator()(DeclIndex, const symbolic::ParameterDecl& param)
         {
             load_common_props(ctx, node, param);
 
@@ -214,106 +209,105 @@ namespace Module::util
                 node.children.push_back(&ctx.get(param.type_constraint));
         }
 
-        void operator()(DeclIndex fn_index, const Symbolic::FunctionDecl& fun)
+        void operator()(DeclIndex fn_index, const symbolic::FunctionDecl& fun)
         {
             load_common_props(ctx, node, fun);
             load_function_body(ctx, node, fn_index, fun.chart);
         }
 
 
-        void operator()(DeclIndex fn_index, const Symbolic::ConstructorDecl& ctor)
+        void operator()(DeclIndex fn_index, const symbolic::ConstructorDecl& ctor)
         {
             load_common_props(ctx, node, ctor);
             load_function_body(ctx, node, fn_index, ctor.chart);
         }
 
-        void operator()(DeclIndex fn_index, const Symbolic::DestructorDecl& dtor)
+        void operator()(DeclIndex fn_index, const symbolic::DestructorDecl& dtor)
         {
             load_common_props(ctx, node, dtor);
             load_function_body(ctx, node, fn_index);
         }
 
-        void operator()(DeclIndex fn_index, const Symbolic::NonStaticMemberFunctionDecl& fun)
+        void operator()(DeclIndex fn_index, const symbolic::NonStaticMemberFunctionDecl& fun)
         {
             load_common_props(ctx, node, fun);
             load_function_body(ctx, node, fn_index, fun.chart);
         }
 
-        void operator()(DeclIndex fn_index, const Symbolic::InheritedConstructorDecl& ctor)
+        void operator()(DeclIndex fn_index, const symbolic::InheritedConstructorDecl& ctor)
         {
             load_common_props(ctx, node, ctor);
             load_function_body(ctx, node, fn_index, ctor.chart);
         }
 
-        void operator()(DeclIndex, const Symbolic::EnumeratorDecl& enumerator)
+        void operator()(DeclIndex, const symbolic::EnumeratorDecl& enumerator)
         {
             load_common_props(ctx, node, enumerator);
         }
 
-        void operator()(DeclIndex, const Symbolic::BitfieldDecl& bitfield)
+        void operator()(DeclIndex, const symbolic::BitfieldDecl& bitfield)
         {
             add_child(bitfield.width); // to appear as a first child before initializer
             load_common_props(ctx, node, bitfield);
         }
 
-        void operator()(DeclIndex, const Symbolic::EnumerationDecl& enumeration)
+        void operator()(DeclIndex, const symbolic::EnumerationDecl& enumeration)
         {
             load_common_props(ctx, node, enumeration);
         }
 
-        void operator()(DeclIndex, const Symbolic::AliasDecl& alias)
+        void operator()(DeclIndex, const symbolic::AliasDecl& alias)
         {
             load_common_props(ctx, node, alias);
             node.props.emplace("aliasee", ctx.ref(alias.aliasee));
-
         }
 
-        void operator()(DeclIndex, const Symbolic::TemploidDecl& decl)
+        void operator()(DeclIndex, const symbolic::TemploidDecl& decl)
         {
             load_common_props(ctx, node, decl);
             add_child_if_not_null(decl.chart);
         }
 
-        void operator()(DeclIndex decl_index, const Symbolic::TemplateDecl& decl)
+        void operator()(DeclIndex decl_index, const symbolic::TemplateDecl& decl)
         {
             load_common_props(ctx, node, decl);
             if (auto* params = ctx.try_get(decl.chart))
                 node.children.push_back(params);
             add_child(decl.entity.decl);
-            if (get_type_basis(ctx, decl.type) == Symbolic::TypeBasis::Function)
+            if (get_type_basis(ctx, decl.type) == symbolic::TypeBasis::Function)
                 load_function_body(ctx, node, decl_index);
             load_specializations(ctx, decl_index);
         }
 
-        void operator()(DeclIndex, const Symbolic::PartialSpecializationDecl& decl)
+        void operator()(DeclIndex, const symbolic::PartialSpecializationDecl& decl)
         {
             load_common_props(ctx, node, decl);
             // Indentity stores mangled name for partial specializations,
             // Replace the name property with a proper name.
             node.props["mangled"] = node.props["name"];
-            node.props["name"] = to_string(ctx, decl.specialization_form);
+            node.props["name"]    = to_string(ctx, decl.specialization_form);
             if (auto* params = ctx.try_get(decl.chart))
                 node.children.push_back(params);
             add_child(decl.entity.decl);
         }
 
-        void operator()(DeclIndex, const Symbolic::SpecializationDecl& decl)
+        void operator()(DeclIndex, const symbolic::SpecializationDecl& decl)
         {
             node.props["name"] = to_string(ctx, decl.specialization_form);
             add_child(decl.decl);
         }
 
-        void operator()(DeclIndex, const Symbolic::FriendDeclaration& expr)
+        void operator()(DeclIndex, const symbolic::FriendDeclaration& expr)
         {
             node.props.emplace("type", ctx.ref(expr.index));
         }
 
-        void operator()(DeclIndex, const Symbolic::ExpansionDecl& decl)
+        void operator()(DeclIndex, const symbolic::ExpansionDecl& decl)
         {
             add_child(decl.operand);
         }
 
-        void operator()(DeclIndex, const Symbolic::Concept& decl)
+        void operator()(DeclIndex, const symbolic::Concept& decl)
         {
             load_common_props(ctx, node, decl);
             add_child(decl.constraint);
@@ -321,11 +315,11 @@ namespace Module::util
             add_child(decl.body);
         }
 
-        void operator()(DeclIndex, const Symbolic::ReferenceDecl& decl)
+        void operator()(DeclIndex, const symbolic::ReferenceDecl& decl)
         {
             std::string name = index_like::null(decl.translation_unit.owner) ?
-                "<global>" :
-                ctx.reader.get(decl.translation_unit.owner);
+                                   "<global>" :
+                                   ctx.reader.get(decl.translation_unit.owner);
             if (not index_like::null(decl.translation_unit.partition))
                 name += ":" + std::string(ctx.reader.get(decl.translation_unit.partition));
 
@@ -333,7 +327,7 @@ namespace Module::util
             node.props.emplace("ref", ctx.ref(decl.local_index));
         }
 
-        void operator()(DeclIndex, const Symbolic::UsingDeclaration& decl)
+        void operator()(DeclIndex, const symbolic::UsingDeclaration& decl)
         {
             node.props.emplace("ref", ctx.ref(decl.resolution));
             load_common_props(ctx, node, decl);
@@ -345,32 +339,32 @@ namespace Module::util
                 node.props.emplace("member_name", ctx.reader.get(decl.name));
         }
 
-        void operator()(DeclIndex, const Symbolic::DeductionGuideDecl& decl)
+        void operator()(DeclIndex, const symbolic::DeductionGuideDecl& decl)
         {
             load_common_props(ctx, node, decl);
             add_child_if_not_null(decl.target); // Function parameters mentioned in the deduction guide declaration
         }
 
-        void operator()(DeclIndex, const Symbolic::TupleDecl& tuple)
+        void operator()(DeclIndex, const symbolic::TupleDecl& tuple)
         {
             node.children.reserve((size_t)tuple.cardinality);
             for (auto item : ctx.reader.sequence(tuple))
                 add_child(item);
         }
 
-        void operator()(DeclIndex, const Symbolic::IntrinsicDecl& decl)
+        void operator()(DeclIndex, const symbolic::IntrinsicDecl& decl)
         {
             load_common_props(ctx, node, decl);
         }
 
-        void operator()(DeclIndex, const Symbolic::PropertyDeclaration& prop)
+        void operator()(DeclIndex, const symbolic::PropertyDeclaration& prop)
         {
             node.props.emplace("ref", ctx.ref(prop.data_member));
             node.props.emplace("get", ctx.reader.get(prop.get_method_name));
             node.props.emplace("set", ctx.reader.get(prop.set_method_name));
         }
 
-        void operator()(DeclIndex, const Symbolic::SegmentDecl& segment)
+        void operator()(DeclIndex, const symbolic::SegmentDecl& segment)
         {
             node.props.emplace("name", ctx.reader.get(segment.name));
             node.props.emplace("class_id", ctx.reader.get(segment.class_id));
@@ -378,7 +372,7 @@ namespace Module::util
             node.props.emplace("seg_type", std::to_string((int)segment.type));
         }
 
-        void operator()(DeclIndex, const Symbolic::SyntacticDecl& decl)
+        void operator()(DeclIndex, const symbolic::SyntacticDecl& decl)
         {
             node.props.emplace("syntax", ctx.ref(decl.index));
         }
@@ -393,8 +387,8 @@ namespace Module::util
         }
 
         node.id = to_string(index);
-        Decl_loader loader{ctx, node};
+        DeclLoader loader{ctx, node};
         ctx.reader.visit_with_index(index, loader);
     }
 
-}  // namespace Module::dom
+} // namespace ifc::util

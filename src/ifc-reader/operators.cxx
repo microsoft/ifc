@@ -1,13 +1,10 @@
 #include "ifc/util.hxx"
 #include <map>
 
-namespace Module::util
-{
-    namespace
-    {
-        template <typename T>
-        struct OperatorNameMapEntry
-        {
+namespace ifc::util {
+    namespace {
+        template<typename T>
+        struct OperatorNameMapEntry {
             constexpr OperatorNameMapEntry(T t, const char* n) : name{n}, op{t} {}
             const char* name;
             T op;
@@ -215,10 +212,10 @@ namespace Module::util
             {VariadicOperator::MsvcIsTriviallyConstructible, "MsvcIsTriviallyConstructible"},
         };
 
-        template <typename Operator>
+        template<typename Operator>
         using OperatorNameTable = std::map<Operator, const char*>;
 
-        template <typename Op, int N>
+        template<typename Op, int N>
         OperatorNameTable<Op> create_op_table(const OperatorNameMapEntry<Op> (&seq)[N])
         {
             OperatorNameTable<Op> map;
@@ -227,18 +224,18 @@ namespace Module::util
             return map;
         }
 
-        template <auto& table, typename Op>
+        template<auto& table, typename Op>
         std::string retrieve_name(Op op)
         {
             static const auto name_map = create_op_table(table);
-            auto it = name_map.find(op);
+            auto it                    = name_map.find(op);
             if (it != name_map.end())
                 return it->second;
 
             auto sort = operator_sort(op);
             return "unknown-op-" + std::to_string((int)sort) + "-" + std::to_string((int)op);
         }
-    }  // namespace [anon]
+    } // namespace
 
     // clang-format off
     std::string to_string(NiladicOperator assort) { return retrieve_name<niladics>(assort); }
@@ -263,4 +260,4 @@ namespace Module::util
     }
     // clang-format on
 
-}  // namespace Module::util
+} // namespace ifc::util
