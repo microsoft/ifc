@@ -48,8 +48,7 @@ namespace ifc {
     struct Pathname : private std::vector<char8_t> {
         using Base = std::vector<char8_t>;
         using Base::const_iterator;
-        using Base::iterator;
-        using Base::value_type;
+        using Base::reserve;
 
         Pathname()
         {
@@ -110,7 +109,12 @@ namespace ifc {
             return begin()[length() - 1];
         }
 
-        void push_back(value_type c)
+        void prepend(value_type c)
+        {
+            Base::insert(begin(), c);
+        }
+
+        void append(value_type c)
         {
             Base::insert(end(), c);
         }
@@ -138,7 +142,7 @@ namespace ifc {
 
         Pathname& extend_with_type(const value_type* ext)
         {
-            push_back(u8'.');
+            append(u8'.');
             append(ext);
             return minted();
         }

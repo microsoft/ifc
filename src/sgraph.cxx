@@ -492,7 +492,7 @@ namespace ifc {
         public:
             struct Entry {
                 std::string_view name;
-                S sort;
+                S sort{};
             };
 
             explicit constexpr FieldOffsetTable(const SortNameMapEntry<S> (&seq)[N]) noexcept

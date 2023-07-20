@@ -279,7 +279,7 @@ namespace ifc {
             cursor = span.begin();
         }
 
-        const auto contents() const
+        auto contents() const
         {
             return span;
         }
@@ -412,56 +412,14 @@ namespace ifc {
         }
 
         template<UnitSort Kind, typename T>
-        bool validate(const ifc::Pathname& path, Architecture arch, const T& ifc_designator, IfcOptions options)
+        bool designator_matches_ifc_unit_sort(const Header* header, const T& ifc_designator, IfcOptions options)
         {
-            if (not has_signature(*this, ifc::InterfaceSignature))
-                return false;
-
-            if (implies(options, IfcOptions::IntegrityCheck))
-            {
-                validate_content_integrity(*this);
-            }
-
-            auto header = hdr = read<Header>();
-            if (header == nullptr)
-                return false;
-
-            if (header->version > CurrentFormatVersion
-                or (header->version < MinimumFormatVersion and header->version != EDGFormatVersion))
-                throw UnsupportedFormatVersion{header->version};
-
-            // If the user requested an unknown architecture, we do not perform architecture check.
-            if (arch != Architecture::Unknown and not compatible_architectures(header->arch, arch))
-            {
-                if constexpr (Kind != UnitSort::Partition)
-                {
-                    throw IfcArchMismatch{ifc_designator, path};
-                }
-                else
-                {
-                    throw IfcArchMismatch{ifc_designator.partition, path};
-                }
-            }
-
-            position(header->toc);
-            toc = read<PartitionSummaryData>();
-
-            if (not zero(header->string_table_bytes))
-            {
-                if (not position(header->string_table_bytes))
-                    return false;
-                auto bytes  = tell();
-                auto nbytes = to_underlying(header->string_table_size);
-                IFCASSERT(has_room_left_for(EntitySize{nbytes}));
-                str_tab = {&bytes[0], static_cast<StringTable::size_type>(nbytes)};
-            }
-
-            if constexpr (Kind == UnitSort::Primary or Kind == UnitSort::ExportedTU)
+            if constexpr (Kind == UnitSort::Primary || Kind == UnitSort::ExportedTU)
             {
                 // If we are reading module to merge then the final module name (which can be provided on the
                 // command-line) may not match the name of the module we are loading. So there is no need to check.
-                if (not ifc_designator.empty()
-                    and (header->unit.sort() == UnitSort::Primary or header->unit.sort() == UnitSort::ExportedTU))
+                if (!ifc_designator.empty()
+                    && (header->unit.sort() == UnitSort::Primary || header->unit.sort() == UnitSort::ExportedTU))
                 {
                     auto sz = to_underlying(header->unit.module_name());
                     IFCASSERT(sz <= to_underlying(header->string_table_size));
@@ -472,7 +430,7 @@ namespace ifc {
                 }
                 // Failed to have a valid designator or the unit sort is a mismatch.  If we do not allow any arbitrary
                 // interface through, exit.
-                else if (not implies(options, IfcOptions::AllowAnyPrimaryInterface))
+                else if (!implies(options, IfcOptions::AllowAnyPrimaryInterface))
                 {
                     return false;
                 }
@@ -482,7 +440,7 @@ namespace ifc {
             {
                 // If we are reading module to merge then the final module name (which can be provided on the
                 // command-line) may not match the name of the module we are loading. So there is no need to check.
-                if (not ifc_designator.partition.empty() and (header->unit.sort() == UnitSort::Partition))
+                if (!ifc_designator.partition.empty() && (header->unit.sort() == UnitSort::Partition))
                 {
                     auto sz = to_underlying(header->unit.module_name());
                     IFCASSERT(sz <= to_underlying(header->string_table_size));
@@ -525,7 +483,58 @@ namespace ifc {
                 }
             }
 
-            if (not position(ByteOffset(sizeof(InterfaceSignature))))
+            return true;
+        }
+
+        template<UnitSort Kind, typename T>
+        bool validate(const ifc::Pathname& path, Architecture arch, const T& ifc_designator, IfcOptions options)
+        {
+            if (!has_signature(*this, ifc::InterfaceSignature))
+                return false;
+
+            if (implies(options, IfcOptions::IntegrityCheck))
+            {
+                validate_content_integrity(*this);
+            }
+
+            auto header = hdr = read<Header>();
+            if (header == nullptr)
+                return false;
+
+            if (header->version > CurrentFormatVersion
+                || (header->version < MinimumFormatVersion && header->version != EDGFormatVersion))
+                throw UnsupportedFormatVersion{header->version};
+
+            // If the user requested an unknown architecture, we do not perform architecture check.
+            if (arch != Architecture::Unknown and not compatible_architectures(header->arch, arch))
+            {
+                if constexpr (Kind != UnitSort::Partition)
+                {
+                    throw IfcArchMismatch{ifc_designator, path};
+                }
+                else
+                {
+                    throw IfcArchMismatch{ifc_designator.partition, path};
+                }
+            }
+
+            position(header->toc);
+            toc = read<PartitionSummaryData>();
+
+            if (!zero(header->string_table_bytes))
+            {
+                if (!position(header->string_table_bytes))
+                    return false;
+                auto bytes  = tell();
+                auto nbytes = to_underlying(header->string_table_size);
+                IFCASSERT(has_room_left_for(EntitySize{nbytes}));
+                str_tab = {&bytes[0], static_cast<StringTable::size_type>(nbytes)};
+            }
+
+            if (not designator_matches_ifc_unit_sort<Kind>(header, ifc_designator, options))
+                return false;
+
+            if (!position(ByteOffset(sizeof InterfaceSignature)))
                 throw IfcReadFailure{path};
             return true;
         }

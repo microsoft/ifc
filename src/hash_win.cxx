@@ -1,7 +1,7 @@
 // Windows Implementation of SHA256
 
 #include <windows.h>
-#include <gsl/gsl_util>
+#include <gsl/util>
 #include <ifc/file.hxx>
 #include <vector>
 #include <ifc/assertions.hxx>
