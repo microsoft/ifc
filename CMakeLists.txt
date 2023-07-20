@@ -6,13 +6,12 @@ include(FetchContent)
 
 FetchContent_Declare(GSL
     GIT_REPOSITORY "https://github.com/microsoft/GSL"
-    GIT_TAG "v3.1.0"
+    GIT_TAG "v4.0.0"
 )
 FetchContent_MakeAvailable(GSL)
 
 if (MSVC)
 add_compile_options(
-    /permissive-   # Turn on strict language conformance
     /EHsc          # Turn on exception handling semantics
 )
 endif()

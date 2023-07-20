@@ -135,6 +135,7 @@ namespace Module {
         MsvcConfusedVtorDisplacement,                       // The compiler generated expression representing an offset amount to a virtual base pointer address during initialization.
         MsvcConfusedDependentExpression,                    // At times the old YACC parser will 'give up' parsing a dependent expression and simply return a constant with a dummy bit set.
                                                             // This operator attempts to catch these offending dependent expression values.
+        MsvcConfusedSubstitution,                           // Represents a template parameter substitution 'P -> expr' where 'expr' could be a type or a non-type argument replacement.
 
         Last
     };
@@ -231,6 +232,7 @@ namespace Module {
         MsvcBuiltinIsCorrespondingMember,   // __builtin_is_corresponding_member(x, y)
         MsvcIntrinsic,                      //                      -- abstract machine, misc intrinsic with no regular function declaration
         MsvcSaturatedArithmetic,            // An MSVC intrinsic for an abstract machine saturated arithemtic operation.
+        MsvcBuiltinAllocationAnnotation,    // An MSVC intrinsic used to propagate debugging information to the runtime.  __allocation_annotation(x, T)
 
         Last
     };
