@@ -17,12 +17,12 @@ namespace ifc::util {
     std::string to_string(ScopeTraits traits);
     std::string to_string(ObjectTraits traits);
     std::string to_string(FunctionTraits traits);
-    std::string to_string(symbolic::ReadExpression::Kind kind);
+    std::string to_string(symbolic::ReadExpr::Kind kind);
     std::string to_string(CallingConvention conv);
     std::string to_string(NoexceptSort sort);
-    std::string to_string(symbolic::ExpressionList::Delimiter delimiter);
-    std::string to_string(symbolic::DestructorCall::Kind kind);
-    std::string to_string(symbolic::Initializer::Kind kind);
+    std::string to_string(symbolic::ExpressionListExpr::Delimiter delimiter);
+    std::string to_string(symbolic::DestructorCallExpr::Kind kind);
+    std::string to_string(symbolic::InitializerExpr::Kind kind);
     std::string to_string(symbolic::Associativity kind);
     std::string to_string(GuideTraits traits);
     std::string to_string(symbolic::BaseClassTraits traits);
