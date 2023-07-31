@@ -5,7 +5,7 @@ namespace ifc::util {
     namespace {
         // we add to_string property for those items that can have be represented as a "short" by value string.
         struct ExprLoader : detail::LoaderVisitorBase {
-            void operator()(const symbolic::EmptyExpression& expr) {}
+            void operator()(const symbolic::EmptyExpr& expr) {}
 
             void operator()(const symbolic::LiteralExpr& expr)
             {
@@ -13,7 +13,7 @@ namespace ifc::util {
                 node.props.emplace("value", str);
             }
 
-            void operator()(const symbolic::LambdaExpression& expr)
+            void operator()(const symbolic::LambdaExpr& expr)
             {
                 add_child(expr.introducer);
                 add_child(expr.template_parameters);
@@ -22,23 +22,23 @@ namespace ifc::util {
                 add_child(expr.body);
             }
 
-            void operator()(const symbolic::TypeExpression& expr)
+            void operator()(const symbolic::TypeExpr& expr)
             {
                 node.props.emplace("denotation", ctx.ref(expr.denotation));
             }
 
-            void operator()(const symbolic::NamedDeclExpression& expr)
+            void operator()(const symbolic::NamedDeclExpr& expr)
             {
                 auto str = ctx.ref(expr.decl);
                 node.props.emplace("ref", str);
             }
 
-            void operator()(const symbolic::UnresolvedIdExpression& expr)
+            void operator()(const symbolic::UnresolvedIdExpr& expr)
             {
                 add_child(expr.name);
             }
 
-            void operator()(const symbolic::TemplateIdExpression& expr)
+            void operator()(const symbolic::TemplateIdExpr& expr)
             {
                 add_child(expr.primary_template);
                 add_child(expr.arguments);
@@ -50,12 +50,12 @@ namespace ifc::util {
                 add_child(expr.symbol);
             }
 
-            void operator()(const symbolic::SimpleIdentifier& expr)
+            void operator()(const symbolic::SimpleIdentifierExpr& expr)
             {
                 node.props["name"] = to_string(ctx, expr.name);
             }
 
-            void operator()(const symbolic::Pointer& expr)
+            void operator()(const symbolic::PointerExpr& expr)
             {
                 // nothing here. This is a '*' part of ::* path expression (qualified name).
             }
@@ -65,32 +65,32 @@ namespace ifc::util {
                 add_child(expr.elements);
             }
 
-            void operator()(const symbolic::PathExpression& expr)
+            void operator()(const symbolic::PathExpr& expr)
             {
                 add_child(expr.scope);
                 add_child(expr.member);
             }
 
-            void operator()(const symbolic::ReadExpression& expr)
+            void operator()(const symbolic::ReadExpr& expr)
             {
                 node.props.emplace("kind", util::to_string(expr.kind));
                 add_child(expr.child);
             }
 
-            void operator()(const symbolic::MonadicTree& expr)
+            void operator()(const symbolic::MonadicExpr& expr)
             {
                 node.props.emplace("assort", to_string(expr.assort));
                 add_child(expr.arg[0]);
             }
 
-            void operator()(const symbolic::DyadicTree& expr)
+            void operator()(const symbolic::DyadicExpr& expr)
             {
                 node.props.emplace("assort", to_string(expr.assort));
                 add_child(expr.arg[0]);
                 add_child(expr.arg[1]);
             }
 
-            void operator()(const symbolic::TriadicTree& expr)
+            void operator()(const symbolic::TriadicExpr& expr)
             {
                 node.props.emplace("assort", to_string(expr.assort));
                 add_child(expr.arg[0]);
@@ -98,23 +98,23 @@ namespace ifc::util {
                 add_child(expr.arg[1]);
             }
 
-            void operator()(const symbolic::StringExpression& expr)
+            void operator()(const symbolic::StringExpr& expr)
             {
                 node.props.emplace("value", to_string(ctx, expr.string));
             }
 
-            void operator()(const symbolic::TemporaryExpression& expr)
+            void operator()(const symbolic::TemporaryExpr& expr)
             {
                 node.props.emplace("index", std::to_string(expr.index));
             }
 
-            void operator()(const symbolic::CallExpression& expr)
+            void operator()(const symbolic::CallExpr& expr)
             {
                 add_child(expr.function);
                 add_child(expr.arguments);
             }
 
-            void operator()(const symbolic::MemberInitializer& expr)
+            void operator()(const symbolic::MemberInitializerExpr& expr)
             {
                 if (not null(expr.member))
                     node.props.emplace("member", ctx.ref(expr.member));
@@ -123,19 +123,19 @@ namespace ifc::util {
                 add_child(expr.expression);
             }
 
-            void operator()(const symbolic::MemberAccess& expr)
+            void operator()(const symbolic::MemberAccessExpr& expr)
             {
                 node.props.emplace("name", ctx.reader.get(expr.name));
                 node.props.emplace("parent", ctx.ref(expr.parent));
                 add_child(expr.offset);
             }
 
-            void operator()(const symbolic::InheritancePath& expr)
+            void operator()(const symbolic::InheritancePathExpr& expr)
             {
                 add_child(expr.path);
             }
 
-            void operator()(const symbolic::InitializerList& expr)
+            void operator()(const symbolic::InitializerListExpr& expr)
             {
                 add_child(expr.elements);
             }
@@ -152,30 +152,30 @@ namespace ifc::util {
                 add_child(expr.expression);
             }
 
-            void operator()(const symbolic::ExpressionList& expr)
+            void operator()(const symbolic::ExpressionListExpr& expr)
             {
                 node.props.emplace("delimiter", to_string(expr.delimiter));
                 add_child(expr.expressions);
             }
 
-            void operator()(const symbolic::SizeofTypeId& expr)
+            void operator()(const symbolic::SizeofTypeExpr& expr)
             {
                 auto str = ctx.ref(expr.operand);
                 node.props.emplace("type-id", str);
             }
 
-            void operator()(const symbolic::Alignof& expr)
+            void operator()(const symbolic::AlignofExpr& expr)
             {
                 auto str = ctx.ref(expr.type_id);
                 node.props.emplace("type-id", str);
             }
 
-            void operator()(const symbolic::TypeidExpression& expr)
+            void operator()(const symbolic::TypeidExpr& expr)
             {
                 node.props.emplace("type-id", ctx.ref(expr.operand));
             }
 
-            void operator()(const symbolic::DestructorCall& expr)
+            void operator()(const symbolic::DestructorCallExpr& expr)
             {
                 node.props.emplace("kind", to_string(expr.kind));
                 add_child_if_not_null(expr.decltype_specifier);
@@ -187,35 +187,35 @@ namespace ifc::util {
                 add_child(expr.syntax);
             }
 
-            void operator()(const symbolic::FunctionStringExpression& expr)
+            void operator()(const symbolic::FunctionStringExpr& expr)
             {
                 node.props.emplace("macro", ctx.reader.get(expr.macro));
             }
 
-            void operator()(const symbolic::CompoundStringExpression& expr)
+            void operator()(const symbolic::CompoundStringExpr& expr)
             {
                 node.props.emplace("prefix", ctx.reader.get(expr.prefix));
                 add_child(expr.string);
             }
 
-            void operator()(const symbolic::StringSequenceExpression& expr)
+            void operator()(const symbolic::StringSequenceExpr& expr)
             {
                 add_child(expr.strings);
             }
 
-            void operator()(const symbolic::Initializer& expr)
+            void operator()(const symbolic::InitializerExpr& expr)
             {
                 node.props.emplace("kind", to_string(expr.kind));
                 add_child(expr.initializer);
             }
 
-            void operator()(const symbolic::RequiresExpression& expr)
+            void operator()(const symbolic::RequiresExpr& expr)
             {
                 add_child(expr.parameters);
                 add_child(expr.body);
             }
 
-            void operator()(const symbolic::UnaryFoldExpression& expr)
+            void operator()(const symbolic::UnaryFoldExpr& expr)
             {
                 node.props.emplace("assort", to_string(expr.op));
                 if (expr.assoc != symbolic::Associativity::Unspecified)
@@ -223,7 +223,7 @@ namespace ifc::util {
                 add_child(expr.expr);
             }
 
-            void operator()(const symbolic::BinaryFoldExpression& expr)
+            void operator()(const symbolic::BinaryFoldExpr& expr)
             {
                 node.props.emplace("assort", to_string(expr.op));
                 if (expr.assoc != symbolic::Associativity::Unspecified)
@@ -232,7 +232,7 @@ namespace ifc::util {
                 add_child(expr.right);
             }
 
-            void operator()(const symbolic::HierarchyConversionExpression& expr)
+            void operator()(const symbolic::HierarchyConversionExpr& expr)
             {
                 node.props.emplace("assort", to_string(expr.assort));
                 node.props.emplace("target", ctx.ref(expr.target));
@@ -241,37 +241,37 @@ namespace ifc::util {
                 add_child(expr.override_inheritance_path);
             }
 
-            void operator()(const symbolic::ProductTypeValue& expr)
+            void operator()(const symbolic::ProductTypeValueExpr& expr)
             {
                 node.props.emplace("ref", ctx.ref(expr.structure));
                 add_child_if_not_null(expr.members);
                 add_child_if_not_null(expr.base_class_values);
             }
 
-            void operator()(const symbolic::SumTypeValue& expr)
+            void operator()(const symbolic::SumTypeValueExpr& expr)
             {
                 node.props.emplace("ref", ctx.ref(expr.variant));
                 node.props.emplace("index", std::to_string((int)expr.active_member));
                 add_child(expr.value.value); // reach inside. no need to have it doubly nested
             }
 
-            void operator()(const symbolic::SubobjectValue& expr)
+            void operator()(const symbolic::SubobjectValueExpr& expr)
             {
                 add_child(expr.value);
             }
 
-            void operator()(const symbolic::ArrayValue& expr)
+            void operator()(const symbolic::ArrayValueExpr& expr)
             {
                 node.props.emplace("element_type", ctx.ref(expr.element_type));
                 add_child(expr.elements);
             }
 
-            void operator()(const symbolic::DynamicDispatch& expr)
+            void operator()(const symbolic::DynamicDispatchExpr& expr)
             {
                 add_child(expr.postfix_expr);
             }
 
-            void operator()(const symbolic::VirtualFunctionConversion& expr)
+            void operator()(const symbolic::VirtualFunctionConversionExpr& expr)
             {
                 node.props.emplace("ref", ctx.ref(expr.function));
             }
@@ -283,51 +283,51 @@ namespace ifc::util {
                 add_child(expr.operand);
             }
 
-            void operator()(const symbolic::TupleExpression& expr)
+            void operator()(const symbolic::TupleExpr& expr)
             {
                 for (auto item : ctx.reader.sequence(expr))
                     add_child(item);
             }
 
-            void operator()(const symbolic::Nullptr& expr) {}
+            void operator()(const symbolic::NullptrExpr& expr) {}
 
-            void operator()(const symbolic::This& expr) {}
+            void operator()(const symbolic::ThisExpr& expr) {}
 
-            void operator()(const symbolic::TemplateReference& expr)
+            void operator()(const symbolic::TemplateReferenceExpr& expr)
             {
                 node.props.emplace("name", ctx.ref(expr.member));
                 node.props.emplace("base", ctx.ref(expr.parent));
                 add_child(expr.template_arguments);
             }
 
-            void operator()(const symbolic::TypeTraitIntrinsic& expr)
+            void operator()(const symbolic::TypeTraitIntrinsicExpr& expr)
             {
                 node.props.emplace("assort", to_string(expr.intrinsic));
                 node.props.emplace("arguments", ctx.ref(expr.arguments));
             }
 
-            void operator()(const symbolic::DesignatedInitializer& expr)
+            void operator()(const symbolic::DesignatedInitializerExpr& expr)
             {
                 node.props.emplace("name", ctx.reader.get(expr.member));
                 add_child(expr.initializer);
             }
 
-            void operator()(const symbolic::PackedTemplateArguments& expr)
+            void operator()(const symbolic::PackedTemplateArgumentsExpr& expr)
             {
                 add_child(expr.arguments);
             }
 
-            void operator()(const symbolic::TokenExpression& expr)
+            void operator()(const symbolic::TokenExpr& expr)
             {
                 add_child(expr.tokens);
             }
 
-            void operator()(const symbolic::AssignInitializer& expr)
+            void operator()(const symbolic::AssignInitializerExpr& expr)
             {
                 add_child(expr.initializer);
             }
 
-            void operator()(const symbolic::Label& expr)
+            void operator()(const symbolic::LabelExpr& expr)
             {
                 add_child(expr.designator);
             }
@@ -367,7 +367,7 @@ namespace ifc::util {
         std::string result;
         if (index.sort() == ExprSort::Tuple)
         {
-            auto& tuple = ctx.reader.get<symbolic::TupleExpression>(index);
+            auto& tuple = ctx.reader.get<symbolic::TupleExpr>(index);
             bool first  = true;
             for (auto item : ctx.reader.sequence(tuple))
             {
@@ -393,17 +393,17 @@ namespace ifc::util {
         struct ExpxTranslator {
             Loader& ctx;
 
-            std::string operator()(const symbolic::EmptyExpression& expr)
+            std::string operator()(const symbolic::EmptyExpr& expr)
             {
                 return "empty-expr";
             }
 
-            std::string operator()(const symbolic::Nullptr& expr)
+            std::string operator()(const symbolic::NullptrExpr& expr)
             {
                 return "nullptr";
             }
 
-            std::string operator()(const symbolic::This& expr)
+            std::string operator()(const symbolic::ThisExpr& expr)
             {
                 return "this";
             }
@@ -413,12 +413,12 @@ namespace ifc::util {
                 return to_string(ctx, expr.value);
             }
 
-            std::string operator()(const symbolic::TypeExpression& expr)
+            std::string operator()(const symbolic::TypeExpr& expr)
             {
                 return ctx.ref(expr.denotation);
             }
 
-            std::string operator()(const symbolic::NamedDeclExpression& expr)
+            std::string operator()(const symbolic::NamedDeclExpr& expr)
             {
                 return std::string("decl-ref(") + ctx.ref(expr.decl) + ")";
             }

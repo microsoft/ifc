@@ -297,7 +297,7 @@ namespace ifc::util {
             add_child(decl.decl);
         }
 
-        void operator()(DeclIndex, const symbolic::FriendDeclaration& expr)
+        void operator()(DeclIndex, const symbolic::FriendDecl& expr)
         {
             node.props.emplace("type", ctx.ref(expr.index));
         }
@@ -307,7 +307,7 @@ namespace ifc::util {
             add_child(decl.operand);
         }
 
-        void operator()(DeclIndex, const symbolic::Concept& decl)
+        void operator()(DeclIndex, const symbolic::ConceptDecl& decl)
         {
             load_common_props(ctx, node, decl);
             add_child(decl.constraint);
@@ -327,7 +327,7 @@ namespace ifc::util {
             node.props.emplace("ref", ctx.ref(decl.local_index));
         }
 
-        void operator()(DeclIndex, const symbolic::UsingDeclaration& decl)
+        void operator()(DeclIndex, const symbolic::UsingDecl& decl)
         {
             node.props.emplace("ref", ctx.ref(decl.resolution));
             load_common_props(ctx, node, decl);
@@ -357,7 +357,7 @@ namespace ifc::util {
             load_common_props(ctx, node, decl);
         }
 
-        void operator()(DeclIndex, const symbolic::PropertyDeclaration& prop)
+        void operator()(DeclIndex, const symbolic::PropertyDecl& prop)
         {
             node.props.emplace("ref", ctx.ref(prop.data_member));
             node.props.emplace("get", ctx.reader.get(prop.get_method_name));

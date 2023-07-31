@@ -288,7 +288,7 @@ namespace ifc {
         InheritedConstructor,  // A constructor inherited from a base class.
         Destructor,            // A destructor declaration.
         Reference,             // A reference to a declaration from a given module.
-        UsingDeclaration,      // A using declaration
+        Using,                 // A using declaration
         UnusedSort0,           // Empty slot
         Friend,                // A friend declaration
         Expansion,             // A pack-expansion of a declaration
@@ -554,8 +554,8 @@ namespace ifc {
         StringSequence,    // A sequence of string literals.
         Initializer,       // An initializer for a symbol
         Requires,          // A requires expression
-        UnaryFoldExpression,       // A unary fold expression of the form (pack @ ...)
-        BinaryFoldExpression,      // A binary fold expression of the form (expr @ ... @ pack)
+        UnaryFold,         // A unary fold expression of the form (pack @ ...)
+        BinaryFold,        // A binary fold expression of the form (expr @ ... @ pack)
         HierarchyConversion,       // A class hierarchy conversion. Distinct from ExprSort::Cast, which represents
                                    // a syntactic expression of intent, whereas this represents the semantics of a
                                    // (possibly implicit) conversion
@@ -575,7 +575,7 @@ namespace ifc {
         Nullptr,                   // 'nullptr'
         This,                      // 'this'
         TemplateReference,         // A reference to a member of a template
-        UnusedSort1,               // Empty slot.
+        Statement,                 // A statement expression.
         TypeTraitIntrinsic,        // A use of a type trait intrinsic
         DesignatedInitializer,     // A single designated initializer clause: '.a = e'
         PackedTemplateArguments,   // The template argument set for a template parameter pack
@@ -766,16 +766,16 @@ namespace ifc {
             bool operator==(const TemplateName&) const = default;
         };
 
-        struct TemplateId : Tag<NameSort::Specialization> {
-            TemplateId() : primary_template{}, arguments{} {}
-            TemplateId(NameIndex primary_template, ExprIndex arguments)
+        struct SpecializationName : Tag<NameSort::Specialization> {
+            SpecializationName() : primary_template{}, arguments{} {}
+            SpecializationName(NameIndex primary_template, ExprIndex arguments)
               : primary_template{primary_template}, arguments{arguments}
             {}
             NameIndex primary_template; // The primary template name.  Note: NameIndex is over-generic here.  E.g. it
                                         // can't be a decltype, nor can it be another template-id.
             ExprIndex arguments;
 
-            bool operator==(const TemplateId&) const = default;
+            bool operator==(const SpecializationName&) const = default;
         };
 
         struct SourceFileName : Tag<NameSort::SourceFile> {
@@ -2302,7 +2302,7 @@ namespace ifc {
         };
 
         // A concept.
-        struct Concept : Tag<DeclSort::Concept> {
+        struct ConceptDecl : Tag<DeclSort::Concept> {
             Identity<TextOffset> identity; // What identifies this concept.
             DeclIndex home_scope;          // Enclosing scope of this declaration.
             TypeIndex type;                // The type of the parameterized entity.
@@ -2390,7 +2390,7 @@ namespace ifc {
         };
 
         // A property declaration -- VC extensions.
-        struct PropertyDeclaration : Tag<DeclSort::Property> {
+        struct PropertyDecl : Tag<DeclSort::Property> {
             DeclIndex data_member;      // The pseudo data member that represents this property
             TextOffset get_method_name; // The name of the 'get' method
             TextOffset set_method_name; // The name of the 'set' method
@@ -2403,7 +2403,7 @@ namespace ifc {
             SegmentType type;       // The type of segment.
         };
 
-        struct UsingDeclaration : Tag<DeclSort::UsingDeclaration> {
+        struct UsingDecl : Tag<DeclSort::Using> {
             Identity<TextOffset> identity; // What identifies this using declaration
             DeclIndex home_scope;          // Enclosing scope of this declaration.
             DeclIndex resolution;          // Designates the used set of declarations.
@@ -2414,7 +2414,7 @@ namespace ifc {
             bool is_hidden;             // Is this using-declaration hidden?
         };
 
-        struct FriendDeclaration : Tag<DeclSort::Friend> {
+        struct FriendDecl : Tag<DeclSort::Friend> {
             ExprIndex index{}; // The expression representing a reference to the declaration.
                                // Note: most of the time this is a NamedDeclExpression but it
                                // can also be a TemplateIdExpression in the case of the friend
@@ -2436,7 +2436,7 @@ namespace ifc {
             TupleDecl(Index f, Cardinality n) : Sequence{f, n} {}
         };
 
-        static_assert(offsetof(UsingDeclaration, identity) == 0,
+        static_assert(offsetof(UsingDecl, identity) == 0,
                       "The name population code expects 'identity' to be at offset zero");
 
         // A sequence of declaration indices.
@@ -2471,71 +2471,71 @@ namespace ifc {
         // for the deriving Stmt nodes.
 
         // A sequence of zero or more statements. Used to represent blocks/compound statements.
-        struct BlockStatement : Location<StmtSort::Block>, Sequence<StmtIndex, HeapSort::Stmt> {};
+        struct BlockStmt : Location<StmtSort::Block>, Sequence<StmtIndex, HeapSort::Stmt> {};
 
-        struct TryStatement : Location<StmtSort::Try>, Sequence<StmtIndex, HeapSort::Stmt> {
+        struct TryStmt : Location<StmtSort::Try>, Sequence<StmtIndex, HeapSort::Stmt> {
             StmtIndex handlers{}; // The handler statement or tuple of handler statements.
         };
 
-        struct ExpressionStatement : Location<StmtSort::Expression> {
+        struct ExpressionStmt : Location<StmtSort::Expression> {
             ExprIndex expr{};
         };
 
-        struct IfStatement : Location<StmtSort::If> {
+        struct IfStmt : Location<StmtSort::If> {
             StmtIndex init{};
             StmtIndex condition{};
             StmtIndex consequence{};
             StmtIndex alternative{};
         };
 
-        struct WhileStatement : Location<StmtSort::While> {
+        struct WhileStmt : Location<StmtSort::While> {
             StmtIndex condition{};
             StmtIndex body{};
         };
 
-        struct DoWhileStatement : Location<StmtSort::DoWhile> {
+        struct DoWhileStmt : Location<StmtSort::DoWhile> {
             ExprIndex condition{}; // Grammatically, this can only ever be an expression.
             StmtIndex body{};
         };
 
-        struct ForStatement : Location<StmtSort::For> {
+        struct ForStmt : Location<StmtSort::For> {
             StmtIndex init{};
             StmtIndex condition{};
             StmtIndex increment{};
             StmtIndex body{};
         };
 
-        struct BreakStatement : Location<StmtSort::Break> {};
+        struct BreakStmt : Location<StmtSort::Break> {};
 
-        struct ContinueStatement : Location<StmtSort::Continue> {};
+        struct ContinueStmt : Location<StmtSort::Continue> {};
 
-        struct GotoStatement : Location<StmtSort::Goto> {
+        struct GotoStmt : Location<StmtSort::Goto> {
             ExprIndex target{};
         };
 
-        struct SwitchStatement : Location<StmtSort::Switch> {
+        struct SwitchStmt : Location<StmtSort::Switch> {
             StmtIndex init{};
             ExprIndex control{};
             StmtIndex body{};
         };
 
-        struct LabeledStatement : LocationAndType<StmtSort::Labeled> {
+        struct LabeledStmt : LocationAndType<StmtSort::Labeled> {
             ExprIndex label{}; // The label is an expression to offer more flexibility in the types of labels allowed.
                                // Note: a null index here indicates that this is the default case label in a switch
                                // statement.
             StmtIndex statement{}; // The statement associated with this label.
         };
 
-        struct DeclStatement : Location<StmtSort::Decl> {
+        struct DeclStmt : Location<StmtSort::Decl> {
             DeclIndex decl{};
         };
 
-        struct ReturnStatement : LocationAndType<StmtSort::Return> {
+        struct ReturnStmt : LocationAndType<StmtSort::Return> {
             ExprIndex expr{};
             TypeIndex function_type{};
         };
 
-        struct HandlerStatement : Location<StmtSort::Handler> {
+        struct HandlerStmt : Location<StmtSort::Handler> {
             DeclIndex exception{};
             StmtIndex body{};
         };
@@ -2544,7 +2544,7 @@ namespace ifc {
             StmtIndex operand; // The statement to expand
         };
 
-        struct TupleStatement : LocationAndType<StmtSort::Tuple>, Sequence<StmtIndex, HeapSort::Stmt> {};
+        struct TupleStmt : LocationAndType<StmtSort::Tuple>, Sequence<StmtIndex, HeapSort::Stmt> {};
 
         // Note: Every expression has a source location span, and a type.
 
@@ -2557,37 +2557,37 @@ namespace ifc {
             TextOffset suffix; // Suffix, if any.
         };
 
-        struct TypeExpression : LocationAndType<ExprSort::Type> {
+        struct TypeExpr : LocationAndType<ExprSort::Type> {
             TypeIndex denotation{};
         };
 
-        struct StringExpression : LocationAndType<ExprSort::String> {
+        struct StringExpr : LocationAndType<ExprSort::String> {
             StringIndex string{}; // The string literal
         };
 
-        struct FunctionStringExpression : LocationAndType<ExprSort::FunctionString> {
+        struct FunctionStringExpr : LocationAndType<ExprSort::FunctionString> {
             TextOffset macro{}; // The name of the macro identifier (e.g. __FUNCTION__)
         };
 
-        struct CompoundStringExpression : LocationAndType<ExprSort::CompoundString> {
+        struct CompoundStringExpr : LocationAndType<ExprSort::CompoundString> {
             TextOffset prefix{}; // The name of the prefix identifier (e.g. __LPREFIX)
             ExprIndex string{};  // The parenthesized string literal
         };
 
-        struct StringSequenceExpression : LocationAndType<ExprSort::StringSequence> {
+        struct StringSequenceExpr : LocationAndType<ExprSort::StringSequence> {
             ExprIndex strings{}; // The string literals in the sequence
         };
 
-        struct UnresolvedIdExpression : LocationAndType<ExprSort::UnresolvedId> {
+        struct UnresolvedIdExpr : LocationAndType<ExprSort::UnresolvedId> {
             NameIndex name{};
         };
 
-        struct TemplateIdExpression : LocationAndType<ExprSort::TemplateId> {
+        struct TemplateIdExpr : LocationAndType<ExprSort::TemplateId> {
             ExprIndex primary_template{};
             ExprIndex arguments{};
         };
 
-        struct TemplateReference : LocationAndType<ExprSort::TemplateReference> {
+        struct TemplateReferenceExpr : LocationAndType<ExprSort::TemplateReference> {
             DeclIndex member{};
             NameIndex member_name{};
             TypeIndex parent{};             // The enclosing concrete specialization
@@ -2595,7 +2595,7 @@ namespace ifc {
         };
 
         // Use of a declared identifier as an expression.
-        struct NamedDeclExpression : LocationAndType<ExprSort::NamedDecl> {
+        struct NamedDeclExpr : LocationAndType<ExprSort::NamedDecl> {
             DeclIndex decl{}; // Declaration referenced by the name.
         };
 
@@ -2603,16 +2603,16 @@ namespace ifc {
             LitIndex value{};
         };
 
-        struct EmptyExpression : LocationAndType<ExprSort::Empty> {};
+        struct EmptyExpr : LocationAndType<ExprSort::Empty> {};
 
-        struct PathExpression : LocationAndType<ExprSort::Path> {
+        struct PathExpr : LocationAndType<ExprSort::Path> {
             ExprIndex scope{};
             ExprIndex member{};
         };
 
         // Read from a symbolic address.  When the address is an id-expression, the read expression
         // symbolizes an lvalue-to-rvalue conversion.
-        struct ReadExpression : LocationAndType<ExprSort::Read> {
+        struct ReadExpr : LocationAndType<ExprSort::Read> {
             enum class Kind : uint8_t {
                 Unknown,            // Unknown
                 Indirection,        // Dereference a pointer, e.g. *p
@@ -2626,28 +2626,28 @@ namespace ifc {
             Kind kind{Kind::Unknown};
         };
 
-        struct MonadicTree : LocationAndType<ExprSort::Monad> {
+        struct MonadicExpr : LocationAndType<ExprSort::Monad> {
             DeclIndex impl{}; // An associated set of decls with this operator.  This set
                               // is obtained through the first phase of 2-phase name lookup.
             ExprIndex arg[1]{};
             MonadicOperator assort{};
         };
 
-        struct DyadicTree : LocationAndType<ExprSort::Dyad> {
+        struct DyadicExpr : LocationAndType<ExprSort::Dyad> {
             DeclIndex impl{}; // An associated set of decls with this operator.  This set
                               // is obtained through the first phase of 2-phase name lookup.
             ExprIndex arg[2]{};
             DyadicOperator assort{};
         };
 
-        struct TriadicTree : LocationAndType<ExprSort::Triad> {
+        struct TriadicExpr : LocationAndType<ExprSort::Triad> {
             DeclIndex impl{}; // An associated set of decls with this operator.  This set
                               // is obtained through the first phase of 2-phase name lookup.
             ExprIndex arg[3]{};
             TriadicOperator assort{};
         };
 
-        struct HierarchyConversionExpression : LocationAndType<ExprSort::HierarchyConversion> {
+        struct HierarchyConversionExpr : LocationAndType<ExprSort::HierarchyConversion> {
             ExprIndex source{};
             TypeIndex target{};
             ExprIndex inheritance_path{}; // Path from source class to destination class. For conversion of the 'this'
@@ -2660,7 +2660,7 @@ namespace ifc {
             DyadicOperator assort{};               // The class hierarchy navigation operation
         };
 
-        struct DestructorCall : LocationAndType<ExprSort::DestructorCall> {
+        struct DestructorCallExpr : LocationAndType<ExprSort::DestructorCall> {
             enum class Kind : uint8_t {
                 Unknown,
                 Destructor,
@@ -2672,7 +2672,7 @@ namespace ifc {
         };
 
         // A sequence of zero of more expressions.
-        struct TupleExpression : LocationAndType<ExprSort::Tuple>, Sequence<ExprIndex, HeapSort::Expr> {};
+        struct TupleExpr : LocationAndType<ExprSort::Tuple>, Sequence<ExprIndex, HeapSort::Expr> {};
 
         struct PlaceholderExpr : LocationAndType<ExprSort::Placeholder> {};
 
@@ -2681,28 +2681,28 @@ namespace ifc {
         };
 
         // A stream of tokens (used for 'complex' default arguments)
-        struct TokenExpression : LocationAndType<ExprSort::Tokens> {
+        struct TokenExpr : LocationAndType<ExprSort::Tokens> {
             SentenceIndex tokens{};
         };
 
-        struct CallExpression : LocationAndType<ExprSort::Call> {
+        struct CallExpr : LocationAndType<ExprSort::Call> {
             ExprIndex function{};  // The function we are calling
             ExprIndex arguments{}; // The arguments to the function call
         };
 
-        struct TemporaryExpression : LocationAndType<ExprSort::Temporary> {
+        struct TemporaryExpr : LocationAndType<ExprSort::Temporary> {
             uint32_t index{}; // The index that uniquely identifiers this temporary object
         };
 
-        struct DynamicDispatch : LocationAndType<ExprSort::DynamicDispatch> {
+        struct DynamicDispatchExpr : LocationAndType<ExprSort::DynamicDispatch> {
             ExprIndex postfix_expr{}; // The posfix expression on a call to a virtual function.
         };
 
-        struct VirtualFunctionConversion : LocationAndType<ExprSort::VirtualFunctionConversion> {
+        struct VirtualFunctionConversionExpr : LocationAndType<ExprSort::VirtualFunctionConversion> {
             DeclIndex function{}; // The virtual function referenced.
         };
 
-        struct RequiresExpression : LocationAndType<ExprSort::Requires> {
+        struct RequiresExpr : LocationAndType<ExprSort::Requires> {
             SyntaxIndex parameters{}; // The (optional) parameters
             SyntaxIndex body{};       // The requirement body
         };
@@ -2713,45 +2713,49 @@ namespace ifc {
             Right,
         };
 
-        struct UnaryFoldExpression : LocationAndType<ExprSort::UnaryFoldExpression> {
+        struct UnaryFoldExpr : LocationAndType<ExprSort::UnaryFold> {
             ExprIndex expr{};    // The associated expression
             DyadicOperator op{}; // The operator kind
             Associativity assoc = Associativity::Unspecified;
         };
 
-        struct BinaryFoldExpression : LocationAndType<ExprSort::BinaryFoldExpression> {
+        struct BinaryFoldExpr : LocationAndType<ExprSort::BinaryFold> {
             ExprIndex left{};    // The left expression
             ExprIndex right{};   // The right expression (if present)
             DyadicOperator op{}; // The operator kind
             Associativity assoc = Associativity::Unspecified;
         };
 
-        struct TypeTraitIntrinsic : LocationAndType<ExprSort::TypeTraitIntrinsic> {
+        struct StatementExpr : LocationAndType<ExprSort::Statement> {
+            StmtIndex stmt{};
+        };
+
+        struct TypeTraitIntrinsicExpr : LocationAndType<ExprSort::TypeTraitIntrinsic> {
             TypeIndex arguments{};
             Operator intrinsic{};
         };
 
-        struct MemberInitializer : LocationAndType<ExprSort::MemberInitializer> {
+        struct MemberInitializerExpr : LocationAndType<ExprSort::MemberInitializer> {
             DeclIndex member{};
             TypeIndex base{};
             ExprIndex expression{};
         };
 
-        struct MemberAccess : LocationAndType<ExprSort::MemberAccess> {
+        struct MemberAccessExpr : LocationAndType<ExprSort::MemberAccess> {
             ExprIndex offset{}; // The offset of the member
             TypeIndex parent{}; // The type of the parent
             TextOffset name{};  // The name of the non-static data member
         };
 
-        struct InheritancePath : LocationAndType<ExprSort::InheritancePath> {
+        struct InheritancePathExpr : LocationAndType<ExprSort::InheritancePath> {
             ExprIndex path{};
         };
 
-        struct InitializerList : LocationAndType<ExprSort::InitializerList> {
+        struct InitializerListExpr : LocationAndType<ExprSort::InitializerList> {
             ExprIndex elements{};
         };
 
-        struct Initializer : LocationAndType<ExprSort::Initializer> {
+        struct InitializerExpr : LocationAndType<ExprSort::Initializer> {
             enum class Kind : uint8_t {
                 Unknown,
                 DirectInitialization,
@@ -2774,11 +2778,11 @@ namespace ifc {
             ExprIndex expression{};
         };
 
-        struct SimpleIdentifier : LocationAndType<ExprSort::SimpleIdentifier> {
+        struct SimpleIdentifierExpr : LocationAndType<ExprSort::SimpleIdentifier> {
             NameIndex name{};
         };
 
-        struct Pointer : Tag<ExprSort::Pointer> {
+        struct PointerExpr : Tag<ExprSort::Pointer> {
             SourceLocation locus{};
         };
 
@@ -2793,13 +2797,13 @@ namespace ifc {
             SourceLocation typename_keyword{}; // The source location of the 'typename' keyword (if any)
         };
 
-        struct DesignatedInitializer : LocationAndType<ExprSort::DesignatedInitializer> {
+        struct DesignatedInitializerExpr : LocationAndType<ExprSort::DesignatedInitializer> {
             TextOffset member{};     // The identifier being designated
             ExprIndex initializer{}; // The assign-or-braced-init-expr
         };
 
         // FIXME: Remove at earliest convenience.
-        struct ExpressionList : Tag<ExprSort::ExpressionList> {
+        struct ExpressionListExpr : Tag<ExprSort::ExpressionList> {
             enum class Delimiter : uint8_t {
                 Unknown,
                 Brace,
@@ -2811,37 +2815,37 @@ namespace ifc {
             Delimiter delimiter{};            // The delimiter
         };
 
-        struct AssignInitializer : Tag<ExprSort::AssignInitializer> {
+        struct AssignInitializerExpr : Tag<ExprSort::AssignInitializer> {
             SourceLocation assign{}; // The source location of the '='
             ExprIndex initializer{}; // The initializer
         };
 
         // The representation of 'sizeof(type-id)': 'sizeof expression' is handled as a regular unary-expression
-        struct SizeofTypeId : LocationAndType<ExprSort::SizeofType> {
+        struct SizeofTypeExpr : LocationAndType<ExprSort::SizeofType> {
             TypeIndex operand{}; // The type-id argument
         };
 
         // The representation of 'sizeof(type-id)': 'sizeof expression' is handled as a regular unary-expression
-        struct Alignof : LocationAndType<ExprSort::Alignof> {
+        struct AlignofExpr : LocationAndType<ExprSort::Alignof> {
             TypeIndex type_id{}; // The type-id argument
         };
 
         // Label-expression.  Appears in goto-statements.
-        struct Label : LocationAndType<ExprSort::Label> {
+        struct LabelExpr : LocationAndType<ExprSort::Label> {
             ExprIndex designator{}; // The name of this label.  This is an expression in order
                                     // to offer flexibility in what the 'identifier' really is (it
                                     // might be a handle).
         };
 
-        struct Nullptr : LocationAndType<ExprSort::Nullptr> {};
+        struct NullptrExpr : LocationAndType<ExprSort::Nullptr> {};
 
-        struct This : LocationAndType<ExprSort::This> {};
+        struct ThisExpr : LocationAndType<ExprSort::This> {};
 
-        struct PackedTemplateArguments : LocationAndType<ExprSort::PackedTemplateArguments> {
+        struct PackedTemplateArgumentsExpr : LocationAndType<ExprSort::PackedTemplateArguments> {
             ExprIndex arguments{};
         };
 
-        struct LambdaExpression : Tag<ExprSort::Lambda> {
+        struct LambdaExpr : Tag<ExprSort::Lambda> {
             SyntaxIndex introducer{};          // The lambda introducer
             SyntaxIndex template_parameters{}; // The template parameters (if present)
             SyntaxIndex declarator{};          // The lambda declarator (if present)
@@ -2849,7 +2853,7 @@ namespace ifc {
             SyntaxIndex body{};                // The body of the lambda
         };
 
-        struct TypeidExpression : LocationAndType<ExprSort::Typeid> {
+        struct TypeidExpr : LocationAndType<ExprSort::Typeid> {
             TypeIndex operand{}; // TypeSort::Syntax => operand is in parse tree form
         };
 
@@ -2857,11 +2861,11 @@ namespace ifc {
             SyntaxIndex syntax{}; // The representation of this expression as a parse tree
         };
 
-        struct SubobjectValue : Tag<ExprSort::SubobjectValue> {
+        struct SubobjectValueExpr : Tag<ExprSort::SubobjectValue> {
             ExprIndex value{}; // The value of this member object
         };
 
-        struct ProductTypeValue : LocationAndType<ExprSort::ProductTypeValue> {
+        struct ProductTypeValueExpr : LocationAndType<ExprSort::ProductTypeValue> {
             TypeIndex structure{};         // The class type which this value is associated
             ExprIndex members{};           // The members (zero or more) which are initialized
             ExprIndex base_class_values{}; // The values (zero or more) of base class members
@@ -2869,13 +2873,13 @@ namespace ifc {
 
         enum class ActiveMemberIndex : uint32_t {};
 
-        struct SumTypeValue : LocationAndType<ExprSort::SumTypeValue> {
+        struct SumTypeValueExpr : LocationAndType<ExprSort::SumTypeValue> {
             TypeIndex variant{};               // The union type which this value is associated
             ActiveMemberIndex active_member{}; // The active member index
-            SubobjectValue value{};            // The object representing the value of the active member
+            SubobjectValueExpr value{};        // The object representing the value of the active member
         };
 
-        struct ArrayValue : LocationAndType<ExprSort::ArrayValue> {
+        struct ArrayValueExpr : LocationAndType<ExprSort::ArrayValue> {
             ExprIndex elements{};     // The tuple containing the element expressions
             TypeIndex element_type{}; // The type of elements within the array
             // TypeIndex array_type { };               // The type of the array object
@@ -3009,32 +3013,32 @@ namespace ifc {
             Execution      = 1 << 13,
         };
 
-        struct EmptyDirective : Location<DirSort::Empty> {};
+        struct EmptyDir : Location<DirSort::Empty> {};
 
-        struct AttributeDirective : Location<DirSort::Attribute> {
+        struct AttributeDir : Location<DirSort::Attribute> {
             AttrIndex attr{};
         };
 
-        struct PragmaDirective : Location<DirSort::Pragma> {
+        struct PragmaDir : Location<DirSort::Pragma> {
             SentenceIndex words{}; // Sentence index making up the directive.
         };
 
-        struct UsingDirective : Location<DirSort::Using> {
+        struct UsingDir : Location<DirSort::Using> {
             ExprIndex nominated{};  // The in-source name expression designating the namespace.
             DeclIndex resolution{}; // Denotes the namespace after semantics elaboration on 'nominated'.
         };
 
-        struct UsingDeclarationDirective : Location<DirSort::DeclUse> {
+        struct UsingDeclarationDir : Location<DirSort::DeclUse> {
             ExprIndex path{};   // The path expression to the declaration target of the using-declaration.
             DeclIndex result{}; // Denotes the declaration(s) resulting from executing the using-declaration.
         };
 
-        struct ExprDirective : Location<DirSort::Expr> {
+        struct ExprDir : Location<DirSort::Expr> {
             ExprIndex expr{}; // Denotes the expression to evaluate.
             Phases phases{};  // Denotes the set of phases of translation which this directive is to be evaluated.
         };
 
-        struct StructuredBindingDirective : Location<DirSort::StructuredBinding> {
+        struct StructuredBindingDir : Location<DirSort::StructuredBinding> {
             Sequence<DeclIndex> bindings{}; // The set of declarations resulting from the elaboration of a structured
                                             // bindings declaration.
             // DeclSpecifierSeq specifiers;     // TODO: we need to know concretely what this should be.
@@ -3042,12 +3046,12 @@ namespace ifc {
             // BindingMode ref { };             // TODO: we need to know concretely what this should be.
         };
 
-        struct SpecifiersSpreadDirective : Location<DirSort::SpecifiersSpread> {
+        struct SpecifiersSpreadDir : Location<DirSort::SpecifiersSpread> {
             // DeclSpecifierSequence specifiers { };    // TODO: we need to know concretely what this should be.
             // ProclaimerSequence targets { };          // TODO: we need to know concretely what this should be.
         };
 
-        struct TupleDirective : Tag<DirSort::Tuple>, Sequence<DirIndex, HeapSort::Dir> {};
+        struct TupleDir : Tag<DirSort::Tuple>, Sequence<DirIndex, HeapSort::Dir> {};
     } // namespace symbolic
 
     namespace symbolic::preprocessing {
@@ -3122,9 +3126,9 @@ namespace ifc {
             TextOffset spelling  = {};
         };
 
-        struct Tuple : Tag<FormSort::Tuple>, Sequence<FormIndex, HeapSort::Form> {
-            Tuple() = default;
-            Tuple(Index f, Cardinality n) : Sequence{f, n} {}
+        struct TupleForm : Tag<FormSort::Tuple>, Sequence<FormIndex, HeapSort::Form> {
+            TupleForm() = default;
+            TupleForm(Index f, Cardinality n) : Sequence{f, n} {}
         };
     } // namespace symbolic::preprocessing
 

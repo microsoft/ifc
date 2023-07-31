@@ -163,9 +163,9 @@ namespace ifc::util {
         return "unknown-expansion-mode-:" + std::to_string((int)mode);
     };
 
-    std::string to_string(symbolic::ReadExpression::Kind kind)
+    std::string to_string(symbolic::ReadExpr::Kind kind)
     {
-        using Kind = symbolic::ReadExpression::Kind;
+        using Kind = symbolic::ReadExpr::Kind;
         switch (kind)
         {
         case Kind::Unknown:
@@ -225,9 +225,9 @@ namespace ifc::util {
         }
     }
 
-    std::string to_string(symbolic::ExpressionList::Delimiter delimiter)
+    std::string to_string(symbolic::ExpressionListExpr::Delimiter delimiter)
     {
-        using Kind = symbolic::ExpressionList::Delimiter;
+        using Kind = symbolic::ExpressionListExpr::Delimiter;
         switch (delimiter)
         {
         case Kind::Unknown:
@@ -241,9 +241,9 @@ namespace ifc::util {
         }
     }
 
-    std::string to_string(symbolic::DestructorCall::Kind kind)
+    std::string to_string(symbolic::DestructorCallExpr::Kind kind)
     {
-        using Kind = symbolic::DestructorCall::Kind;
+        using Kind = symbolic::DestructorCallExpr::Kind;
         switch (kind)
         {
         case Kind::Unknown:
@@ -257,9 +257,9 @@ namespace ifc::util {
         }
     }
 
-    std::string to_string(symbolic::Initializer::Kind kind)
+    std::string to_string(symbolic::InitializerExpr::Kind kind)
     {
-        using Kind = symbolic::Initializer::Kind;
+        using Kind = symbolic::InitializerExpr::Kind;
         switch (kind)
         {
         case Kind::Unknown:

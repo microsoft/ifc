@@ -20,7 +20,7 @@ namespace ifc::util {
         {
             return std::string("TODO: ") + sort_name(val.algebra_sort);
         }
-        std::string operator()(const symbolic::TemplateId& val)
+        std::string operator()(const symbolic::SpecializationName& val)
         {
             return std::string("TODO: ") + sort_name(val.algebra_sort);
         }

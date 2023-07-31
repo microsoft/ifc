@@ -137,6 +137,7 @@ namespace ifc {
         MsvcConfusedDependentExpression,                    // At times the old YACC parser will 'give up' parsing a dependent expression and simply return a constant with a dummy bit set.
                                                             // This operator attempts to catch these offending dependent expression values.
         MsvcConfusedSubstitution,                           // Represents a template parameter substitution 'P -> expr' where 'expr' could be a type or a non-type argument replacement.
+        MsvcConfusedAggregateReturn,                        // Decorates a return statement which returns an aggregate class type with a user-defined destructor.
 
         Last
     };
