@@ -1,3 +1,6 @@
+// Copyright Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 function decl_preview_active() {
     return $('#sidebar').hasClass('active');
 }

@@ -1,3 +1,6 @@
+// Copyright Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 #ifndef IFC_TOOLS_PRINTER_HXX
 #define IFC_TOOLS_PRINTER_HXX
 

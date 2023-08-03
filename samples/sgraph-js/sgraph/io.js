@@ -1,3 +1,6 @@
+// Copyright Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 class RawByteReader {
     constructor(bytes) {
         this.bytes = bytes;

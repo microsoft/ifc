@@ -1,3 +1,6 @@
+// Copyright Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 const PropertyFilters = {
     None:         0,
     Exported:     1 << 0, // Filter out exported declarations.

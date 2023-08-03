@@ -1,3 +1,6 @@
+// Copyright Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 const file_selector = document.getElementById('file-selector');
 const title = document.getElementById('title');
 const output = document.getElementById('output');

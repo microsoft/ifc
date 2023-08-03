@@ -1,7 +1,5 @@
-//
-// Microsoft (R) C/C++ Optimizing Compiler Front-End
-// Copyright (C) Microsoft. All rights reserved.
-//
+// Copyright Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #ifndef IFC_PATHNAME_INCLUDED
 #define IFC_PATHNAME_INCLUDED

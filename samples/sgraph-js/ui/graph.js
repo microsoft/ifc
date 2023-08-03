@@ -1,3 +1,6 @@
+// Copyright Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 // D3 + HTML canvas: https://www.freecodecamp.org/news/d3-and-canvas-in-3-steps-8505c8b27444
 
 function transposed() {

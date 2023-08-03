@@ -1,6 +1,5 @@
-//
-// Copyright Microsoft.
-//
+// Copyright Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #ifndef IFC_BASIC_TYPES
 #define IFC_BASIC_TYPES
