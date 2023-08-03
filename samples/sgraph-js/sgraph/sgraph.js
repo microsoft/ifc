@@ -1,3 +1,6 @@
+// Copyright Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 // Based on IFC specification 0.43.
 function implemented_ifc_version() {
     return new Version(0, 43);

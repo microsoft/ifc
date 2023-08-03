@@ -1,3 +1,6 @@
+# Copyright Microsoft Corporation.
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 # IFC DOM Library
 
 add_library(ifc-dom STATIC 

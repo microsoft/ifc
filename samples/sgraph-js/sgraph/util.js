@@ -1,3 +1,6 @@
+// Copyright Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 function has_property(obj, prop) {
     return obj.hasOwnProperty(prop);
 }

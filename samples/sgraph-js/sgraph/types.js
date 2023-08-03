@@ -1,3 +1,5 @@
+// Copyright Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 class FundamentalType {
     static partition_name = "type.fundamental";

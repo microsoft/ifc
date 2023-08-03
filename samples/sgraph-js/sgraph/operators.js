@@ -1,3 +1,6 @@
+// Copyright Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 class NiladicOperator {
     static Values = {
         Unknown:            0, // also serves as a placeholder for undefined

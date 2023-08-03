@@ -1,3 +1,6 @@
+// Copyright Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 // Windows Implementation of SHA256
 
 #include <windows.h>

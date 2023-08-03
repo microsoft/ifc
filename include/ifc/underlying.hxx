@@ -1,4 +1,5 @@
-// Copyright Microsoft.
+// Copyright Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #ifndef IFC_UNDERLYING_H
 #define IFC_UNDERLYING_H

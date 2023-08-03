@@ -1,3 +1,6 @@
+// Copyright Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 function ifc_explorer_clear_content(content) {
     remove_all_children(content);
 }

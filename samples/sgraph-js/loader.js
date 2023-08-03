@@ -1,3 +1,6 @@
+// Copyright Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 function log_header(header) {
     if (!header.valid())
         console.log("not valid header!");

@@ -1,3 +1,6 @@
+// Copyright Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 // We load the ifc into in memory "dom" format to allow simpler processing
 // for text printing, graphing in a dot format, etc.
 //
