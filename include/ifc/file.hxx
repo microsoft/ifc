@@ -141,7 +141,7 @@ namespace ifc {
         // Non-module units do not have module names.
         constexpr UnitIndex() : Base{UnitSort::Header, 0} {}
 
-        constexpr UnitIndex(TextOffset text, UnitSort unit) : Base{unit, to_underlying(text)} {}
+        constexpr UnitIndex(TextOffset text, UnitSort sort) : Base{sort, to_underlying(text)} {}
 
         TextOffset module_name() const
         {

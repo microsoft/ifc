@@ -154,6 +154,9 @@ class PlaceholderType {
     constructor(reader) {
         this.constraint = new ExprIndex(reader);
         this.basis = new TypeBasis(reader);
+        this.pad1 = new StructPadding(reader);
+        this.pad2 = new StructPadding(reader);
+        this.pad3 = new StructPadding(reader);
         this.elaboration = new TypeIndex(reader);
     }
 }
