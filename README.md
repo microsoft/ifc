@@ -1,12 +1,13 @@
 # IFC SDK
 
-The IFC SDK provides code to allow to read, write, and modify IFC files. It contains C++ 
-structures that can be mapped directly onto the on-disk format.
-See the IFC specification at [IFC Specification](https://github.com/microsoft/ifc-spec).
+The IFC SDK provides datatypes and code supporting read and write of IFC files. 
+It contains C++ 
+datatypes that can be memory-mapped directly onto the on-disk format.
+See the [IFC Specification](https://github.com/microsoft/ifc-spec) for more details.
 
-If you want to participate in the development of the IFC SDK, welcome! You can report issues, comment on pull requests, and learn about what we're working on. You can also submit pull requests to fix bugs or add features: see [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
+If you want to participate in the development of the IFC SDK, welcome! You can report issues, comment on pull requests, and learn about what we're working on. You can also submit pull requests to fix bugs or add features reflecting the [Specification](https://github.com/microsoft/ifc-spec): see [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 
-Finally, you can take our code and use it in other apps and libraries (according to the terms of our license, like everything else)
+Finally, you can take our code and use it in other programs or libraries (according to the terms of our license, like everything else)
 
 # Building and Running
 This project uses CMake for defining projects, and the code has been tested to work on Windows and Linux. It can be built and run under WSL (Windows Subsystem for Linux) as well.
