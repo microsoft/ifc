@@ -1,7 +1,8 @@
 # IFC SDK
 
 The IFC SDK provides datatypes and code supporting read and write of IFC files. 
-It contains C++ 
+This is an experimental project aiming at advancing implementation and uses of C++ Modules at large.
+The SDK contains C++ 
 datatypes that can be memory-mapped directly onto the on-disk format.
 See the [IFC Specification](https://github.com/microsoft/ifc-spec) for more details.
 

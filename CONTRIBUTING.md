@@ -18,7 +18,7 @@ for changes required to support C++ standards starting from C++20 and upwards.
 We are not yet accepting contributions that expand the project scope beyond  adherence to the Specification, as explained above.  However, if you build cool apps or another projects on top of the SDK, we would love to hear about them.
 
 We are making the SDK available to the C++ community in the hope of helping to 
-advance C++ Modules implementation in other C++ compilers, and C++ Modules adoption in the C++ community at large.
+advance C++ Modules implementation across C++ compilers, and C++ Modules adoption in the C++ community at large.
 
 ## Formatting
 There is a [.clang-format](.clang-format) file in the repo that should work with many editors automatically. Use the comment strings `// clang format off` and `// clang format on` to prevent automatic formatting when necessary to preserve specific formatting.
