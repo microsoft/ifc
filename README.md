@@ -1,14 +1,12 @@
 # IFC SDK
 
-The IFC SDK provides datatypes and code supporting read and write of IFC files. 
+The IFC SDK provides datatypes and code supporting the read and write of IFC files. 
 This is an experimental project aiming at advancing implementation and uses of C++ Modules at large.
 The SDK contains C++ 
 datatypes that can be memory-mapped directly onto the on-disk format.
 See the [IFC Specification](https://github.com/microsoft/ifc-spec) for more details.
 
-If you want to participate in the development of the IFC SDK, welcome! You can report issues, comment on pull requests, and learn about what we're working on. You can also submit pull requests to fix bugs or add features reflecting the [Specification](https://github.com/microsoft/ifc-spec): see [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
-
-Finally, you can take our code and use it in other programs or libraries (according to the terms of our license, like everything else)
+If you want to participate in the development of the IFC SDK, you are welcome! You can report issues, comment on pull requests, and learn about what we are working on. You can also submit pull requests to fix bugs or add features reflecting the [Specification](https://github.com/microsoft/ifc-spec): see [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 
 # Building and Running
 This project uses CMake for defining projects, and the code has been tested to work on Windows and Linux. It can be built and run under WSL (Windows Subsystem for Linux) as well.
@@ -30,9 +28,9 @@ ifc-printer.exe -color test.cpp.ifc
 ```
 
 # Contributing
-This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to grant us the right to use your contribution. For details, visit https://cla.opensource.microsoft.com.
 
-When you submit a pull request, a CLA bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
+When you submit a pull request, a CLA bot will automatically determine whether you need to provide a CLA and decorate the PR (Pull Request) appropriately (e.g., status check, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 

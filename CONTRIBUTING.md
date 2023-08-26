@@ -1,8 +1,8 @@
 # Contributing
 
 This project welcomes contributions and suggestions. Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+Contributor License Agreement (CLA) declaring that you have the right to grant us
+the right to use your contribution. For details, visit https://cla.opensource.microsoft.com.
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide
 a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
@@ -15,7 +15,7 @@ simple utilities for formatting or viewing IFC files.  We welcome and we are loo
 for contributions that fix gaps between the SDK and the Specification, or
 for changes required to support C++ standards starting from C++20 and upwards.
 
-We are not yet accepting contributions that expand the project scope beyond  adherence to the Specification, as explained above.  However, if you build cool apps or another projects on top of the SDK, we would love to hear about them.
+We are not yet accepting contributions that expand the project scope beyond  adherence to the Specification, as explained above.  However, if you build cool apps or projects on top of the SDK, we would love to hear about them.
 
 We are making the SDK available to the C++ community in the hope of helping to 
 advance C++ Modules implementation across C++ compilers, and C++ Modules adoption in the C++ community at large.
@@ -24,16 +24,16 @@ advance C++ Modules implementation across C++ compilers, and C++ Modules adoptio
 There is a [.clang-format](.clang-format) file in the repo that should work with many editors automatically. Use the comment strings `// clang format off` and `// clang format on` to prevent automatic formatting when necessary to preserve specific formatting.
 
 ## Coding Conventions
-Type names (e.g. classes, and enums) should use `PascalCase` naming convention.
+Type names (e.g., classes, and enums) should use `PascalCase` naming convention.
 
-Functions, methods, data members, parameters, and variables should use `snake_case` naming convention (e.g. `bit_length`).
+Functions, methods, data members, parameters, and variables should use `snake_case` naming convention (e.g., `bit_length`).
 
 Use the keywords `and`, `or`, and `not` rather than `&&`, `||`, and `!` for logical operators.
 
 ## Submitting a Pull Request
 
 The SDK repo has open issues that track work which needs to be completed.
-If you're unsure of where to start, you may want to:
+If you are unsure of where to start, you may want to:
 
 * look for pinned issues, or
 * check issues under the labels [`good first issue`][label:"good first issue"],
