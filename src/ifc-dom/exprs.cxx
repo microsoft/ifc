@@ -255,11 +255,6 @@ namespace ifc::util {
             {
                 node.props.emplace("ref", ctx.ref(expr.variant));
                 node.props.emplace("index", std::to_string((int)expr.active_member));
-                add_child(expr.value.value); // reach inside. no need to have it doubly nested
-            }
-
-            void operator()(const symbolic::SubobjectValueExpr& expr)
-            {
                 add_child(expr.value);
             }
 

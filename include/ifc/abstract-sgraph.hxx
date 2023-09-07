@@ -562,7 +562,7 @@ namespace ifc {
                                    // (really an associative map of declarations to values)
         SumTypeValue,              // The representation of a union object value expression tree.
                                    // Unions have a single active SubobjectValue
-        SubobjectValue,            // A key-value pair under a ProductTypeValue
+        UnusedSort1,               // Empty slot.
         ArrayValue,                // A constant-initialized array value object
         DynamicDispatch,           // A dynamic dispatch expression, i.e. call to virtual function
         VirtualFunctionConversion, // A conversion of a virtual function reference to its underlying target: C::f // 'f'
@@ -758,30 +758,22 @@ namespace ifc {
         };
 
         struct TemplateName : Tag<NameSort::Template> {
-            TemplateName() : name{} {}
-            TemplateName(NameIndex x) : name{x} {}
-            NameIndex name; // template name; can't be itself another TemplateName.
+            NameIndex name{}; // template name; can't be itself another TemplateName.
 
             bool operator==(const TemplateName&) const = default;
         };
 
         struct SpecializationName : Tag<NameSort::Specialization> {
-            SpecializationName() : primary_template{}, arguments{} {}
-            SpecializationName(NameIndex primary_template, ExprIndex arguments)
-              : primary_template{primary_template}, arguments{arguments}
-            {}
-            NameIndex primary_template; // The primary template name.  Note: NameIndex is over-generic here.  E.g. it
-                                        // can't be a decltype, nor can it be another template-id.
-            ExprIndex arguments;
+            NameIndex primary_template{}; // The primary template name.  Note: NameIndex is over-generic here.  E.g. it
+                                          // can't be a decltype, nor can it be another template-id.
+            ExprIndex arguments{};
 
             bool operator==(const SpecializationName&) const = default;
         };
 
         struct SourceFileName : Tag<NameSort::SourceFile> {
-            SourceFileName() : name{}, include_guard{} {}
-            SourceFileName(TextOffset name, TextOffset include_guard) : name{name}, include_guard{include_guard} {}
-            TextOffset name;
-            TextOffset include_guard;
+            TextOffset name{};
+            TextOffset include_guard{};
 
             bool operator==(const SourceFileName&) const = default;
         };
@@ -846,10 +838,6 @@ namespace ifc {
             bool operator==(const NoexceptSpecification&) const = default;
         };
 
-        struct UnaryTypeCtorInstance {
-            TypeIndex operand;
-        };
-
         // The set of fundamental type basis.
         enum class TypeBasis : uint8_t {
             Void,             // "void"
@@ -903,11 +891,9 @@ namespace ifc {
         // They are represented externally as possibly signed variation of a core basis
         // of builtin types, with versions expressing "bitness".
         struct FundamentalType : Tag<TypeSort::Fundamental> {
-            FundamentalType() : basis{}, precision{}, sign{} {}
-            FundamentalType(TypeBasis b, TypePrecision p, TypeSign s) : basis{b}, precision{p}, sign{s} {}
-            TypeBasis basis;
-            TypePrecision precision;
-            TypeSign sign;
+            TypeBasis basis{};
+            TypePrecision precision{};
+            TypeSign sign{};
             uint8_t unused{};
         };
 
@@ -919,75 +905,45 @@ namespace ifc {
 
         // Designation of a type by a declared name.
         struct DesignatedType : Tag<TypeSort::Designated> {
-            DesignatedType() : decl{} {}
-            DesignatedType(DeclIndex idx) : decl{idx} {}
-            DeclIndex decl; // A declaration for this type.
+            DeclIndex decl{}; // A declaration for the entity designated by type.
         };
 
         struct TorType : Tag<TypeSort::Tor> {
-            TypeIndex source;              // Parameter type sequence.
-            NoexceptSpecification eh_spec; // Noexcept specification.
-            CallingConvention convention;  // Calling convention.
+            TypeIndex source{};                 // Parameter type sequence.
+            NoexceptSpecification eh_spec{};    // Noexcept specification.
+            CallingConvention convention{};     // Calling convention.
 
             bool operator==(const TorType&) const = default;
         };
 
         struct SyntacticType : Tag<TypeSort::Syntactic> {
-            SyntacticType() : expr{} {}
-            SyntacticType(ExprIndex x) : expr{x} {}
-            ExprIndex expr;
+            ExprIndex expr{};
         };
 
         // Type-id expansion involving a template parameter pack.
         struct ExpansionType : Tag<TypeSort::Expansion> {
-            ExpansionType() = default;
-            ExpansionType(TypeIndex t, ExpansionMode m) : operand{t}, mode{m} {}
-            TypeIndex operand  = {};
+            TypeIndex pack  = {};
             ExpansionMode mode = {};
         };
 
         // Pointer type.
-        struct PointerType : Tag<TypeSort::Pointer>, UnaryTypeCtorInstance {
-            PointerType() : UnaryTypeCtorInstance{} {}
-            PointerType(TypeIndex t) : UnaryTypeCtorInstance{t} {}
-
-            TypeIndex pointee() const
-            {
-                return operand;
-            }
+        struct PointerType : Tag<TypeSort::Pointer> {
+            TypeIndex pointee{};
         };
 
         // Lvalue reference type.
-        struct LvalueReferenceType : Tag<TypeSort::LvalueReference>, UnaryTypeCtorInstance {
-            LvalueReferenceType() : UnaryTypeCtorInstance{} {}
-            LvalueReferenceType(TypeIndex t) : UnaryTypeCtorInstance{t} {}
-
-            TypeIndex referee() const
-            {
-                return operand;
-            }
+        struct LvalueReferenceType : Tag<TypeSort::LvalueReference> {
+            TypeIndex referee{};
         };
 
         // Rvalue reference type.
-        struct RvalueReferenceType : Tag<TypeSort::RvalueReference>, UnaryTypeCtorInstance {
-            RvalueReferenceType() : UnaryTypeCtorInstance{} {}
-            RvalueReferenceType(TypeIndex t) : UnaryTypeCtorInstance{t} {}
-
-            TypeIndex referee() const
-            {
-                return operand;
-            }
+        struct RvalueReferenceType : Tag<TypeSort::RvalueReference> {
+            TypeIndex referee{};
         };
 
         // Unaligned type -- an MS VC curiosity.
-        struct UnalignedType : Tag<TypeSort::Unaligned>, UnaryTypeCtorInstance {
-            UnalignedType() : UnaryTypeCtorInstance{} {}
-            UnalignedType(TypeIndex t) : UnaryTypeCtorInstance{t} {}
-
-            TypeIndex type() const
-            {
-                return operand;
-            }
+        struct UnalignedType : Tag<TypeSort::Unaligned> {
+            TypeIndex operand{};
         };
 
         struct DecltypeType : Tag<TypeSort::Decltype> {
@@ -995,15 +951,13 @@ namespace ifc {
         };
 
         struct PlaceholderType : Tag<TypeSort::Placeholder> {
-            ExprIndex constraint;  // The predicate associated with this type placeholder.  Null means no constraint.
-            TypeBasis basis;       // auto/decltype(auto)
-            TypeIndex elaboration; // The type this placeholder was deduced to.
+            ExprIndex constraint{};     // The predicate associated with this type placeholder.  Null means no constraint.
+            TypeBasis basis{};          // auto/decltype(auto)
+            TypeIndex elaboration{};    // The type this placeholder was deduced to.
         };
 
         // A pointer to non-static member type.
         struct PointerToMemberType : Tag<TypeSort::PointerToMember> {
-            PointerToMemberType() = default;
-            PointerToMemberType(TypeIndex s, TypeIndex t) : scope{s}, type{t} {}
             TypeIndex scope = {}; // The enclosing class
             TypeIndex type  = {}; // Type of the pointed-to member.
         };
@@ -1030,51 +984,44 @@ namespace ifc {
         //       is not modelled as overload resolution (because it is not).  Rather it is predicate
         //       refinement/subsumption, and as such does not belong (int the current design) in the type.
         struct ForallType : Tag<TypeSort::Forall> {
-            ForallType(ChartIndex c, TypeIndex t) : chart{c}, subject{t} {}
-            ChartIndex chart;  // The set of parameters of this parametric type
-            TypeIndex subject; // The type being parameterized
+            ChartIndex chart{};     // The set of parameters of this parametric type
+            TypeIndex subject{};    // The type being parameterized
         };
 
         // Ordinary function types
         struct FunctionType : Tag<TypeSort::Function> {
-            TypeIndex target;              // result type
-            TypeIndex source;              // Description of parameter types.
-            NoexceptSpecification eh_spec; // Noexcept specification.
-            CallingConvention convention;  // Calling convention.
-            FunctionTypeTraits traits;     // Various (rare) function-type traits
+            TypeIndex target{};                 // result type
+            TypeIndex source{};                 // Description of parameter types.
+            NoexceptSpecification eh_spec{};    // Noexcept specification.
+            CallingConvention convention{};     // Calling convention.
+            FunctionTypeTraits traits{};        // Various (rare) function-type traits
         };
 
         // Non-static member function types.
         struct MethodType : Tag<TypeSort::Method> {
-            TypeIndex target;              // result type
-            TypeIndex source;              // Description of parameter types.
-            TypeIndex class_type;          // The enclosing class associated with this non-static member function type
-            NoexceptSpecification eh_spec; // Noexcept specification.
-            CallingConvention convention;  // Calling convention.
-            FunctionTypeTraits traits;     // Various (rare) function-type traits
+            TypeIndex target{};                 // result type
+            TypeIndex source{};                 // Description of parameter types.
+            TypeIndex class_type{};             // The enclosing class associated with this non-static member function type
+            NoexceptSpecification eh_spec{};    // Noexcept specification.
+            CallingConvention convention{};     // Calling convention.
+            FunctionTypeTraits traits{};        // Various (rare) function-type traits
         };
 
         // Builtin array types.
         struct ArrayType : Tag<TypeSort::Array> {
-            ArrayType() = default;
-            ArrayType(TypeIndex t, ExprIndex n) : element{t}, bound{n} {}
             TypeIndex element = {}; // The array element type.
             ExprIndex bound   = {}; // The number of element in this array.
         };
 
         // Qualified types:
         struct QualifiedType : Tag<TypeSort::Qualified> {
-            QualifiedType() = default;
-            QualifiedType(TypeIndex t, Qualifier q) : unqualified_type{t}, qualifiers{q} {}
             TypeIndex unqualified_type = {};
             Qualifier qualifiers       = {};
         };
 
         // Unresolved type names.
         struct TypenameType : Tag<TypeSort::Typename> {
-            TypenameType() : path{} {}
-            TypenameType(ExprIndex x) : path{x} {}
-            ExprIndex path;
+            ExprIndex path{};
         };
 
         enum class BaseClassTraits : uint8_t {
@@ -1085,9 +1032,9 @@ namespace ifc {
 
         // Base-type in a class inheritance.
         struct BaseType : Tag<TypeSort::Base> {
-            TypeIndex type;         // The actual base type, without specifiers
-            Access access;          // Access specifier.
-            BaseClassTraits traits; // Additional base class semantics.
+            TypeIndex type {};         // The actual base type, without specifiers
+            Access access {};          // Access specifier.
+            BaseClassTraits traits;    // Additional base class semantics.
         };
 
         // Type-id in parse tree form
@@ -2031,19 +1978,10 @@ namespace ifc {
         }     // namespace syntax
 
         // Location description of a source file + line pair
-        struct FileAndLine : std::pair<NameIndex, LineNumber> {
-            FileAndLine() : std::pair<NameIndex, LineNumber>() {}
-            FileAndLine(NameIndex index, LineNumber line) : std::pair<NameIndex, LineNumber>(index, line) {}
-
-            NameIndex file() const
-            {
-                return first;
-            }
-
-            LineNumber line() const
-            {
-                return second;
-            }
+        struct FileAndLine {
+            NameIndex file{};
+            LineNumber line{};
+            bool operator==(const FileAndLine&) const = default;
         };
 
         // Almost any C++ declaration can be parameterized, either directly (as a template),
@@ -2057,8 +1995,8 @@ namespace ifc {
 
         // Symbolic representation of a specialization request, whether implicit or explicit.
         struct SpecializationForm {
-            DeclIndex template_decl;
-            ExprIndex arguments;
+            DeclIndex template_decl{};
+            ExprIndex arguments{};
         };
 
         // This structure is used to represent a body of a constexpr function.
@@ -2074,20 +2012,20 @@ namespace ifc {
 
         template<typename T>
         struct Identity {
-            T name{};             // The name of the entity (either 'NameIndex' or 'TextOffset')
-            SourceLocation locus; // Source location of this entity
+            T name{};               // The name of the entity (either 'NameIndex' or 'TextOffset')
+            SourceLocation locus{}; // Source location of this entity
         };
 
         // Symbolic representation of a function declaration.
         struct FunctionDecl : Tag<DeclSort::Function> {
-            Identity<NameIndex> identity;   // The name and location of this function
-            TypeIndex type;                 // Sort and index of this decl's type.  Null means no type.
-            DeclIndex home_scope;           // Enclosing scope of this declaration.
-            ChartIndex chart;               // Function parameter list.
-            FunctionTraits traits;          // Function traits
-            BasicSpecifiers basic_spec;     // Basic declaration specifiers.
-            Access access;                  // Access right to this function.
-            ReachableProperties properties; // Set of reachable properties of this declaration
+            Identity<NameIndex> identity{};     // The name and location of this function
+            TypeIndex type{};                   // Sort and index of this decl's type.  Null means no type.
+            DeclIndex home_scope{};             // Enclosing scope of this declaration.
+            ChartIndex chart{};                 // Function parameter list.
+            FunctionTraits traits{};            // Function traits
+            BasicSpecifiers basic_spec{};       // Basic declaration specifiers.
+            Access access{};                    // Access right to this function.
+            ReachableProperties properties{};   // Set of reachable properties of this declaration
         };
 
         static_assert(offsetof(FunctionDecl, identity) == 0,
@@ -2108,11 +2046,11 @@ namespace ifc {
 
         // An enumerator declaration.
         struct EnumeratorDecl : Tag<DeclSort::Enumerator> {
-            Identity<TextOffset> identity; // // The name and location of this enumerator
-            TypeIndex type;                // Sort and index of this decl's type.  Null means no type.
-            ExprIndex initializer;      // Sort and index of this declaration's initializer, if any.  Null means absent.
-            BasicSpecifiers basic_spec; // Basic declaration specifiers.
-            Access access;              // Access right to this enumerator.
+            Identity<TextOffset> identity{};    // The name and location of this enumerator
+            TypeIndex type{};                   // Sort and index of this decl's type.  Null means no type.
+            ExprIndex initializer{};            // Sort and index of this declaration's initializer, if any.  Null means absent.
+            BasicSpecifiers basic_spec{};       // Basic declaration specifiers.
+            Access access{};                    // Access right to this enumerator.
         };
 
         // A strongly-typed abstraction of ExprIndex which always points to ExprSort::NamedDecl.
@@ -2140,9 +2078,9 @@ namespace ifc {
         }
 
         struct ParameterDecl : Tag<DeclSort::Parameter> {
-            Identity<TextOffset> identity;    // The name and location of this function parameter
-            TypeIndex type;                   // Sort and index of this decl's type.  Null means no type.
-            ExprIndex type_constraint;        // Optional type-constraint on the parameter type.
+            Identity<TextOffset> identity{};  // The name and location of this function parameter
+            TypeIndex type{};                 // Sort and index of this decl's type.  Null means no type.
+            ExprIndex type_constraint{};      // Optional type-constraint on the parameter type.
             DefaultIndex initializer{};       // Default argument. Null means none was provided.
             uint32_t level{};                 // The nesting depth of this parameter (template or function).
             uint32_t position{};              // The 1-based position of this parameter.
@@ -2152,15 +2090,15 @@ namespace ifc {
 
         // A variable declaration, including static data members.
         struct VariableDecl : Tag<DeclSort::Variable> {
-            Identity<NameIndex> identity; // The name and location of this variable
-            TypeIndex type;               // Sort and index of this decl's type.  Null means no type.
-            DeclIndex home_scope;         // Enclosing scope of this declaration.
-            ExprIndex initializer;      // Sort and index of this declaration's initializer, if any.  Null means absent.
-            ExprIndex alignment;        // If non-zero, explicit alignment specification, e.g. alignas(N).
-            ObjectTraits obj_spec;      // Object traits associated with this variable.
-            BasicSpecifiers basic_spec; // Basic declaration specifiers.
-            Access access;              // Access right to this variable.
-            ReachableProperties properties; // The set of semantic properties reaching to outside importers.
+            Identity<NameIndex> identity{};     // The name and location of this variable
+            TypeIndex type{};                   // Sort and index of this decl's type.  Null means no type.
+            DeclIndex home_scope{};             // Enclosing scope of this declaration.
+            ExprIndex initializer{};            // Sort and index of this declaration's initializer, if any.  Null means absent.
+            ExprIndex alignment{};              // If non-zero, explicit alignment specification, e.g. alignas(N).
+            ObjectTraits obj_spec{};            // Object traits associated with this variable.
+            BasicSpecifiers basic_spec{};       // Basic declaration specifiers.
+            Access access{};                    // Access right to this variable.
+            ReachableProperties properties{};   // The set of semantic properties reaching to outside importers.
         };
 
         static_assert(offsetof(VariableDecl, identity) == 0,
@@ -2168,55 +2106,55 @@ namespace ifc {
 
         // A non-static data member declaration that is not a bitfield.
         struct FieldDecl : Tag<DeclSort::Field> {
-            Identity<TextOffset> identity;  // The name and location of this non-static data member
-            TypeIndex type;                 // Sort and index of this decl's type.  Null means no type.
-            DeclIndex home_scope;           // Enclosing scope of this declaration.
-            ExprIndex initializer;          // The field initializer (if any)
-            ExprIndex alignment;            // If non-zero, explicit alignment specification, e.g. alignas(N).
-            ObjectTraits obj_spec;          // Object traits associated with this field.
-            BasicSpecifiers basic_spec;     // Basic declaration specifiers.
-            Access access;                  // Access right to this data member.
-            ReachableProperties properties; // Set of reachable semantic properties of this declaration
+            Identity<TextOffset> identity{};    // The name and location of this non-static data member
+            TypeIndex type{};                   // Sort and index of this decl's type.  Null means no type.
+            DeclIndex home_scope{};             // Enclosing scope of this declaration.
+            ExprIndex initializer{};            // The field initializer (if any)
+            ExprIndex alignment{};              // If non-zero, explicit alignment specification, e.g. alignas(N).
+            ObjectTraits obj_spec{};            // Object traits associated with this field.
+            BasicSpecifiers basic_spec{};       // Basic declaration specifiers.
+            Access access{};                    // Access right to this data member.
+            ReachableProperties properties{};   // Set of reachable semantic properties of this declaration
         };
 
         // A bitfield declaration.
         struct BitfieldDecl : Tag<DeclSort::Bitfield> {
-            Identity<TextOffset> identity; // The name and location of this bitfield
-            TypeIndex type;                // Sort and index of this decl's type.  Null means no type.
-            DeclIndex home_scope;          // Enclosing scope of this declaration.
-            ExprIndex width;               // Number of bits requested for this bitfield.
-            ExprIndex initializer;      // Sort and index of this declaration's initializer, if any.  Null means absent.
-            ObjectTraits obj_spec;      // Object traits associated with this field.
-            BasicSpecifiers basic_spec; // Basic declaration specifiers.
-            Access access;              // Access right to this bitfield.
-            ReachableProperties properties; // Set of reachable semantic properties of this declaration
+            Identity<TextOffset> identity{};    // The name and location of this bitfield
+            TypeIndex type{};                   // Sort and index of this decl's type.  Null means no type.
+            DeclIndex home_scope{};             // Enclosing scope of this declaration.
+            ExprIndex width{};                  // Number of bits requested for this bitfield.
+            ExprIndex initializer{};            // Sort and index of this declaration's initializer, if any.  Null means absent.
+            ObjectTraits obj_spec{};            // Object traits associated with this field.
+            BasicSpecifiers basic_spec{};       // Basic declaration specifiers.
+            Access access{};                    // Access right to this bitfield.
+            ReachableProperties properties{};   // Set of reachable semantic properties of this declaration
         };
 
         // A declaration for a named scope, e.g. class, namespaces.
         struct ScopeDecl : Tag<DeclSort::Scope> {
-            Identity<NameIndex> identity; // The name and location of this scope (class or namespace)
-            TypeIndex type;               // Sort index of this decl's type.
-            TypeIndex base;               // Base type(s) in class inheritance.
-            ScopeIndex initializer;       // Type definition (i.e. initializer) of this type declaration.
-            DeclIndex home_scope;         // Enclosing scope of this declaration.
-            ExprIndex alignment;          // If non-zero, explicit alignment specification, e.g. alignas(N).
-            PackSize pack_size;           // The pack size value applied to all members of this class (#pragma pack(n))
-            BasicSpecifiers basic_spec;   // Basic declaration specifiers.
-            ScopeTraits scope_spec;       // Property of this scope type declaration.
-            Access access;                // Access right to the name of this user-defined type.
-            ReachableProperties properties; // The set of semantic properties reaching to outside importers.
+            Identity<NameIndex> identity{};     // The name and location of this scope (class or namespace)
+            TypeIndex type{};                   // Sort index of this decl's type.
+            TypeIndex base{};                   // Base type(s) in class inheritance.
+            ScopeIndex initializer{};           // Type definition (i.e. initializer) of this type declaration.
+            DeclIndex home_scope{};             // Enclosing scope of this declaration.
+            ExprIndex alignment{};              // If non-zero, explicit alignment specification, e.g. alignas(N).
+            PackSize pack_size{};               // The pack size value applied to all members of this class (#pragma pack(n))
+            BasicSpecifiers basic_spec{};       // Basic declaration specifiers.
+            ScopeTraits scope_spec{};           // Property of this scope type declaration.
+            Access access{};                    // Access right to the name of this user-defined type.
+            ReachableProperties properties{};   // The set of semantic properties reaching to outside importers.
         };
 
         struct EnumerationDecl : Tag<DeclSort::Enumeration> {
-            Identity<TextOffset> identity;        // The name and location of this enumeration
-            TypeIndex type;                       // Sort index of this decl's type.
-            TypeIndex base;                       // Enumeration base type.
-            Sequence<EnumeratorDecl> initializer; // Type definition (i.e. initializer) of this type declaration.
-            DeclIndex home_scope;                 // Enclosing scope of this declaration.
-            ExprIndex alignment;                  // If non-zero, explicit alignment specification, e.g. alignas(N).
-            BasicSpecifiers basic_spec;           // Basic declaration specifiers.
-            Access access;                        // Access right to this enumeration.
-            ReachableProperties properties;       // The set of semantic properties reaching to outside importers.
+            Identity<TextOffset> identity{};        // The name and location of this enumeration
+            TypeIndex type{};                       // Sort index of this decl's type.
+            TypeIndex base{};                       // Enumeration base type.
+            Sequence<EnumeratorDecl> initializer{}; // Type definition (i.e. initializer) of this type declaration.
+            DeclIndex home_scope{};                 // Enclosing scope of this declaration.
+            ExprIndex alignment{};                  // If non-zero, explicit alignment specification, e.g. alignas(N).
+            BasicSpecifiers basic_spec{};           // Basic declaration specifiers.
+            Access access{};                        // Access right to this enumeration.
+            ReachableProperties properties{};       // The set of semantic properties reaching to outside importers.
         };
 
         static_assert(offsetof(EnumerationDecl, identity) == 0,
@@ -2226,15 +2164,17 @@ namespace ifc {
         // E.g.
         //     using T = int;
         //     namespace N = VeryLongCompanyName::NiftyDivision::AwesomeDepartment;
+        //     template<typename T>
+        //        using Ptr = T*;
         // are all (type) alias declarations in the IFC.
         struct AliasDecl : Tag<DeclSort::Alias> {
-            Identity<TextOffset> identity; // The name and location of this alias
-            TypeIndex type;                // The type of this alias (TypeBasis::Typename for conventional C++ type,
-                                           // TypeBasis::Namespace for a namespace, etc.)
-            DeclIndex home_scope;          // Enclosing scope of this declaration.
-            TypeIndex aliasee;             // The type this declaration is introducing a name for.
-            BasicSpecifiers basic_spec;    // Basic declaration specifiers.
-            Access access;                 // Access right to the name of this type alias.
+            Identity<TextOffset> identity{};// The name and location of this alias
+            TypeIndex type{};               // The type of this alias (TypeBasis::Typename for conventional C++ type,
+                                            // TypeBasis::Namespace for a namespace, TypeSort::Forall for alias template etc.)
+            DeclIndex home_scope{};         // Enclosing scope of this declaration.
+            TypeIndex aliasee{};            // The type this declaration is introducing a name for.
+            BasicSpecifiers basic_spec{};   // Basic declaration specifiers.
+            Access access{};                // Access right to the name of this type alias.
         };
 
         static_assert(offsetof(AliasDecl, identity) == 0,
@@ -2242,16 +2182,16 @@ namespace ifc {
 
         // A temploid declaration
         struct TemploidDecl : Tag<DeclSort::Temploid>, ParameterizedEntity {
-            ChartIndex chart;               // The enclosing set template parameters of this entity.
-            ReachableProperties properties; // The set of semantic properties reaching to outside importers.
+            ChartIndex chart{};                 // The enclosing set template parameters of this entity.
+            ReachableProperties properties{};   // The set of semantic properties reaching to outside importers.
         };
 
         // The core of a template.
         struct Template {
-            Identity<NameIndex> identity; // What identifies this template
-            DeclIndex home_scope;         // Enclosing scope of this declaration.
-            ChartIndex chart;             // Template parameter list.
-            ParameterizedEntity entity;   // The core parameterized entity.
+            Identity<NameIndex> identity{}; // What identifies this template
+            DeclIndex home_scope{};         // Enclosing scope of this declaration.
+            ChartIndex chart{};             // Template parameter list.
+            ParameterizedEntity entity{};   // The core parameterized entity.
         };
 
         static_assert(offsetof(Template, identity) == 0,
@@ -2259,19 +2199,19 @@ namespace ifc {
 
         // A template declaration.
         struct TemplateDecl : Tag<DeclSort::Template>, Template {
-            TypeIndex type; // The type of the parameterized entity.  FIXME: In some sense this is redundant with
-                            // `entity' but VC's internal representation is currently too irregular.
-            BasicSpecifiers basic_spec;     // Basic declaration specifiers.
-            Access access;                  // Access right to the name of this template declaration.
-            ReachableProperties properties; // The set of semantic properties reaching to outside importers.
+            TypeIndex type{};                   // The type of the parameterized entity.  FIXME: In some sense this is redundant with
+                                                // `entity' but VC's internal representation is currently too irregular.
+            BasicSpecifiers basic_spec{};       // Basic declaration specifiers.
+            Access access{};                    // Access right to the name of this template declaration.
+            ReachableProperties properties{};   // The set of semantic properties reaching to outside importers.
         };
 
         // A specialization of a template.
         struct PartialSpecializationDecl : Tag<DeclSort::PartialSpecialization>, Template {
-            SpecFormIndex specialization_form; // The specialization pattern: primary template + argument list.
-            BasicSpecifiers basic_spec;        // Basic declaration specifiers.
-            Access access;                     // Access right to the name of this template specialization.
-            ReachableProperties properties;    // The set of semantic properties reaching to outside importers.
+            SpecFormIndex specialization_form{}; // The specialization pattern: primary template + argument list.
+            BasicSpecifiers basic_spec{};        // Basic declaration specifiers.
+            Access access{};                     // Access right to the name of this template specialization.
+            ReachableProperties properties{};    // The set of semantic properties reaching to outside importers.
         };
 
         enum class SpecializationSort : uint8_t {
@@ -2281,36 +2221,36 @@ namespace ifc {
         };
 
         struct SpecializationDecl : Tag<DeclSort::Specialization> {
-            SpecFormIndex specialization_form; // The specialization pattern: primary template + argument list.
-            DeclIndex decl;                    // The entity declared by this specialization.
-            SpecializationSort sort;           // The specialization category.
-            BasicSpecifiers basic_spec;
-            Access access;
-            ReachableProperties properties;
+            SpecFormIndex specialization_form{}; // The specialization pattern: primary template + argument list.
+            DeclIndex decl{};                    // The entity declared by this specialization.
+            SpecializationSort sort{};           // The specialization category.
+            BasicSpecifiers basic_spec{};
+            Access access{};
+            ReachableProperties properties{};
         };
 
         struct DefaultArgumentDecl : Tag<DeclSort::DefaultArgument> {
-            SourceLocation locus;  // The location of this default argument decl.
-            TypeIndex type;        // The type of the default argument decl.
-            DeclIndex home_scope;  // Enclosing scope of this declaration.
-            ExprIndex initializer; // The expression used to initialize the accompanying parameter when this default
-                                   // argument is used in a call expression.
-            BasicSpecifiers basic_spec;
-            Access access;
-            ReachableProperties properties;
+            SourceLocation locus{};     // The location of this default argument decl.
+            TypeIndex type{};           // The type of the default argument decl.
+            DeclIndex home_scope {};    // Enclosing scope of this declaration.
+            ExprIndex initializer{};    // The expression used to initialize the accompanying parameter when this default
+                                        // argument is used in a call expression.
+            BasicSpecifiers basic_spec{};
+            Access access{};
+            ReachableProperties properties{};
         };
 
         // A concept.
         struct ConceptDecl : Tag<DeclSort::Concept> {
-            Identity<TextOffset> identity; // What identifies this concept.
-            DeclIndex home_scope;          // Enclosing scope of this declaration.
-            TypeIndex type;                // The type of the parameterized entity.
-            ChartIndex chart;              // Template parameter list.
-            ExprIndex constraint;          // The associated constraint-expression.
-            BasicSpecifiers basic_spec;    // Basic declaration specifiers.
-            Access access;                 // Access right to the name of this template declaration.
-            SentenceIndex head; // The sequence of words making up the declarative part of current instantiation.
-            SentenceIndex body; // The sequence of words making up the body of this concept.
+            Identity<TextOffset> identity{};    // What identifies this concept.
+            DeclIndex home_scope{};             // Enclosing scope of this declaration.
+            TypeIndex type{};                   // The type of the parameterized entity.
+            ChartIndex chart{};                 // Template parameter list.
+            ExprIndex constraint{};             // The associated constraint-expression.
+            BasicSpecifiers basic_spec{};       // Basic declaration specifiers.
+            Access access{};                    // Access right to the name of this template declaration.
+            SentenceIndex head{};               // The sequence of words making up the declarative part of current instantiation.
+            SentenceIndex body{};               // The sequence of words making up the body of this concept.
         };
 
         static_assert(offsetof(Template, identity) == 0,
@@ -2318,99 +2258,99 @@ namespace ifc {
 
         // A non-static member function declaration.
         struct NonStaticMemberFunctionDecl : Tag<DeclSort::Method> {
-            Identity<NameIndex> identity;   // What identifies this non-static member function
-            TypeIndex type;                 // Sort and index of this decl's type.  Null means no type.
-            DeclIndex home_scope;           // Enclosing scope of this declaration.
-            ChartIndex chart;               // Function parameter list.
-            FunctionTraits traits;          // Function traits ('const' etc.)
-            BasicSpecifiers basic_spec;     // Basic declaration specifiers.
-            Access access;                  // Access right to this member.
-            ReachableProperties properties; // Set of reachable semantic properties of this declaration
+            Identity<NameIndex> identity{}; // What identifies this non-static member function
+            TypeIndex type{};               // Sort and index of this decl's type.  Null means no type.
+            DeclIndex home_scope{};         // Enclosing scope of this declaration.
+            ChartIndex chart{};             // Function parameter list.
+            FunctionTraits traits{};        // Function traits ('const' etc.)
+            BasicSpecifiers basic_spec{};   // Basic declaration specifiers.
+            Access access{};                // Access right to this member.
+            ReachableProperties properties{}; // Set of reachable semantic properties of this declaration
         };
 
         // A constructor declaration.
         struct ConstructorDecl : Tag<DeclSort::Constructor> {
-            Identity<TextOffset> identity;  // What identifies this constructor
-            TypeIndex type;                 // Type of this constructor declaration.
-            DeclIndex home_scope;           // Enclosing scope of this declaration.
-            ChartIndex chart;               // Function parameter list.
-            FunctionTraits traits;          // Function traits
-            BasicSpecifiers basic_spec;     // Basic declaration specifiers.
-            Access access;                  // Access right to this constructor.
-            ReachableProperties properties; // Set of reachable semantic properties of this declaration
+            Identity<TextOffset> identity{}; // What identifies this constructor
+            TypeIndex type{};                // Type of this constructor declaration.
+            DeclIndex home_scope{};          // Enclosing scope of this declaration.
+            ChartIndex chart{};              // Function parameter list.
+            FunctionTraits traits{};         // Function traits
+            BasicSpecifiers basic_spec{};    // Basic declaration specifiers.
+            Access access{};                 // Access right to this constructor.
+            ReachableProperties properties{}; // Set of reachable semantic properties of this declaration
         };
 
         // A constructor declaration.
         struct InheritedConstructorDecl : Tag<DeclSort::InheritedConstructor> {
-            Identity<TextOffset> identity; // What identifies this constructor
-            TypeIndex type;                // Type of this contructor declaration.
-            DeclIndex home_scope;          // Enclosing scope of this declaration.
-            ChartIndex chart;              // Function parameter list.
-            FunctionTraits traits;         // Function traits
-            BasicSpecifiers basic_spec;    // Basic declaration specifiers.
-            Access access;                 // Access right to this constructor.
-            DeclIndex base_ctor;           // The base class ctor this ctor references.
+            Identity<TextOffset> identity{}; // What identifies this constructor
+            TypeIndex type{};                // Type of this contructor declaration.
+            DeclIndex home_scope{};          // Enclosing scope of this declaration.
+            ChartIndex chart{};              // Function parameter list.
+            FunctionTraits traits{};         // Function traits
+            BasicSpecifiers basic_spec{};    // Basic declaration specifiers.
+            Access access{};                 // Access right to this constructor.
+            DeclIndex base_ctor{};           // The base class ctor this ctor references.
         };
 
         // A destructor declaration.
         struct DestructorDecl : Tag<DeclSort::Destructor> {
-            Identity<TextOffset> identity;  // What identifies this destructor
-            DeclIndex home_scope;           // Enclosing scope of this declaration.
-            NoexceptSpecification eh_spec;  // Exception specification.
-            FunctionTraits traits;          // Function traits.
-            BasicSpecifiers basic_spec;     // Basic declaration specifiers.
-            Access access;                  // Access right to this destructor.
-            CallingConvention convention;   // Calling convention.
-            ReachableProperties properties; // Set of reachable semantic properties of this declaration
+            Identity<TextOffset> identity{};    // What identifies this destructor
+            DeclIndex home_scope{};             // Enclosing scope of this declaration.
+            NoexceptSpecification eh_spec{};    // Exception specification.
+            FunctionTraits traits{};            // Function traits.
+            BasicSpecifiers basic_spec{};       // Basic declaration specifiers.
+            Access access{};                    // Access right to this destructor.
+            CallingConvention convention{};     // Calling convention.
+            ReachableProperties properties{};   // Set of reachable semantic properties of this declaration
         };
 
         // A deduction guide for class template.
         // Note: If the deduction guide was paramterized by a template, then this would be
         // the corresponding parameterized decl.  The template declaration itself has no name.
         struct DeductionGuideDecl : Tag<DeclSort::DeductionGuide> {
-            Identity<NameIndex> identity; // associated primary template and location of declaration
-            DeclIndex home_scope;         // Enclosing scope of this declaration
-            ChartIndex source;            // Function parameters mentioned in the deduction guide declaration
-            ExprIndex target;             // Pattern for the template-argument list to deduce
-            GuideTraits traits;           // Deduction guide traits.
-            BasicSpecifiers basic_spec;   // Basic declaration specifiers.
+            Identity<NameIndex> identity{}; // associated primary template and location of declaration
+            DeclIndex home_scope{};         // Enclosing scope of this declaration
+            ChartIndex source{};            // Function parameters mentioned in the deduction guide declaration
+            ExprIndex target{};             // Pattern for the template-argument list to deduce
+            GuideTraits traits{};           // Deduction guide traits.
+            BasicSpecifiers basic_spec{};   // Basic declaration specifiers.
         };
 
         // Declaration introducing no names, e.g. static_assert, asm-declaration, empty-declaration
         struct BarrenDecl : Tag<DeclSort::Barren> {
-            DirIndex directive;
-            BasicSpecifiers basic_spec;
-            Access access;
+            DirIndex directive{};
+            BasicSpecifiers basic_spec{};
+            Access access{};
         };
 
         struct ReferenceDecl : Tag<DeclSort::Reference> {
-            ModuleReference translation_unit; // The owning TU of this decl.
-            DeclIndex local_index;            // The core declaration.
+            ModuleReference translation_unit{}; // The owning TU of this decl.
+            DeclIndex local_index{};            // The core declaration.
         };
 
         // A property declaration -- VC extensions.
         struct PropertyDecl : Tag<DeclSort::Property> {
-            DeclIndex data_member;      // The pseudo data member that represents this property
-            TextOffset get_method_name; // The name of the 'get' method
-            TextOffset set_method_name; // The name of the 'set' method
+            DeclIndex data_member{};      // The pseudo data member that represents this property
+            TextOffset get_method_name{}; // The name of the 'get' method
+            TextOffset set_method_name{}; // The name of the 'set' method
         };
 
         struct SegmentDecl : Tag<DeclSort::OutputSegment> {
-            TextOffset name;        // offset of name's text in the string table.
-            TextOffset class_id;    // Class ID of the segment.
-            SegmentTraits seg_spec; // Attributes collected from #pragmas, for linker use.
-            SegmentType type;       // The type of segment.
+            TextOffset name{};          // offset of name's text in the string table.
+            TextOffset class_id{};      // Class ID of the segment.
+            SegmentTraits seg_spec{};   // Attributes collected from #pragmas, for linker use.
+            SegmentType type{};         // The type of segment.
         };
 
         struct UsingDecl : Tag<DeclSort::Using> {
-            Identity<TextOffset> identity; // What identifies this using declaration
-            DeclIndex home_scope;          // Enclosing scope of this declaration.
-            DeclIndex resolution;          // Designates the used set of declarations.
-            ExprIndex parent;           // If this is a member using declaration then this is the introducing base-class
-            TextOffset name;            // If this is a member using declaration then this is the name of member
-            BasicSpecifiers basic_spec; // Basic declaration specifiers.
-            Access access;              // If this is a member using declaration then this is its access
-            bool is_hidden;             // Is this using-declaration hidden?
+            Identity<TextOffset> identity{};    // What identifies this using declaration
+            DeclIndex home_scope{};             // Enclosing scope of this declaration.
+            DeclIndex resolution{};             // Designates the used set of declarations.
+            ExprIndex parent{};                 // If this is a member using declaration then this is the introducing base-class
+            TextOffset name{};                  // If this is a member using declaration then this is the name of member
+            BasicSpecifiers basic_spec{};       // Basic declaration specifiers.
+            Access access{};                    // If this is a member using declaration then this is its access
+            bool is_hidden{};                   // Is this using-declaration hidden?
         };
 
         struct FriendDecl : Tag<DeclSort::Friend> {
@@ -2421,8 +2361,8 @@ namespace ifc {
         };
 
         struct ExpansionDecl : Tag<DeclSort::Expansion> {
-            SourceLocation locus; // Location of the expansion
-            DeclIndex operand;    // The declaration to expand
+            SourceLocation locus{};     // Location of the expansion
+            DeclIndex operand{};        // The declaration to expand
         };
 
         struct SyntacticDecl : Tag<DeclSort::SyntaxTree> {
@@ -2540,7 +2480,7 @@ namespace ifc {
         };
 
         struct ExpansionStmt : Location<StmtSort::Expansion> {
-            StmtIndex operand; // The statement to expand
+            StmtIndex operand{}; // The statement to expand
         };
 
         struct TupleStmt : LocationAndType<StmtSort::Tuple>, Sequence<StmtIndex, HeapSort::Stmt> {};
@@ -2551,9 +2491,9 @@ namespace ifc {
         inline constexpr auto immediate_upper_bound = uint64_t(1) << index_like::index_precision<ExprSort>;
 
         struct StringLiteral {
-            TextOffset start;  // beginning of the first byte in this string literal
-            Cardinality size;  // The number of bytes in the object representation, including terminator(s).
-            TextOffset suffix; // Suffix, if any.
+            TextOffset start{}; // beginning of the first byte in this string literal
+            Cardinality size{}; // The number of bytes in the object representation, including terminator(s).
+            TextOffset suffix{}; // Suffix, if any.
         };
 
         struct TypeExpr : LocationAndType<ExprSort::Type> {
@@ -2860,10 +2800,6 @@ namespace ifc {
             SyntaxIndex syntax{}; // The representation of this expression as a parse tree
         };
 
-        struct SubobjectValueExpr : Tag<ExprSort::SubobjectValue> {
-            ExprIndex value{}; // The value of this member object
-        };
-
         struct ProductTypeValueExpr : LocationAndType<ExprSort::ProductTypeValue> {
             TypeIndex structure{};         // The class type which this value is associated
             ExprIndex members{};           // The members (zero or more) which are initialized
@@ -2875,13 +2811,12 @@ namespace ifc {
         struct SumTypeValueExpr : LocationAndType<ExprSort::SumTypeValue> {
             TypeIndex variant{};               // The union type which this value is associated
             ActiveMemberIndex active_member{}; // The active member index
-            SubobjectValueExpr value{};        // The object representing the value of the active member
+            ExprIndex value{};                 // The object representing the value of the active member
         };
 
         struct ArrayValueExpr : LocationAndType<ExprSort::ArrayValue> {
             ExprIndex elements{};     // The tuple containing the element expressions
             TypeIndex element_type{}; // The type of elements within the array
-            // TypeIndex array_type { };               // The type of the array object
         };
 
         struct ObjectLikeMacro : Tag<MacroSort::ObjectLike> {
@@ -2918,8 +2853,8 @@ namespace ifc {
 
 #pragma pack(4)
         struct LiteralReal {
-            double value;
-            uint16_t size;
+            double value{};
+            uint16_t size{};
         };
 #pragma pack()
 
@@ -3081,8 +3016,8 @@ namespace ifc {
         };
 
         struct KeywordForm : Tag<FormSort::Keyword> {
-            SourceLocation locus;
-            TextOffset spelling;
+            SourceLocation locus{};
+            TextOffset spelling{};
         };
 
         struct WhitespaceForm : Tag<FormSort::Whitespace> {

@@ -345,7 +345,6 @@ namespace ifc {
                 case ExprSort::HierarchyConversion: return std::forward<F>(f)(get<symbolic::HierarchyConversionExpr>(index));
                 case ExprSort::ProductTypeValue: return std::forward<F>(f)(get<symbolic::ProductTypeValueExpr>(index));
                 case ExprSort::SumTypeValue: return std::forward<F>(f)(get<symbolic::SumTypeValueExpr>(index));
-                case ExprSort::SubobjectValue: return std::forward<F>(f)(get<symbolic::SubobjectValueExpr>(index));
                 case ExprSort::ArrayValue: return std::forward<F>(f)(get<symbolic::ArrayValueExpr>(index));
                 case ExprSort::DynamicDispatch: return std::forward<F>(f)(get<symbolic::DynamicDispatchExpr>(index));
                 case ExprSort::VirtualFunctionConversion: return std::forward<F>(f)(get<symbolic::VirtualFunctionConversionExpr>(index));
