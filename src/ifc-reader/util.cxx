@@ -389,7 +389,7 @@ namespace ifc::util {
 
     std::string to_string(symbolic::TypeBasis basis)
     {
-        return to_string(symbolic::FundamentalType{basis, {}, {}});
+        return to_string(symbolic::FundamentalType{.basis = basis});
     }
 
 } // namespace ifc::util

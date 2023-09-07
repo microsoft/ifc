@@ -33,12 +33,12 @@ namespace ifc::util {
 
             std::string operator()(const symbolic::ExpansionType& type)
             {
-                return ctx.ref(type.operand) + to_string(type.mode);
+                return ctx.ref(type.pack) + to_string(type.mode);
             }
 
             std::string operator()(const symbolic::PointerType& ptr)
             {
-                return ctx.ref(ptr.operand) + "*";
+                return ctx.ref(ptr.pointee) + "*";
             }
 
             std::string operator()(const symbolic::PointerToMemberType& ptr)
@@ -48,11 +48,11 @@ namespace ifc::util {
 
             std::string operator()(const symbolic::LvalueReferenceType& type)
             {
-                return ctx.ref(type.operand) + "&";
+                return ctx.ref(type.referee) + "&";
             }
             std::string operator()(const symbolic::RvalueReferenceType& type)
             {
-                return ctx.ref(type.operand) + "&&";
+                return ctx.ref(type.referee) + "&&";
             }
             std::string operator()(const symbolic::FunctionType& type)
             {
@@ -186,12 +186,12 @@ namespace ifc::util {
             void operator()(const symbolic::ExpansionType& type)
             {
                 node.props.emplace("mode", to_string(type.mode));
-                add_child(type.operand);
+                add_child(type.pack);
             }
 
             void operator()(const symbolic::PointerType& ptr)
             {
-                add_child(ptr.operand);
+                add_child(ptr.pointee);
             }
 
             void operator()(const symbolic::PointerToMemberType& ptr)
@@ -202,12 +202,12 @@ namespace ifc::util {
 
             void operator()(const symbolic::LvalueReferenceType& type)
             {
-                add_child(type.operand);
+                add_child(type.referee);
             }
 
             void operator()(const symbolic::RvalueReferenceType& type)
             {
-                add_child(type.operand);
+                add_child(type.referee);
             }
 
             void operator()(const symbolic::FunctionType& type)
