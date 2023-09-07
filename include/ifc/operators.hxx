@@ -83,6 +83,7 @@ namespace ifc {
         PseudoDtorCall,                                     // p->~T(), with T a scalar type
         LookupGlobally,                                     // ::x
         Artificial,                                         // Compiler-generated expression wrapper
+        MetaDescriptor,                                     // a runtime reification of a type
 
         Msvc = 0x0400,
         MsvcAssume,                                         // __assume(x)
@@ -137,6 +138,7 @@ namespace ifc {
                                                             // This operator attempts to catch these offending dependent expression values.
         MsvcConfusedSubstitution,                           // Represents a template parameter substitution 'P -> expr' where 'expr' could be a type or a non-type argument replacement.
         MsvcConfusedAggregateReturn,                        // Decorates a return statement which returns an aggregate class type with a user-defined destructor.
+        MsvcConfusedVftblPointerInit,                       // An initialization of a derived class's vftbl pointer.
 
         Last
     };

@@ -169,7 +169,7 @@ namespace ifc {
             {ExprSort::HierarchyConversion, "expr.hierarchy-conversion"},
             {ExprSort::ProductTypeValue, "expr.product-type-value"},
             {ExprSort::SumTypeValue, "expr.sum-type-value"},
-            {ExprSort::SubobjectValue, "expr.class-subobject-value"},
+            {ExprSort::UnusedSort1, "expr.unused1"},
             {ExprSort::ArrayValue, "expr.array-value"},
             {ExprSort::DynamicDispatch, "expr.dynamic-dispatch"},
             {ExprSort::VirtualFunctionConversion, "expr.virtual-function-conversion"},
