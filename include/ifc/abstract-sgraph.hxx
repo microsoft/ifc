@@ -1,6 +1,17 @@
 // Copyright Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+// This file contains a minimal set of data structures supporting the Abstract Semantics Graph of declarations,
+// expressions, and other attendant artifacts involved in the processing of a C++ translation unit (import, export)
+// into an IFC file.  An Abstract Semantics Graph is the result of performing semantics analysis (e.g. type-checking)
+// on a collection of Abstract Syntax Trees, usually coming from a parsing translation unit source file.
+// It is a graph because, well, C++'s semantics has recursion almost everywhere at its meta description level,
+// especially in declarations and types. The intent is that these data structures can be shared with external
+// module-support tooling.  Consequently, they must be independent of c1xx internal data structures, while faithful
+// to the core C++ semantics.  The IFC specification is available at
+//          https://github.com/microsoft/ifc-spec
+// Changes to this file should reflect implementations of requirements in the IFC spec, and nothing more.
+
 #ifndef IFC_ABSTRACT_SGRAPH
 #define IFC_ABSTRACT_SGRAPH
 
@@ -16,20 +27,11 @@
 #include "ifc/operators.hxx"
 #include "ifc/pp-forms.hxx"
 
-// This file contains a minimal set of data structures supporting the Abstract Semantics Graph of entities
-// involved in the processing (import, export) of a module interface unit.  An Abstract Semantics Graph
-// is the result of performing semantics analysis (e.g. type-checking) on a collection of Abstract Syntax
-// Trees, usually coming from a translation unit.  It is a graph because, well, C++'s semantics has recursion
-// almost everywhere at its meta description level, especially in declarations.
-// The intent is that these data structures can be shared with external module-support tooling.  Consequently,
-// it must be independent of c1xx internal data structures, while faithful to the core C++ semantics.
-
 namespace ifc {
     using index_like::Index;
 
     // For every sort-like enumeration, return the maximum value
-    // as indicated by its Count enumerator.  This short-hand provides
-    // a simpler notation, especially when the enumeration is scoped.
+    // as indicated by its Count enumerator.
     template<typename S>
     constexpr auto count = std::underlying_type_t<S>(S::Count);
 
@@ -42,7 +44,7 @@ namespace ifc {
     // Index into the token stream table.
     enum class SentenceIndex : uint32_t {};
 
-    // Index into the specialization form (template-id?) table.
+    // Index into the specialization form table.
     enum class SpecFormIndex : uint32_t {};
 
     // The variety of string literals
@@ -54,7 +56,8 @@ namespace ifc {
         Wide,     // A wide string literal -- only L prefix.
         Count,
     };
-
+    
+    // Type of A=abstract references to string literal structures.
     struct StringIndex : index_like::Over<StringSort> {
         using Over<StringSort>::Over;
     };
@@ -93,13 +96,15 @@ namespace ifc {
         Internal               = 1 << 1, // Exported entities should have external linkage, not sure we need this.
         Vague                  = 1 << 2, // Vague linkage, e.g. COMDAT, still external
         External               = 1 << 3, // External linkage.
-        Deprecated             = 1 << 4, // [[deprecated("foo")]]
+        Deprecated             = 1 << 4, // [[deprecated("foo")]].  FIXME: See bug https://github.com/microsoft/ifc-spec/issues/113
         InitializedInClass     = 1 << 5, // Is this entity defined in a class or does it have an in-class initializer?
         NonExported            = 1 << 6, // This is an entity that was not explicitly exported from the module
-        IsMemberOfGlobalModule = 1 << 7  // This entity is a member of the global module
+        IsMemberOfGlobalModule = 1 << 7  // This entity is a member of the global module.
+                                         // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/114
     };
 
     // The various calling conventions currently supported by VC.
+    // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/115
     enum class CallingConvention : uint8_t {
         Cdecl,  // "__cdecl"
         Fast,   // "__fastcall"
@@ -111,6 +116,7 @@ namespace ifc {
         Count   // Just for counting.
     };
 
+    // Modifiers of (member) function types.
     enum class FunctionTypeTraits : uint8_t {
         None     = 0x00, // Just a regular function parameter type list
         Const    = 0x01, // 'void (int) const'
@@ -119,6 +125,8 @@ namespace ifc {
         Rvalue   = 0x08, // 'void (int) &&'
     };
 
+    // General description of exception-specification.
+    // FIXME:  See https://github.com/microsoft/ifc-spec/issues/116
     enum class ExceptionSpecification : uint8_t {
         None,         // None specified, not the same as no-exception
         NonNoexcept,  // "noexcept(false)" specification
@@ -129,6 +137,8 @@ namespace ifc {
         Count
     };
 
+    // Noexcept semantics resolution.
+    // FIXME: See https://github.com/microsoft/ifc-spec/issues/116
     enum class NoexceptSort : uint8_t {
         None,                  // No specifier
         False,                 // "noexcept(false)" specifier.
@@ -142,11 +152,13 @@ namespace ifc {
         Count
     };
 
+    // Semantics traits of scope types (classes, namespaces, etc).
     enum class ScopeTraits : uint8_t {
         None                = 0,
         Unnamed             = 1 << 0, // unnamed namespace, or unnamed class types.
         Inline              = 1 << 1, // inline namespace.
-        InitializerExported = 1 << 2, // This object has its initializer exported
+        InitializerExported = 1 << 2, // This object has its initializer exported.
+                                      // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/117
         ClosureType         = 1 << 3, // lambda-like scope
         Final               = 1 << 4, // a derived class marked as 'final'
         Vendor              = 1 << 7, // The scope has extended vendor specific traits
@@ -157,26 +169,33 @@ namespace ifc {
         None                = 0,
         Constexpr           = 1 << 0, // Constexpr object.
         Mutable             = 1 << 1, // Mutable object.
-        ThreadLocal         = 1 << 2, // thread_local storage: AKA '__declspec(thread)'
+        ThreadLocal         = 1 << 2, // thread_local storage.
         Inline              = 1 << 3, // An 'inline' object (this is distinct from '__declspec(selectany)')
-        InitializerExported = 1 << 4, // This object has its initializer exported
-        NoUniqueAddress     = 1 << 5, // The '[[no_unique_address]]' attribute was applied to this data member
+        InitializerExported = 1 << 4, // This object has its initializer exported.
+                                      // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/118
+        NoUniqueAddress     = 1 << 5, // The '[[no_unique_address]]' attribute was applied to this data member.
+                                      // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/119
         Vendor              = 1 << 7, // The object has extended vendor specific traits
     };
 
+    // Type for #pragma pack values.
     enum class PackSize : uint16_t {};
 
+    // Semantic traits of functions.
     enum class FunctionTraits : uint16_t {
         None         = 0,
         Inline       = 1 << 0,  // inline function
         Constexpr    = 1 << 1,  // constexpr function
         Explicit     = 1 << 2,  // For conversion functions.
         Virtual      = 1 << 3,  // virtual function
-        NoReturn     = 1 << 4,  // The 'noreturn' attribute
+        NoReturn     = 1 << 4,  // The 'noreturn' attribute.
+                                // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/120
         PureVirtual  = 1 << 5,  // A pure virtual function ('= 0')
         HiddenFriend = 1 << 6,  // A hidden friend function
-        Defaulted    = 1 << 7,  // A '= default' function
-        Deleted      = 1 << 8,  // A '= delete' function
+        Defaulted    = 1 << 7,  // A '= default' function.
+                                // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/121
+        Deleted      = 1 << 8,  // A '= delete' function.
+                                // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/121
         Constrained  = 1 << 9,  // For functions which have constraint expressions.
         Immediate    = 1 << 10, // Immediate function
         Final        = 1 << 11, // A function marked as 'final'
@@ -184,11 +203,14 @@ namespace ifc {
         Vendor       = 1 << 15, // The function has extended vendor specific traits
     };
 
+    // Semantic traits of deduction guides.
     enum class GuideTraits : uint8_t {
         None     = 0,      // nothing
         Explicit = 1 << 0, // the deduction guide is declared 'explicit'.
     };
 
+    // MSVC-specific declspec attributes.
+    // FIXME: Sequester in an MSVC-specific file, and represent as a form of standard attributes.
     enum class VendorTraits : uint32_t {
         None                    = 0,
         ForceInline             = 1 << 0,  // __forceinline function
@@ -214,25 +236,29 @@ namespace ifc {
         NoSanitizeAddress       = 1 << 20, // __declspec(no_sanitize_address)
         NoUniqueAddress         = 1 << 21, // '[[msvc::no_unique_address]]'
         NoInitAll               = 1 << 22, // __declspec(no_init_all)
-        DynamicInitialization =
-            1 << 23, // Indicates that this entity is used for implementing aspects of dynamic initialization.
-        LexicalScopeIndex = 1 << 24, // Indicates this entity has a local lexical scope index associated with it.
-        ResumableFunction = 1 << 25, // Indicates this function was a transformed coroutine function.
-        PersistentTemporary =
-            1 << 26, // a c1xx-ism which will create long-lived temporary symbols when expressions need their
-                     // result to live beyond the full expression, e.g. lifetime extended temporaries.
-        IneligibleForNRVO = 1 << 27, // a c1xx-ism in which the front-end conveys to the back-end that a particular
-                                     // function cannot utilize NRVO on this function.  This is important due to the
-                                     // MSVC C++ calling convention which passes UDTs on the stack as a hidden parameter
-                                     // to functions returning that type.
+        DynamicInitialization   = 1 << 23, // Indicates that this entity is used for implementing
+                                           // aspects of dynamic initialization.
+        LexicalScopeIndex       = 1 << 24, // Indicates this entity has a local lexical scope index associated with it.
+        ResumableFunction       = 1 << 25, // Indicates this function was a transformed coroutine function.
+        PersistentTemporary     = 1 << 26, // a c1xx-ism which will create long-lived temporary symbols when expressions
+                                           // need their result to live beyond the full expression, e.g. lifetime
+                                           // extended temporaries.
+        IneligibleForNRVO       = 1 << 27, // a c1xx-ism in which the front-end conveys to the back-end that a particular
+                                           // function cannot utilize NRVO on this function.  This is important due to the
+                                           // MSVC C++ calling convention which passes UDTs on the stack as a hidden parameter
+                                           // to functions returning that type.
     };
 
+    // FIXME: Move to an MSVC-specific file.  Index type of sequences of suppressed warnings.
     enum class SuppressedWarningSequenceIndex : uint32_t {};
+
+    // FIXME: Move to an MSVC-specific file. Index type of a suppressed warning.
     enum class SuppressedWarning : uint16_t {};
 
-    // Attributes of segments.
+    // FIXME: Move to an MSVC-specific file. Attributes of segments.
     enum class SegmentTraits : uint32_t {};
 
+    // FIXME: Move to an MSVC-specific file.
     enum class SegmentType : uint8_t {};
 
     // Account for all kinds of valid C++ names.
@@ -248,6 +274,7 @@ namespace ifc {
         Count
     };
 
+    // Type of abstract references to name structures.
     struct NameIndex : index_like::Over<NameSort> {
         using Over<NameSort>::Over;
     };
@@ -260,6 +287,7 @@ namespace ifc {
         Count
     };
 
+    // Type of abstract references to chart (i.e. parameter lists) structures.
     struct ChartIndex : index_like::Over<ChartSort> {
         using Over<ChartSort>::Over;
     };
@@ -287,25 +315,28 @@ namespace ifc {
         InheritedConstructor,  // A constructor inherited from a base class.
         Destructor,            // A destructor declaration.
         Reference,             // A reference to a declaration from a given module.
-        Using,                 // A using declaration
+        Using,                 // A using declaration.  FIXME: See bug https://github.com/microsoft/ifc-spec/issues/122
         UnusedSort0,           // Empty slot
-        Friend,                // A friend declaration
+        Friend,                // A friend declaration.  FIXME: See bug https://github.com/microsoft/ifc-spec/issues/123
         Expansion,             // A pack-expansion of a declaration
         DeductionGuide,        // C(T) -> C<U>
-        Barren,        // Declaration introducing no names, e.g. static_assert, asm-declaration, empty-declaration
-        Tuple,         // A sequence of entities
-        SyntaxTree,    // A syntax tree for an unelaborated declaration.
-        Intrinsic,     // An intrinsic function declaration.
-        Property,      // VC's extension of property declaration.
-        OutputSegment, // Code segment. These are 'declared' via pragmas.
+        Barren,                // Declaration introducing no names, e.g. static_assert, asm-declaration, empty-declaration
+        Tuple,                 // A sequence of declarations.
+        SyntaxTree,            // A syntax tree for an unelaborated declaration.
+        Intrinsic,             // An intrinsic function declaration.
+        Property,              // VC's extension of property declaration.
+                               // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/124
+        OutputSegment,         // Code segment. These are 'declared' via pragmas.
+                               // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/125
         Count,
     };
 
+    // Type of abstract references to declaration structures.
     struct DeclIndex : index_like::Over<DeclSort> {
         using Over<DeclSort>::Over;
     };
 
-    // Sorts types of exported entities.
+    // Sorts of types.
     enum class TypeSort : uint8_t {
         VendorExtension, // Vendor-specific type constructor extensions.
         Fundamental,     // Fundamental type, in standard C++ sense
@@ -329,20 +360,18 @@ namespace ifc {
         Tuple,           // A sequence of types.  Generalized type for uniform description.
         Forall,          // Template type.  E.g. type of `template<typename T> constexpr T zro = T{};`
         Unaligned,       // A type with __unaligned.  This is a curiosity with no clearly defined semantics.
+                         // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/126
         SyntaxTree,      // A syntax tree for an unelaborated type.
         Count            // not a type; only for checking purposes
     };
 
-    // Abstract pointer to a type data structure.
-    // Types are stored in (homogeneous) tables per sort (as indicated by TypeSort).
-    // Only one instance (per structural components) of a given type sort is stored,
-    // and referred to by its index number.  It is a design goal to keep type indices
-    // (abstract pointers) representable by 32-bit integer quantities.
+    // Type of abstract references to type structures.
     struct TypeIndex : index_like::Over<TypeSort> {
         using Over<TypeSort>::Over;
     };
 
     // The set of exported syntactic elements
+    // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/127
     enum class SyntaxSort : uint8_t {
         VendorExtension,           // Vendor-specific extension for syntax. What fresh hell is this?
         SimpleTypeSpecifier,       // A simple type-specifier (i.e. no declarator)
@@ -457,7 +486,7 @@ namespace ifc {
         Count,
     };
 
-    // An abstract pointer for a syntactic element
+    // Type of abstract references to syntactic element structures.
     struct SyntaxIndex : index_like::Over<SyntaxSort> {
         using Over<SyntaxSort>::Over;
     };
@@ -474,16 +503,17 @@ namespace ifc {
     // The various sort of literal constants.
     enum class LiteralSort : uint8_t {
         Immediate,     // Immediate integer constants, directly representable by an index value.
-        Integer,       // Unsigned 64-bit integer constant that are not immediates.
+        Integer,       // Unsigned 64-bit integer constant that are not immediate values.
         FloatingPoint, // Floating point constant.
         Count
     };
 
+    // Type of abstract references to numerical constants.
     struct LitIndex : index_like::Over<LiteralSort> {
         using Over<LiteralSort>::Over;
     };
 
-    // Various kinds of statements (incomplete)
+    // Sorts of statements.
     enum class StmtSort : uint8_t {
         VendorExtension, // Vendor-specific extensions
         Try,             // A try-block containing a list of handlers
@@ -507,54 +537,61 @@ namespace ifc {
         Count
     };
 
-    // Abstract typed pointer to statement data structures
+    // Type of abstract references to statement structures
     struct StmtIndex : index_like::Over<StmtSort> {
         using Over<StmtSort>::Over;
     };
 
-    // Expression trees.
+    // Sorts of expressions.
     enum class ExprSort : uint8_t {
-        VendorExtension,   // Vendor-specific extension for expressions.
-        Empty,             // An empty expression.
-        Literal,           // Literal constants.
-        Lambda,            // Lambda expression
-        Type,              // A type expression.  Useful in template argument contexts, and other more general context.
-        NamedDecl,         // Use of a name designating a declaration.
-        UnresolvedId,      // An unresolved or dependent name as expression.
-        TemplateId,        // A template-id expression.
-        UnqualifiedId,     // An unqualified-id + some other stuff like 'template' and/or 'typename'
-        SimpleIdentifier,  // Just an identifier: nothing else
-        Pointer,           // A '*' when it appears as part of a qualified-name
-        QualifiedName,     // A raw qualified-name: i.e. one that has not been fully resolved
-        Path,              // A path expression, e.g. a fully bound qualified-id
-        Read,              // Lvalue-to-rvalue conversions.
-        Monad,             // 1-part expression.
-        Dyad,              // 2-part expressions.
-        Triad,             // 3-part expressions.
-        String,            // A string literal
-        Temporary,         // A temporary expression (i.e. 'L_ALLOTEMP')
-        Call,              // An invocation of some form of function object
-        MemberInitializer, // A base or member initializer
-        MemberAccess,      // The member being accessed + offset
-        InheritancePath,   // The representation of the 'path' to a base-class member
-        InitializerList,   // An initializer-list
-        Cast,              // A cast: either old-style '(T)e'; new-style 'static_cast<T>(e)'; or functional 'T(e)'
-        Condition,         // A statement condition: 'if (e)' or 'if (T v = e)'
-        ExpressionList,    // Either '(e1, e2, e3)' or '{ e1, e2, e2 }'
-        SizeofType,        // 'sizeof(type-id)'
-        Alignof,           // 'alignof(type-id)'
-        Label,             // A symbolic label resulting from the expression in a labeled statement.
-        UnusedSort0,       // Empty slot.
-        Typeid,            // A 'typeid' expression
-        DestructorCall,    // A destructor call: i.e. the right sub-expression of 'expr->~T()'
-        SyntaxTree,        // A syntax tree for an unelaborated expression.
-        FunctionString,    // A string literal expanded from a built-in macro like __FUNCTION__.
-        CompoundString,    // A string literal of the form __LPREFIX(string-literal).
-        StringSequence,    // A sequence of string literals.
-        Initializer,       // An initializer for a symbol
-        Requires,          // A requires expression
-        UnaryFold,         // A unary fold expression of the form (pack @ ...)
-        BinaryFold,        // A binary fold expression of the form (expr @ ... @ pack)
+        VendorExtension,           // Vendor-specific extension for expressions.
+        Empty,                     // An empty expression.
+        Literal,                   // Literal constants.
+        Lambda,                    // Lambda expression
+        Type,                      // A type expression.  Useful in template argument contexts, and other more general context.
+        NamedDecl,                 // Use of a name to reference a declaration.
+        UnresolvedId,              // An unresolved or dependent name as expression.
+                                   // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/128
+        TemplateId,                // A template-id expression.
+        UnqualifiedId,             // An unqualified-id + some other stuff like 'template' and/or 'typename'.
+                                   // FXIME: See bug https://github.com/microsoft/ifc-spec/issues/128
+        SimpleIdentifier,          // Just an identifier: nothing else.
+                                   // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/128
+        Pointer,                   // A '*' when it appears as part of a qualified-name.
+                                   // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/129
+        QualifiedName,             // A raw qualified-name: i.e. one that has not been fully resolved
+        Path,                      // A path expression, e.g. a fully bound qualified-id
+        Read,                      // Lvalue-to-rvalue conversions.
+        Monad,                     // 1-part expression.
+        Dyad,                      // 2-part expressions.
+        Triad,                     // 3-part expressions.
+        String,                    // A string literal
+        Temporary,                 // A temporary expression.
+        Call,                      // An invocation of some form of callable expression.
+        MemberInitializer,         // A base or member initializer
+        MemberAccess,              // The member being accessed + offset
+        InheritancePath,           // The representation of the 'path' to a base-class member
+        InitializerList,           // An initializer-list
+        Cast,                      // A cast: either old-style '(T)e'; new-style 'static_cast<T>(e)'; or functional 'T(e)'
+        Condition,                 // A statement condition: 'if (e)' or 'if (T v = e)'
+        ExpressionList,            // The sequence of expressions in either '(e1, e2, e3)' or '{ e1, e2, e2 }'
+        SizeofType,                // 'sizeof(type-id)'.  FIXME: See bug https://github.com/microsoft/ifc-spec/issues/130
+        Alignof,                   // 'alignof(type-id)'.  FIXME: See bug https://github.com/microsoft/ifc-spec/issues/131
+        Label,                     // A symbolic label resulting from the expression in a labeled statement.
+        UnusedSort0,               // Empty slot.
+        Typeid,                    // A 'typeid' expression
+        DestructorCall,            // A destructor call: i.e. the right sub-expression of 'expr->~T()'
+        SyntaxTree,                // A syntax tree for an unelaborated expression.
+        FunctionString,            // A string literal expanded from a built-in macro like __FUNCTION__.
+                                   // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/132
+        CompoundString,            // A string literal of the form __LPREFIX(string-literal).
+                                   // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/132
+        StringSequence,            // A sequence of string literals.
+                                   // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/132
+        Initializer,               // An initializer for an object
+        Requires,                  // A requires expression
+        UnaryFold,                 // A unary fold expression of the form (pack @ ...)
+        BinaryFold,                // A binary fold expression of the form (expr @ ... @ pack)
         HierarchyConversion,       // A class hierarchy conversion. Distinct from ExprSort::Cast, which represents
                                    // a syntactic expression of intent, whereas this represents the semantics of a
                                    // (possibly implicit) conversion
@@ -575,7 +612,8 @@ namespace ifc {
         This,                      // 'this'
         TemplateReference,         // A reference to a member of a template
         Statement,                 // A statement expression.
-        TypeTraitIntrinsic,        // A use of a type trait intrinsic
+        TypeTraitIntrinsic,        // A use of a type trait intrinsic.
+                                   // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/133
         DesignatedInitializer,     // A single designated initializer clause: '.a = e'
         PackedTemplateArguments,   // The template argument set for a template parameter pack
         Tokens,                    // A token stream (i.e. a complex default template argument)
@@ -583,7 +621,7 @@ namespace ifc {
         Count                      // Total count.
     };
 
-    // Abstract typed pointer to expression data structures
+    // Type of abstract references to expression structures
     struct ExprIndex : index_like::Over<ExprSort> {
         using Over<ExprSort>::Over;
     };
@@ -596,7 +634,6 @@ namespace ifc {
     };
 
     // Type qualifiers.
-    // Note: VC's __unaligned qualifier is made a type constructor of its own.
     enum class Qualifier : uint8_t {
         None     = 0,      // No qualifier
         Const    = 1 << 0, // "const" qualifier
@@ -604,6 +641,7 @@ namespace ifc {
         Restrict = 1 << 2, // "restrict" qualifier, C extension
     };
 
+    // Type of abstract references to words (generalized tokens).
     enum class WordCategory : uint16_t {};
 
     enum class MacroSort : uint8_t {
@@ -612,7 +650,7 @@ namespace ifc {
         Count
     };
 
-    // Abstract typed pointer to expression data structures
+    // Type of abstract references to expression structures
     struct MacroIndex : index_like::Over<MacroSort> {
         using Over<MacroSort>::Over;
     };
@@ -622,6 +660,7 @@ namespace ifc {
         Count,
     };
 
+    // Type of abstract references to pragama structures
     struct PragmaIndex : index_like::Over<PragmaSort> {
         using Over<PragmaSort>::Over;
     };
@@ -639,6 +678,7 @@ namespace ifc {
         Count
     };
 
+    // Type of abstract references to attribute structures
     struct AttrIndex : index_like::Over<AttrSort> {
         using Over<AttrSort>::Over;
     };
@@ -680,6 +720,7 @@ namespace ifc {
         Count
     };
 
+    // Type of abstract references to directive structures
     struct DirIndex : index_like::Over<DirSort> {
         using Over<DirSort>::Over;
     };
@@ -849,7 +890,7 @@ namespace ifc {
             Double,           // "double"
             Nullptr,          // "decltype(nullptr)"
             Ellipsis,         // "..."        -- generalized type
-            SegmentType,      // "segment"
+            SegmentType,      // "segment".  FIXME: See bug https://github.com/microsoft/ifc-spec/issues/134
             Class,            // "class"
             Struct,           // "struct"
             Union,            // "union"
@@ -857,9 +898,9 @@ namespace ifc {
             Typename,         // "typename"
             Namespace,        // "namespace"
             Interface,        // "__interface"
-            Function,         // concept of function type.
+            Function,         // concept of function type.  FIXME: See bug https://github.com/microsoft/ifc-spec/issues/136
             Empty,            // an empty pack expansion
-            VariableTemplate, // a variable template
+            VariableTemplate, // a variable template.  FIXME: See bug https://github.com/microsoft/ifc-spec/issues/135
             Concept,          // a concept
             Auto,             // "auto"
             DecltypeAuto,     // "decltype(auto)"
@@ -1043,6 +1084,8 @@ namespace ifc {
         };
 
         // The types that provide a syntactic representation of a program
+        // Note: All structures defined in this namespaces are to be removed when `SyntaxSort` is removed.
+        // See bug https://github.com/microsoft/ifc-spec/issues/127
         namespace syntax {
             // DecltypeSpecifer is 'decltype(expression)'. DecltypeAutoSpecifier is 'decltype(auto)'. See below.
             struct DecltypeSpecifier : Tag<SyntaxSort::DecltypeSpecifier> {
@@ -2145,6 +2188,7 @@ namespace ifc {
             ReachableProperties properties{};   // The set of semantic properties reaching to outside importers.
         };
 
+        // A declaration for an enumeration type.
         struct EnumerationDecl : Tag<DeclSort::Enumeration> {
             Identity<TextOffset> identity{};        // The name and location of this enumeration
             TypeIndex type{};                       // Sort index of this decl's type.
@@ -2323,6 +2367,8 @@ namespace ifc {
             Access access{};
         };
 
+        // A reference to a declaration from an imported module unit.
+        // See also bug https://github.com/microsoft/ifc-spec/issues/69
         struct ReferenceDecl : Tag<DeclSort::Reference> {
             ModuleReference translation_unit{}; // The owning TU of this decl.
             DeclIndex local_index{};            // The core declaration.
@@ -2387,6 +2433,7 @@ namespace ifc {
 
         struct MultiChart : Tag<ChartSort::Multilevel>, Sequence<ChartIndex, HeapSort::Chart> {};
 
+        // Note: Every expression has a source location span, and a type.
         // Note: This class captures that commonality. It is parameterized by any sort,
         //       but that parameterization is more for convenience than fundamental.
         //       If the many isomorphic specializations are demonstrated to induce undue
@@ -2484,8 +2531,6 @@ namespace ifc {
         };
 
         struct TupleStmt : LocationAndType<StmtSort::Tuple>, Sequence<StmtIndex, HeapSort::Stmt> {};
-
-        // Note: Every expression has a source location span, and a type.
 
         // Expression trees for integer constants below this threshold are directly represented by their indices.
         inline constexpr auto immediate_upper_bound = uint64_t(1) << index_like::index_precision<ExprSort>;
