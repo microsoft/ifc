@@ -156,10 +156,11 @@ namespace {
 
         // Put total number of bits in message at end.
         uint64_t total_bits = length * 8;
+        constexpr size_t end_bits = sizeof(uint64_t);
         if (remainder > 55) // Need the second block
         {
             // Put number of bits at end of second block.
-            std::byte* pbits = v + 128 - sizeof(uint64_t);
+            std::byte* pbits = v + 128 - end_bits;
             for (int i = 0; i < 8; ++i)
             {
                 uint8_t byte = static_cast<uint8_t>(total_bits >> (7 - i) * 8);
@@ -171,10 +172,12 @@ namespace {
         else
         {
             // Put number of bits at end of first block.
-            std::byte* pbits = v + 64 - sizeof(uint64_t);
-            for (int i = 0; i < 8; ++i)
+            std::byte* pbits = v + 64 - end_bits;
+            constexpr uint8_t bits_per_byte = 8;
+            constexpr uint8_t uint8_mask = 0b111;
+            for (int i = 0; i < bits_per_byte; ++i)
             {
-                uint8_t byte = static_cast<uint8_t>(total_bits >> (7 - i) * 8);
+                uint8_t byte = static_cast<uint8_t>(total_bits >> (uint8_mask - i) * bits_per_byte);
                 *pbits++     = std::byte{byte};
             }
             process_chunk(hash.value, v);
