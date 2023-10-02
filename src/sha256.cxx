@@ -5,6 +5,7 @@
 
 #include <stdint.h>
 #include <cstddef>
+#include <array>
 #include <vector>
 #include <ifc/file.hxx>
 
@@ -131,10 +132,10 @@ namespace {
     {
         ifc::SHA256Hash hash = {initial_hash_values};
 
-        auto length = span.size();
-        auto base   = span.data();
+        const auto length = span.size();
+        const auto base   = span.data();
         // Process whole chunks first
-        auto iterations = length / 64;
+        const auto iterations = length / 64;
         for (size_t iter = 0; iter < iterations; ++iter)
             process_chunk(hash.value, base + iter * 64);
 
@@ -146,45 +147,47 @@ namespace {
         */
 
         // remainder is number of bytes in message past 64byte boundary (could be zero)
-        auto remainder = length % 64;
+        const auto remainder = length % 64;
 
         // Room for one or two chunks (as needed)
-        std::byte v[128] = {std::byte{0}}; // Fill with zeros
-        std::copy(base + iterations * 64, base + iterations * 64 + remainder, v);
+        std::array<std::byte, 128> v {}; // Fill with zeros
+        std::copy(base + iterations * 64, base + iterations * 64 + remainder, v.begin());
         v[remainder] = std::byte{0x80}; // Put 10000000 after data
         // The data, the "1" bit, and zero bits are now in place.
 
         // Put total number of bits in message at end.
-        uint64_t total_bits = length * 8;
+        const uint64_t total_bits = length * 8;
         if (remainder > 55) // Need the second block
         {
             // Put number of bits at end of second block.
-            std::byte* pbits = v + 128 - sizeof(uint64_t);
+            constexpr auto bits_count_offset = v.size() - sizeof(uint64_t);
+            std::byte* pbits = v.data() + bits_count_offset;
             for (int i = 0; i < 8; ++i)
             {
                 uint8_t byte = static_cast<uint8_t>(total_bits >> (7 - i) * 8);
                 *pbits++     = std::byte{byte};
             }
-            process_chunk(hash.value, v);
-            process_chunk(hash.value, v + 64);
+            process_chunk(hash.value, v.data());
+            process_chunk(hash.value, v.data() + 64);
         }
         else
         {
             // Put number of bits at end of first block.
-            std::byte* pbits = v + 64 - sizeof(uint64_t);
+            constexpr auto bits_count_offset = v.size()/2 - sizeof(uint64_t);
+            std::byte* pbits = v.data() + bits_count_offset;
             for (int i = 0; i < 8; ++i)
             {
                 uint8_t byte = static_cast<uint8_t>(total_bits >> (7 - i) * 8);
                 *pbits++     = std::byte{byte};
             }
-            process_chunk(hash.value, v);
+            process_chunk(hash.value, v.data());
         }
 
         if constexpr (std::endian::native == std::endian::little)
         {
             // Convert hash bytes to proper endianness
-            for (auto& v : hash.value)
-                change_endianness(v);
+            for (auto& i : hash.value)
+                change_endianness(i);
         }
 
         return hash;
