@@ -1,12 +1,12 @@
 // Copyright Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include "ifc/reader.hxx"
-#include "ifc/dom/node.hxx"
-#include "printer.hxx"
 #include <iostream>
 #include <filesystem>
 #include <fstream>
+#include "ifc/reader.hxx"
+#include "ifc/dom/node.hxx"
+#include "printer.hxx"
 
 void translate_exception()
 {
@@ -14,21 +14,22 @@ void translate_exception()
     {
         throw;
     }
-    catch (std::exception& e)
+    catch (const ifc::IfcArchMismatch&)
     {
-        std::cout << "caught: " << e.what() << '\n';
+        std::cerr << "ifc architecture mismatch\n";
     }
-    catch (ifc::IfcArchMismatch&)
+    catch(ifc::error_condition::UnexpectedVisitor& e)
     {
-        std::cout << "ifc architecture mismatch\n";
+        std::cerr << "visit unexpected " << e.category << ": " 
+                  << e.sort << '\n';
     }
     catch (const char* message)
     {
-        std::cout << "caught: " << message;
+        std::cerr << "caught: " << message;
     }
     catch (...)
     {
-        std::cout << "unknown exception caught\n";
+        std::cerr << "unknown exception caught\n";
     }
 }
 

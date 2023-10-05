@@ -8,28 +8,19 @@
 #include "ifc/abstract-sgraph.hxx"
 #include "ifc/file.hxx"
 
+namespace ifc::error_condition {
+    // Signal that an inspection for a sort of a given category is unexpected.
+    struct UnexpectedVisitor {
+        std::string_view category;
+        std::string_view sort;
+    };
+}
+
 namespace ifc {
-    // error reporting functions
-
-    [[noreturn]] void not_implemented(std::string_view);
-    [[noreturn]] void not_implemented(std::string_view, int);
-    [[noreturn]] void unexpected(std::string_view);
-    [[noreturn]] void unexpected(std::string_view, int);
-
     template<typename SortTag>
-    [[noreturn]] void unexpected(std::string_view message, SortTag tag)
+    [[noreturn]] std::string unexpected(std::string_view category, SortTag tag)
     {
-        std::string result(message);
-        result.append(sort_name(tag));
-        unexpected(result);
-    }
-
-    template<typename SortTag>
-    [[noreturn]] void not_implemented(std::string_view message, SortTag tag)
-    {
-        std::string result(message);
-        result.append(sort_name(tag));
-        not_implemented(result);
+        throw error_condition::UnexpectedVisitor{category, sort_name(tag)};
     }
 
     class Reader {
@@ -200,7 +191,7 @@ namespace ifc {
             case TypeSort::VendorExtension:
             case TypeSort::Count:
             default:
-                unexpected("visit unexpected type: ", (int)index.sort());
+                unexpected("type", index.sort());
             }
             // clang-format on
         }
@@ -228,7 +219,7 @@ namespace ifc {
             case StmtSort::Decl:    return std::forward<F>(f)(get<symbolic::DeclStmt>(index));
             case StmtSort::Tuple:   return std::forward<F>(f)(get<symbolic::TupleStmt>(index));
             default:
-                unexpected("visit unexpected statement: ", (int)index.sort());
+                unexpected("statement", index.sort());
             }
             // clang-format on
         }
@@ -248,7 +239,7 @@ namespace ifc {
                 case NameSort::SourceFile: return std::forward<F>(f)(get<symbolic::SourceFileName>(index));
                 case NameSort::Guide: return std::forward<F>(f)(get<symbolic::GuideName>(index));
             default:
-                unexpected("visit unexpected name: ", (int)index.sort());
+                unexpected("name", index.sort());
             }
             // clang-format on
         }
@@ -292,7 +283,7 @@ namespace ifc {
             case DeclSort::VendorExtension:
             case DeclSort::Count:
             default:
-                unexpected("visit unexpected decl: ", (int)index.sort());
+                unexpected("decl", index.sort());
             }
             // clang-format on
         }
@@ -363,7 +354,7 @@ namespace ifc {
                 case ExprSort::VendorExtension:
                 case ExprSort::Generic: // C11 generic extension (no IFC structure yet)
                 default:
-                    unexpected("visit unexpected expr: ", (int)index.sort());
+                    unexpected("expr", index.sort());
             }
             // clang-format off
         }
