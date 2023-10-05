@@ -1,22 +1,8 @@
 // Copyright Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include "ifc/util.hxx"
 #include "ifc/reader.hxx"
-#include <stdexcept>
-
-class NotYetImplemented : public std::logic_error {
-public:
-    NotYetImplemented(std::string_view what_is_not_implemented)
-      : logic_error("'" + std::string(what_is_not_implemented) + "' is not yet implemented")
-    {}
-};
-
-class Unexpected : public std::logic_error {
-public:
-    Unexpected(std::string_view what_is_not_expected)
-      : logic_error("unexpected: '" + std::string(what_is_not_expected) + "'")
-    {}
-};
 
 namespace ifc {
     constexpr std::string_view analysis_partition_prefix = ".msvc.code-analysis.";
@@ -47,30 +33,6 @@ namespace ifc {
                 summary_by_partition_name(toc, name) = summary;
             }
         }
-    }
-
-    void not_implemented(std::string_view message)
-    {
-        throw NotYetImplemented(message);
-    }
-
-    void not_implemented(std::string_view message, int payload)
-    {
-        std::string result(message);
-        result += std::to_string(payload);
-        not_implemented(result);
-    }
-
-    void unexpected(std::string_view message)
-    {
-        throw Unexpected(message);
-    }
-
-    void unexpected(std::string_view message, int payload)
-    {
-        std::string result(message);
-        result += std::to_string(payload);
-        unexpected(result);
     }
 
 } // namespace ifc

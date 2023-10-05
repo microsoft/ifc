@@ -4,8 +4,8 @@
 #ifndef IFC_UTILS_H
 #define IFC_UTILS_H
 
-#include "ifc/abstract-sgraph.hxx"
 #include <string>
+#include "ifc/abstract-sgraph.hxx"
 
 namespace ifc::util {
     // return a single string for various IFC flags and enums
