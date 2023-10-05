@@ -24,7 +24,7 @@ cl /std:c++20 /exportHeader test.cpp
 This will create an IFC file named test.cpp.ifc. This can be dumped with ifc-printer like this.
 
 ```shell
-ifc-printer.exe -color test.cpp.ifc
+ifc-printer.exe --color test.cpp.ifc
 ```
 
 # Contributing
