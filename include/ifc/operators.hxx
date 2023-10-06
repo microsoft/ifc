@@ -48,7 +48,7 @@ namespace ifc {
     // clang-format off
     enum class MonadicOperator : uint16_t {
         Unknown,
-        Plus,                                               // +x                   -- unethtical on non-literals, operator at source level
+        Plus,                                               // +x                   -- unethical on non-literals, operator at source level
         Negate,                                             // -x
         Deref,                                              // *p
         Address,                                            // &x
@@ -215,7 +215,7 @@ namespace ifc {
         Select,                             // x :: y
 
         Msvc = 0x0400,
-        MsvcTryCast,                        // WinTR try cast
+        MsvcTryCast,                        // WinRT try cast
         MsvcCurry,                          // MSVC bound member function extension
         MsvcVirtualCurry,                   // same as MsvcCurry, except the binding requires dynamic dispatch
         MsvcAlign,                          //                      -- alignment adjustment
@@ -236,7 +236,7 @@ namespace ifc {
         MsvcBuiltinIsPointerInterconvertibleWithClass,      // __builtin_is_pointer_interconvertible_with_class(U, V)
         MsvcBuiltinIsCorrespondingMember,   // __builtin_is_corresponding_member(x, y)
         MsvcIntrinsic,                      //                      -- abstract machine, misc intrinsic with no regular function declaration
-        MsvcSaturatedArithmetic,            // An MSVC intrinsic for an abstract machine saturated arithemtic operation.
+        MsvcSaturatedArithmetic,            // An MSVC intrinsic for an abstract machine saturated arithmetic operation.
         MsvcBuiltinAllocationAnnotation,    // An MSVC intrinsic used to propagate debugging information to the runtime.  __allocation_annotation(x, T)
 
         Last

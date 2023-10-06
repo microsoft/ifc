@@ -138,7 +138,7 @@ class ExprIndex {
                                        // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/128
         TemplateId:                7,  // A template-id expression.
         UnqualifiedId:             8,  // An unqualified-id + some other stuff like 'template' and/or 'typename'.
-                                       // FXIME: See bug https://github.com/microsoft/ifc-spec/issues/128
+                                       // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/128
         SimpleIdentifier:          9,  // Just an identifier: nothing else.
                                        // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/128
         Pointer:                   10, // A '*' when it appears as part of a qualified-name.

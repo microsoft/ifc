@@ -554,7 +554,7 @@ namespace ifc {
                                    // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/128
         TemplateId,                // A template-id expression.
         UnqualifiedId,             // An unqualified-id + some other stuff like 'template' and/or 'typename'.
-                                   // FXIME: See bug https://github.com/microsoft/ifc-spec/issues/128
+                                   // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/128
         SimpleIdentifier,          // Just an identifier: nothing else.
                                    // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/128
         Pointer,                   // A '*' when it appears as part of a qualified-name.
@@ -660,7 +660,7 @@ namespace ifc {
         Count,
     };
 
-    // Type of abstract references to pragama structures
+    // Type of abstract references to pragma structures
     struct PragmaIndex : index_like::Over<PragmaSort> {
         using Over<PragmaSort>::Over;
     };
@@ -1087,7 +1087,7 @@ namespace ifc {
         // Note: All structures defined in this namespaces are to be removed when `SyntaxSort` is removed.
         // See bug https://github.com/microsoft/ifc-spec/issues/127
         namespace syntax {
-            // DecltypeSpecifer is 'decltype(expression)'. DecltypeAutoSpecifier is 'decltype(auto)'. See below.
+            // DecltypeSpecifier is 'decltype(expression)'. DecltypeAutoSpecifier is 'decltype(auto)'. See below.
             struct DecltypeSpecifier : Tag<SyntaxSort::DecltypeSpecifier> {
                 ExprIndex expression{};            // The expression (for 'auto', see DecltypeAutoSpecifier)
                 SourceLocation decltype_keyword{}; // The source location of the 'decltype'
@@ -1842,7 +1842,7 @@ namespace ifc {
             enum class FoldKind : uint32_t { // FIXME: this should be uint8_t
                 Unknown,
                 LeftFold,  // Some form of left fold expression
-                RightFold, // Some form of righr fold expression
+                RightFold, // Some form of right fold expression
             };
 
             struct UnaryFoldExpression : Tag<SyntaxSort::UnaryFoldExpression> {
@@ -2327,7 +2327,7 @@ namespace ifc {
         // A constructor declaration.
         struct InheritedConstructorDecl : Tag<DeclSort::InheritedConstructor> {
             Identity<TextOffset> identity{}; // What identifies this constructor
-            TypeIndex type{};                // Type of this contructor declaration.
+            TypeIndex type{};                // Type of this constructor declaration.
             DeclIndex home_scope{};          // Enclosing scope of this declaration.
             ChartIndex chart{};              // Function parameter list.
             FunctionTraits traits{};         // Function traits
@@ -2349,7 +2349,7 @@ namespace ifc {
         };
 
         // A deduction guide for class template.
-        // Note: If the deduction guide was paramterized by a template, then this would be
+        // Note: If the deduction guide was parameterized by a template, then this would be
         // the corresponding parameterized decl.  The template declaration itself has no name.
         struct DeductionGuideDecl : Tag<DeclSort::DeductionGuide> {
             Identity<NameIndex> identity{}; // associated primary template and location of declaration
@@ -2679,7 +2679,7 @@ namespace ifc {
         };
 
         struct DynamicDispatchExpr : LocationAndType<ExprSort::DynamicDispatch> {
-            ExprIndex postfix_expr{}; // The posfix expression on a call to a virtual function.
+            ExprIndex postfix_expr{}; // The postfix expression on a call to a virtual function.
         };
 
         struct VirtualFunctionConversionExpr : LocationAndType<ExprSort::VirtualFunctionConversion> {
@@ -3305,7 +3305,7 @@ namespace ifc {
         // two static_cast; the other uses no casts but field names.  The whole point
         // of having this facility is separate field names from the abstract structure,
         // so that fields order does not matter.  The two static_casts would be
-        // just being overly pedantic.  This construct is well understood and welldefined.
+        // just being overly pedantic.  This construct is well understood and well-defined.
         // Bug: lot of comments for a one-liner.
         auto begin()
         {

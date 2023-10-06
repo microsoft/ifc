@@ -149,13 +149,13 @@ namespace index_like {
         }
     } // namespace operators
 
-    // For an index-like type over a sort S, this constant holds the number of bitsf
+    // For an index-like type over a sort S, this constant holds the number of bits
     // necessary to represent the tags from S.
     // Note: There is no satisfactory concept expression of 'sort' at this point.
     //       Just defining that concept as a check for 'Count' enumerator is not
     //       desirable as that does not capture the notion of sort -- it would only
     //       inappropriately elevate an implementation detail/trick to specification.
-    // Note: suffices to substract 1 from 'Count' since it is 1 greater than the actual largest value.
+    // Note: suffices to subtract 1 from 'Count' since it is 1 greater than the actual largest value.
     template<typename S>
     constexpr auto tag_precision =
         ifc::to_underlying(S::Count) == 0 ? 0u : ifc::bit_length(ifc::to_underlying(S::Count) - 1u);

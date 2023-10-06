@@ -157,7 +157,7 @@ namespace ifc {
 
     // Module interface header
     struct Header {
-        SHA256Hash content_hash;       // For verifying the intregity of the .ifc contents below.
+        SHA256Hash content_hash;       // For verifying the integrity of the .ifc contents below.
         FormatVersion version;         // Version of the IFC file format
         Abi abi;                       // Abi tag.
         Architecture arch;             // Target machine architecture tag.
@@ -170,7 +170,7 @@ namespace ifc {
         ByteOffset toc;                // Offset to the table of contents.
         Cardinality partition_count;   // Number of partitions, including the string table partition.
         bool internal_partition; // Set to true if this TU does not contribute to a module unit external interface.
-                                 // FIXME: Gaby, find a better representataion for this.
+                                 // FIXME: Gaby, find a better representation for this.
     };
 
     // Partition info in the ToC of a module interface.
