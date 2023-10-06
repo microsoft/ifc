@@ -69,7 +69,7 @@ class MonadicOperator {
         MsvcIsEnum:                         0x0406, // __is_enum(T)
         MsvcIsPolymorphic:                  0x0407, // __is_polymorphic(T)
         MsvcIsEmpty:                        0x0408, // __is_empty(T)
-        MsvcIsTriaviallyCopyConstructible:  0x0409, // __is_trivially_copy_constructible(T)
+        MsvcIsTriviallyCopyConstructible:   0x0409, // __is_trivially_copy_constructible(T)
         MsvcIsTriviallyCopyAssignable:      0x040A, // __is_trivially_copy_assignable(T)
         MsvcIsTriviallyDestructible:        0x040B, // __is_trivially_destructible(T)
         MsvcHasVirtualDestructor:           0x040C, // __has_virtual_destructor(T)
@@ -192,7 +192,7 @@ class DyadicOperator {
         Select:             64, // x :: y
 
         Msvc:                                          0x0400,
-        MsvcTryCast:                                   0x0401, // WinTR try cast
+        MsvcTryCast:                                   0x0401, // WinRT try cast
         MsvcCurry:                                     0x0402, // MSVC bound member function extension
         MsvcVirtualCurry:                              0x0403, // same as MsvcCurry, except the binding requires dynamic dispatch
         MsvcAlign:                                     0x0404, //                      -- alignment adjustment
@@ -213,7 +213,7 @@ class DyadicOperator {
         MsvcBuiltinIsPointerInterconvertibleWithClass: 0x0413, // __builtin_is_pointer_interconvertible_with_class(U, V)
         MsvcBuiltinIsCorrespondingMember:              0x0414, // __builtin_is_corresponding_member(x, y)
         MsvcIntrinsic:                                 0x0415, //                      -- abstract machine, misc intrinsic with no regular function declaration
-        MsvcSaturatedArithmetic:                       0x0416, // An MSVC intrinsic for an abstract machine saturated arithemtic operation.
+        MsvcSaturatedArithmetic:                       0x0416, // An MSVC intrinsic for an abstract machine saturated arithmetic operation.
         MsvcBuiltinAllocationAnnotation:               0x0417, // An MSVC intrinsic used to propagate debugging information to the runtime.  __allocation_annotation(x, T)
 
         Count:                                         0x0417

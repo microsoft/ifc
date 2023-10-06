@@ -23,7 +23,7 @@ namespace ifc {
 
     // C1xx internally stores the initializer (in the IPR sense) of templated definitions
     // as a sequence of its internal notion of tokens (here abstracted as 'words').  As a
-    // temporary measure, those c1xx-tokens are abtracted into words of various sorts,
+    // temporary measure, those c1xx-tokens are abstracted into words of various sorts,
     // shielded from the token-du-jour update vagaries.  These temporary measures will be
     // removed as c1xx gains more a principled internal representation.
     namespace source {
@@ -256,7 +256,7 @@ namespace ifc {
             Typeid,          // "typeid"
             Typename,        // "typename"
             Union,           // "union"
-            Unsigned,        // "unaigned"
+            Unsigned,        // "unsigned"
             Using,           // "using"
             Virtual,         // "virtual"
             Void,            // "void"
@@ -299,7 +299,7 @@ namespace ifc {
             MsvcSingleInheritance,   // "__single_inheritance"
             MsvcSptr,                // "__sptr"
             MsvcStdcall,             // "__stdcall"
-            MsvcSuper,               // "__surper"
+            MsvcSuper,               // "__super"
             MsvcThiscall,            // "__thiscall"
             MsvcSehTry,              // "__try"
             MsvcUptr,                // "__ptr"
@@ -317,7 +317,7 @@ namespace ifc {
             MsvcIsEmpty,                                   // "__is_empty"
             MsvcHasTrivialConstructor,                     // "__has_trivial_constructor"
             MsvcIsTriviallyConstructible,                  // "__is_trivially_constructible"
-            MsvcIsTriaviallyCopyConstructible,             // "__is_trivially_copy_constructible"
+            MsvcIsTriviallyCopyConstructible,              // "__is_trivially_copy_constructible"
             MsvcIsTriviallyCopyAssignable,                 // "__is_trivially_copy_assignable"
             MsvcIsTriviallyDestructible,                   // "__is_trivially_destructible"
             MsvcHasVirtualDestructor,                      // "__has_virtual_destructor"
