@@ -18,6 +18,10 @@ void translate_exception()
     {
         std::cerr << "ifc architecture mismatch\n";
     }
+    catch (ifc::InvalidPartitionName& e)
+    {
+        std::cout << "ifc invalid partition name: '" << e.name << "'\n";
+    }
     catch(ifc::error_condition::UnexpectedVisitor& e)
     {
         std::cerr << "visit unexpected " << e.category << ": " 

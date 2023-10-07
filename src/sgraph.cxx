@@ -545,7 +545,11 @@ namespace ifc {
         {
             auto p = table.find(name);
             if (p == table.end())
+#ifdef FIX_MEMORY_ACCESS_BUG
+                throw InvalidPartitionName{std::string{name}};
+#else
                 throw InvalidPartitionName{name};
+#endif
             return p->sort;
         }
 

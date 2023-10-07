@@ -21,6 +21,9 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_definitions(-DVERSP_RELEASE=$<CONFIG:Release> -DVERSP_DEBUG=$<CONFIG:Debug> -DNOMINMAX)
 
+# Comment out this line to use std::string instead of std::string_view in InvalidPartitionName
+# add_compile_definitions(FIX_MEMORY_ACCESS_BUG)
+
 include_directories (include)
 
 add_subdirectory (src)
