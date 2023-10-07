@@ -54,8 +54,10 @@ To gain insight into our Code Review process, you can check out:
 
 Before submitting a pull request, please ensure:
 
+* You have read the [HACKING.md](HACKING.md) document.
 * Code has been formatted using the provided .clang-format file.
 * Naming conventions are following the recommendations.
+* The project has been built in developer mode (`DEVELOPER_MODE` is set to `ON`).
 * Tests have been run locally (for at least one platform).
 * Changes that will impact the binary format of an IFC will need to synchronize with the compiler(s) affected and will likely require a version change.
 

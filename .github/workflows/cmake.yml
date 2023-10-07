@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
-
 jobs:
   build:
     strategy:
@@ -20,18 +16,23 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Use GitHub Actions provided vcpkg
+      shell: pwsh
+      run: Add-Content "$env:GITHUB_ENV" "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT"
+
     - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      shell: pwsh
+      run: cmake "--preset=ci-$("${{matrix.os}}".split("-")[0])"
+        -D CMAKE_BUILD_TYPE=Release
 
     - name: Build
-      # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build build --config Release
+
+    - name: Install
+      run: |
+        cmake --install build --prefix prefix --config Release --component Printer
+        cmake --install build --prefix prefix --config Release --component Development
 
     - name: Test
-      working-directory: ${{github.workspace}}/build
-      # Execute tests defined by the CMake configuration.
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -C ${{env.BUILD_TYPE}}
-
+      working-directory: build
+      run: ctest -C Release
