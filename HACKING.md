@@ -78,8 +78,8 @@ in the terminal.
 
 > **Note**
 > Some editors are pretty greedy with how they open projects with presets.
-> Some just randomly pick a preset and start configuring without your consent,
-> which can be confusing. Make sure that your editor configures when you
+> Some just pick a preset and start configuring without further input from the developer,
+> which can be confusing. Make sure that your editor configures what and when you
 > actually want it to, for example in CLion you have to make sure only the
 > `dev-dev preset` has `Enable profile` ticked in
 > `File > Settings... > Build, Execution, Deployment > CMake` and in Visual
