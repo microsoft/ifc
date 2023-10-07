@@ -24,8 +24,7 @@ cmake --build build --config Release
 
 ### Building with MSVC
 
-MSVC by default is not standards compliant and you need to pass some flags to
-make it behave properly. See the `flags-windows` preset in the
+If you are building this project with MSVC, you need to pass some flags (like `/permissive-` and other `/Zc` switches) to requires ISO C++ conformant behavior. See the `flags-windows` preset in the
 [CMakePresets.json](CMakePresets.json) file for the flags and with what
 variable to provide them to CMake during configuration.
 
