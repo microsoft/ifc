@@ -14,3 +14,9 @@ target_link_libraries(ifc-printer
 )
 
 target_link_libraries(ifc-printer PRIVATE GSL)
+
+add_custom_command(
+        TARGET ifc-printer POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_CURRENT_SOURCE_DIR}/file.cxx.ifc
+                ${CMAKE_CURRENT_BINARY_DIR}/file.cxx.ifc)

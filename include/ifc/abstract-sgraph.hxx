@@ -3518,7 +3518,11 @@ namespace ifc {
 
     // -- exception type in case of an invalid partition name
     struct InvalidPartitionName {
+#ifdef FIX_MEMORY_ACCESS_BUG
+        std::string name;
+#else
         std::string_view name;
+#endif
     };
 
     // Retrieve a partition summary based on the partition's name.
