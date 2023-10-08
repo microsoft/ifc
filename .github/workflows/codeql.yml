@@ -2,14 +2,15 @@ name: CodeQL
 
 on:
   push:
-    branches: [main]
+    branches: ["main", "release/*"]
   pull_request:
-    branches: [main]
+    branches: ["main", "release/*"]
   schedule:
     - cron: '22 2 * * 6'
 
 jobs:
   analyze:
+    name: Analyze
     strategy:
       fail-fast: false
 
