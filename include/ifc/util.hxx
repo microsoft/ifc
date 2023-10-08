@@ -45,12 +45,17 @@ namespace ifc::util {
     template<index_like::MultiSorted Key>
     std::string to_string(Key index)
     {
-        return sort_name(index.sort()) + ("-" + std::to_string((int)index.index()));
+        return sort_name(index.sort()) + ("-" + std::to_string(ifc::to_underlying(index.index())));
     }
 
     inline std::string to_string(SentenceIndex index)
     {
-        return "sentence-" + std::to_string((int)index);
+        return "sentence-" + std::to_string(ifc::to_underlying(index));
+    }
+
+    inline std::string to_string(ScopeIndex index)
+    {
+        return "scope-" + std::to_string(ifc::to_underlying(index));
     }
 } // namespace ifc::util
 #endif // IFC_UTILS_H

@@ -8,7 +8,7 @@ namespace ifc::util {
     namespace {
         // we add to_string property for those items that can have be represented as a "short" by value string.
         struct ExprLoader : detail::LoaderVisitorBase {
-            void operator()(const symbolic::EmptyExpr& expr) {}
+            void operator()(const symbolic::EmptyExpr&) {}
 
             void operator()(const symbolic::LiteralExpr& expr)
             {
@@ -58,7 +58,7 @@ namespace ifc::util {
                 node.props["name"] = to_string(ctx, expr.name);
             }
 
-            void operator()(const symbolic::PointerExpr& expr)
+            void operator()(const symbolic::PointerExpr&)
             {
                 // nothing here. This is a '*' part of ::* path expression (qualified name).
             }
@@ -254,7 +254,7 @@ namespace ifc::util {
             void operator()(const symbolic::SumTypeValueExpr& expr)
             {
                 node.props.emplace("ref", ctx.ref(expr.variant));
-                node.props.emplace("index", std::to_string((int)expr.active_member));
+                node.props.emplace("index", std::to_string(ifc::to_underlying(expr.active_member)));
                 add_child(expr.value);
             }
 
@@ -274,7 +274,7 @@ namespace ifc::util {
                 node.props.emplace("ref", ctx.ref(expr.function));
             }
 
-            void operator()(const symbolic::PlaceholderExpr& expr) {}
+            void operator()(const symbolic::PlaceholderExpr&) {}
 
             void operator()(const symbolic::ExpansionExpr& expr)
             {
@@ -287,9 +287,9 @@ namespace ifc::util {
                     add_child(item);
             }
 
-            void operator()(const symbolic::NullptrExpr& expr) {}
+            void operator()(const symbolic::NullptrExpr&) {}
 
-            void operator()(const symbolic::ThisExpr& expr) {}
+            void operator()(const symbolic::ThisExpr&) {}
 
             void operator()(const symbolic::TemplateReferenceExpr& expr)
             {
@@ -348,7 +348,7 @@ namespace ifc::util {
         }
         if (expr.sort() == ExprSort::VendorExtension)
         {
-            node.id = "expr-vendor-" + std::to_string((int)expr.index());
+            node.id = "expr-vendor-" + std::to_string(ifc::to_underlying(expr.index()));
             return;
         }
         node.id = sort_name(expr.sort());
@@ -366,7 +366,6 @@ namespace ifc::util {
         if (index.sort() == ExprSort::Tuple)
         {
             auto& tuple = ctx.reader.get<symbolic::TupleExpr>(index);
-            bool first  = true;
             for (auto item : ctx.reader.sequence(tuple))
             {
                 if (not result.empty())
@@ -391,17 +390,17 @@ namespace ifc::util {
         struct ExpxTranslator {
             Loader& ctx;
 
-            std::string operator()(const symbolic::EmptyExpr& expr)
+            std::string operator()(const symbolic::EmptyExpr&)
             {
                 return "empty-expr";
             }
 
-            std::string operator()(const symbolic::NullptrExpr& expr)
+            std::string operator()(const symbolic::NullptrExpr&)
             {
                 return "nullptr";
             }
 
-            std::string operator()(const symbolic::ThisExpr& expr)
+            std::string operator()(const symbolic::ThisExpr&)
             {
                 return "this";
             }
@@ -435,7 +434,7 @@ namespace ifc::util {
         if (null(expr))
             return "no-expr";
         if (expr.sort() == ExprSort::VendorExtension)
-            return "expr-vendor-" + std::to_string((int)expr.index());
+            return "expr-vendor-" + std::to_string(ifc::to_underlying(expr.index()));
         return ctx.reader.visit(expr, ExpxTranslator{ctx});
     }
 

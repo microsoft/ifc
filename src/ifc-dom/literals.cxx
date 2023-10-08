@@ -10,13 +10,13 @@ namespace ifc::util {
         switch (index.sort())
         {
         case LiteralSort::Immediate:
-            return std::to_string((int)index.index());
+            return std::to_string(ifc::to_underlying(index.index()));
         case LiteralSort::Integer:
             return std ::to_string(ctx.reader.get<int64_t>(index));
         case LiteralSort::FloatingPoint:
             return std ::to_string(ctx.reader.get<double>(index));
         default:
-            return "unknown-literal-sort-" + std::to_string((int)index.sort());
+            return "unknown-literal-sort-" + std::to_string(ifc::to_underlying(index.sort()));
         }
     }
 
@@ -31,7 +31,8 @@ namespace ifc::util {
             prefix = "u8";
             [[fallthrough]];
         case StringSort::Ordinary:
-            return prefix + "\"" + std::string(ctx.reader.get(str.start), (size_t)str.size) + "\"" + suffix;
+            return prefix + "\"" + std::string(ctx.reader.get(str.start), ifc::to_underlying(str.size)) + "\""
+                   + suffix;
         case StringSort::UTF16:
             prefix = "u16";
             break;
@@ -42,7 +43,7 @@ namespace ifc::util {
             prefix = "L";
             break;
         default:
-            return "unknown-string-sort-" + std::to_string((int)index.sort());
+            return "unknown-string-sort-" + std::to_string(ifc::to_underlying(index.sort()));
         }
         return prefix + "\"<TODO: convert to utf8>\"" + suffix;
     }

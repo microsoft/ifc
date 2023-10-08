@@ -232,11 +232,13 @@ namespace ifc {
 
     inline SHA256Hash bytes_to_hash(const uint8_t* first, const uint8_t* last)
     {
-        auto size = std::distance(first, last);
-        if (size != sizeof(SHA256Hash))
+        auto byte_count = std::distance(first, last);
+        if (byte_count != sizeof(SHA256Hash))
         {
             return {};
         }
+        auto size = static_cast<std::size_t>(byte_count);
+
         SHA256Hash hash{};
         uint8_t* alias = reinterpret_cast<uint8_t*>(hash.value.data());
         // std::copy in devcrt  issues a warning whenever you try to copy
@@ -267,7 +269,7 @@ namespace ifc {
 
         InputIfc() = default;
 
-        InputIfc(const SpanType& span) : span(span)
+        InputIfc(const SpanType& span_) : span(span_)
         {
             cursor = span.begin();
         }
@@ -404,9 +406,10 @@ namespace ifc {
             {
                 throw IllFormedPartitionName{};
             }
-            UTF8ViewType module_name = name.substr(0, std::distance(first, colon));
+            UTF8ViewType module_name = name.substr(0, static_cast<std::size_t>(std::distance(first, colon)));
             UTF8ViewType partition_name =
-                name.substr(std::distance(first, partition_name_start), std::distance(partition_name_start, last));
+                name.substr(static_cast<std::size_t>(std::distance(first, partition_name_start)),
+                            static_cast<std::size_t>(std::distance(partition_name_start, last)));
             return OwningModuleAndPartition{module_name, partition_name};
         }
 

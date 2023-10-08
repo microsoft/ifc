@@ -7,7 +7,7 @@
 namespace ifc {
     constexpr std::string_view analysis_partition_prefix = ".msvc.code-analysis.";
 
-    Reader::Reader(const ifc::InputIfc& ifc) : ifc(ifc)
+    Reader::Reader(const ifc::InputIfc& ifc_) : ifc(ifc_)
     {
         if (not ifc.header())
             throw "file not found";

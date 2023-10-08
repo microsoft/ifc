@@ -76,7 +76,8 @@ namespace {
                     BCryptDestroyHash(hash_handle);
                 }
             });
-            digest_ntstatus<HashDataError>(BCryptHashData(hash_handle, (PUCHAR)first,
+            digest_ntstatus<HashDataError>(BCryptHashData(hash_handle,
+                                                          reinterpret_cast<PUCHAR>(const_cast<std::byte*>(first)),
                                                           static_cast<ULONG>(std::distance(first, last)),
                                                           /*dwFlags = */ 0));
             ifc::SHA256Hash hash = {};

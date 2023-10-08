@@ -2891,17 +2891,19 @@ namespace ifc {
             using ValueType = T;
         };
 
-// Note: VC and the build settings do not want to see idiomatic C++ by default.
+        // FIXME: investigate if disabling C4624 is really necessary here
 #pragma warning(push)
 #pragma warning(disable : 4624)
         struct IntegerLiteral : constant_traits<uint64_t, LiteralSort::Integer> {};
 
-#pragma pack(4)
+#pragma pack(push, 4)
         struct LiteralReal {
             double value{};
             uint16_t size{};
         };
-#pragma pack()
+#pragma pack(pop)
+
+        static_assert(sizeof(LiteralReal) == 12, "LiteralReal must be packed and aligned to 4 byte boundary");
 
         struct FloatingPointLiteral : constant_traits<LiteralReal, LiteralSort::FloatingPoint> {};
 #pragma warning(pop)

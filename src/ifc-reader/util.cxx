@@ -28,7 +28,7 @@ namespace ifc::util {
         case Access::Public:
             return "public";
         default:
-            return "unknown-access-" + std::to_string((int)access);
+            return "unknown-access-" + std::to_string(ifc::to_underlying(access));
         }
     }
 
@@ -163,8 +163,8 @@ namespace ifc::util {
             return "...";
         if (mode == symbolic::ExpansionMode::Partial)
             return "...(partial)";
-        return "unknown-expansion-mode-:" + std::to_string((int)mode);
-    };
+        return "unknown-expansion-mode-:" + std::to_string(ifc::to_underlying(mode));
+    }
 
     std::string to_string(symbolic::ReadExpr::Kind kind)
     {
@@ -182,7 +182,7 @@ namespace ifc::util {
         case Kind::IntegralConversion:
             return "integral-conversion";
         default:
-            return "unknown-read-kind-" + std::to_string((int)kind);
+            return "unknown-read-kind-" + std::to_string(ifc::to_underlying(kind));
         }
     }
 
@@ -205,7 +205,7 @@ namespace ifc::util {
         case CallingConvention::Eabi:
             return "__eabi";
         default:
-            return "calling-conv-" + std::to_string((int)conv);
+            return "calling-conv-" + std::to_string(ifc::to_underlying(conv));
         }
     }
 
@@ -224,7 +224,7 @@ namespace ifc::util {
         case NoexceptSort::Unenforced:
             return "noexcept(<unenforced>)";
         default:
-            return "unknown-noexcept-sort-" + std::to_string((int)sort);
+            return "unknown-noexcept-sort-" + std::to_string(ifc::to_underlying(sort));
         }
     }
 
@@ -240,7 +240,7 @@ namespace ifc::util {
         case Kind::Parenthesis:
             return "Parenthesis";
         default:
-            return "unknown-delimiter-kind-" + std::to_string((int)delimiter);
+            return "unknown-delimiter-kind-" + std::to_string(ifc::to_underlying(delimiter));
         }
     }
 
@@ -256,7 +256,7 @@ namespace ifc::util {
         case Kind::Finalizer:
             return "Finalizer";
         default:
-            return "unknown-dtor-kind-constant-" + std::to_string((int)kind);
+            return "unknown-dtor-kind-constant-" + std::to_string(ifc::to_underlying(kind));
         }
     }
 
@@ -272,7 +272,7 @@ namespace ifc::util {
         case Kind::CopyInitialization:
             return "copy";
         default:
-            return "unknown-initializer-kind-constant-" + std::to_string((int)kind);
+            return "unknown-initializer-kind-constant-" + std::to_string(ifc::to_underlying(kind));
         }
     }
 
@@ -288,7 +288,7 @@ namespace ifc::util {
         case Kind::Right:
             return "right";
         default:
-            return "unknown-associativity-constant-" + std::to_string((int)kind);
+            return "unknown-associativity-constant-" + std::to_string(ifc::to_underlying(kind));
         }
     }
 
@@ -313,7 +313,7 @@ namespace ifc::util {
 
     std::string to_string(symbolic::SourceLocation locus)
     {
-        return std::to_string((unsigned)locus.line) + "-" + std::to_string((unsigned)locus.column);
+        return std::to_string(ifc::to_underlying(locus.line)) + "-" + std::to_string(ifc::to_underlying(locus.column));
     }
 
     // simple type printing
@@ -325,14 +325,14 @@ namespace ifc::util {
                 return "signed" + base;
             if (sign == symbolic::TypeSign::Unsigned)
                 return "unsigned" + base;
-            return std::move(base);
+            return base;
         }
 
         std::string add_type_sign_prefix(std::string base, symbolic::TypeSign sign)
         {
             if (sign == symbolic::TypeSign::Unsigned)
                 base.insert(0, "u");
-            return std::move(base);
+            return base;
         }
 
         std::string integer_type(symbolic::TypePrecision precision, symbolic::TypeSign sign)
@@ -348,7 +348,7 @@ namespace ifc::util {
             case symbolic::TypePrecision::Bit32: return add_type_sign_prefix("int32", sign);
             case symbolic::TypePrecision::Bit64: return add_type_sign_prefix("int64", sign);
             case symbolic::TypePrecision::Bit128: return add_type_sign_prefix("int128", sign);
-            default: return "unknown-integer-type-precision-" + std::to_string((int)precision);
+            default: return "unknown-integer-type-precision-" + std::to_string(ifc::to_underlying(precision));
             }
             // clang-format on
         }
@@ -382,14 +382,16 @@ namespace ifc::util {
     case symbolic::TypeBasis::Concept: return "concept";
     case symbolic::TypeBasis::Auto: return "auto";
     case symbolic::TypeBasis::DecltypeAuto: return "decltype(auto)";
-    default: return "unknown-fundamenta-type-basis-" + std::to_string((int)type.basis);
+    default: return "unknown-fundamenta-type-basis-" + std::to_string(ifc::to_underlying(type.basis));
     }
         // clang-format on
     }
 
     std::string to_string(symbolic::TypeBasis basis)
     {
-        return to_string(symbolic::FundamentalType{.basis = basis});
+        auto type  = symbolic::FundamentalType{};
+        type.basis = basis;
+        return to_string(type);
     }
 
 } // namespace ifc::util
