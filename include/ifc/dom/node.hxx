@@ -66,7 +66,7 @@ namespace ifc::util {
         case SortKind::Stmt:
             return "stmt";
         default:
-            return "unexpected-sort-kind-" + std::to_string((int)kind);
+            return "unexpected-sort-kind-" + std::to_string(ifc::to_underlying(kind));
         }
     }
 
@@ -126,16 +126,16 @@ namespace ifc::util {
         // clang-format off
         switch (index_kind)
         {
-        case SortKind::Expr: return std::forward<F>(f)(index_like::make<ExprIndex>((ExprSort)index_sort, index_value));
-        case SortKind::Decl: return std::forward<F>(f)(index_like::make<DeclIndex>((DeclSort)index_sort, index_value));
-        case SortKind::Type: return std::forward<F>(f)(index_like::make<TypeIndex>((TypeSort)index_sort, index_value));
-        case SortKind::Name: return std::forward<F>(f)(index_like::make<NameIndex>((NameSort)index_sort, index_value));
-        case SortKind::Scope: return std::forward<F>(f)((ScopeIndex)index_value);
-        case SortKind::Sentence: return std::forward<F>(f)((SentenceIndex)index_value);
-        case SortKind::Chart: return std::forward<F>(f)(index_like::make<ChartIndex>((ChartSort)index_sort, index_value));
-        case SortKind::Syntax: return std::forward<F>(f)(index_like::make<SyntaxIndex>((SyntaxSort)index_sort, index_value));
-        case SortKind::Stmt: return std::forward<F>(f)(index_like::make<StmtIndex>((StmtSort)index_sort, index_value));
-        default: throw std::logic_error("unexpected SortKind-" + std::to_string((int)index_kind));
+        case SortKind::Expr: return std::forward<F>(f)(index_like::make<ExprIndex>(static_cast<ExprSort>(index_sort), index_value));
+        case SortKind::Decl: return std::forward<F>(f)(index_like::make<DeclIndex>(static_cast<DeclSort>(index_sort), index_value));
+        case SortKind::Type: return std::forward<F>(f)(index_like::make<TypeIndex>(static_cast<TypeSort>(index_sort), index_value));
+        case SortKind::Name: return std::forward<F>(f)(index_like::make<NameIndex>(static_cast<NameSort>(index_sort), index_value));
+        case SortKind::Scope: return std::forward<F>(f)(static_cast<ScopeIndex>(index_value));
+        case SortKind::Sentence: return std::forward<F>(f)(static_cast<SentenceIndex>(index_value));
+        case SortKind::Chart: return std::forward<F>(f)(index_like::make<ChartIndex>(static_cast<ChartSort>(index_sort), index_value));
+        case SortKind::Syntax: return std::forward<F>(f)(index_like::make<SyntaxIndex>(static_cast<SyntaxSort>(index_sort), index_value));
+        case SortKind::Stmt: return std::forward<F>(f)(index_like::make<StmtIndex>(static_cast<StmtSort>(index_sort), index_value));
+        default: throw std::logic_error("unexpected SortKind-" + std::to_string(ifc::to_underlying(index_kind)));
         }
         // clang-format on
     }
@@ -149,7 +149,7 @@ namespace ifc::util {
         const NodeKey key;
         std::string id;
 
-        explicit Node(NodeKey key) : key(key) {}
+        explicit Node(NodeKey key_) : key(key_) {}
         Node(const Node&)            = delete;
         Node& operator=(const Node&) = delete;
 
@@ -168,7 +168,7 @@ namespace ifc::util {
     struct Loader {
         ifc::Reader& reader;
 
-        explicit Loader(Reader& reader) : reader(reader) {}
+        explicit Loader(Reader& reader_) : reader(reader_) {}
 
         template<index_like::Algebra Key>
         const Node& get(Key abstract_index);

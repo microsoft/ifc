@@ -23,7 +23,7 @@ namespace ifc {
         // equal to that entry's position in the table, after appropriate isomorphic conversion.
         // When the predicate holds at compile time, that implies runtime look up by key
         // can be implemented by a simple constant-time indexing instead of an elaborate search.
-        template<typename T, int N>
+        template<typename T, auto N>
         constexpr bool retractible_by_key(const SortNameMapEntry<T> (&table)[N])
         {
             if constexpr (N != count<T>)
@@ -486,7 +486,7 @@ namespace ifc {
         static_assert(retractible_by_key(dirsort_table));
 
         // This is a sorted array by the 'name' field in 'SortNameMapEntry'
-        template<typename S, int N>
+        template<typename S, auto N>
         class FieldOffsetTable {
         public:
             struct Entry {
@@ -496,7 +496,7 @@ namespace ifc {
 
             explicit constexpr FieldOffsetTable(const SortNameMapEntry<S> (&seq)[N]) noexcept
             {
-                for (int i = 0; i < N; ++i)
+                for (std::size_t i = 0; i != N; ++i)
                 {
                     sorted_data[i].name = seq[i].name;
                     sorted_data[i].sort = seq[i].sort;
@@ -527,7 +527,7 @@ namespace ifc {
             auto find(std::string_view name) const noexcept
             {
                 auto iter = std::lower_bound(
-                    begin(), end(), name, [](const auto& entry, std::string_view name) { return entry.name < name; });
+                    begin(), end(), name, [](const auto& entry, std::string_view name_) { return entry.name < name_; });
                 if ((iter != end()) and (iter->name == name))
                 {
                     return iter;
@@ -540,7 +540,7 @@ namespace ifc {
             std::array<Entry, N> sorted_data;
         };
 
-        template<typename S, int N>
+        template<typename S, auto N>
         S offset(const FieldOffsetTable<S, N>& table, std::string_view name)
         {
             auto p = table.find(name);
@@ -549,7 +549,7 @@ namespace ifc {
             return p->sort;
         }
 
-        template<typename T, int N>
+        template<typename T, auto N>
         consteval FieldOffsetTable<T, N> order_by_name(const SortNameMapEntry<T> (&seq)[N])
         {
             FieldOffsetTable<T, N> map{seq};

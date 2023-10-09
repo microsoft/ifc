@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include <type_traits>
 #include <limits>
+#include <type_traits>
 #include <ifc/assertions.hxx>
 #include <ifc/underlying.hxx>
 

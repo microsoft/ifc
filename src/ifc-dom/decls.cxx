@@ -10,7 +10,7 @@ namespace ifc::util {
         if (auto* scope = ctx.reader.try_get(index))
         {
             const auto seq = ctx.reader.sequence(*scope);
-            node.id        = "scope-" + std::to_string((int)index);
+            node.id        = to_string(index);
             node.children.reserve(seq.size());
 
             for (auto& decl : seq)
@@ -154,9 +154,11 @@ namespace ifc::util {
                 node.children.push_back(&ctx.get(init));
 
             node.children.push_back(&ctx.get(mapping_def->trait.body));
+            return;
         }
+
         // Inline functions (and all other under a switch to be added).
-        else if (auto* mapping_def = ctx.reader.try_find<symbolic::trait::MsvcCodegenMappingExpr>(fn_index))
+        if (auto* mapping_def = ctx.reader.try_find<symbolic::trait::MsvcCodegenMappingExpr>(fn_index))
         {
             if (auto* params = ctx.try_get(mapping_def->trait.parameters))
                 node.children.push_back(params);
@@ -165,12 +167,11 @@ namespace ifc::util {
                 node.children.push_back(&ctx.get(init));
 
             node.children.push_back(&ctx.get(mapping_def->trait.body));
+            return;
         }
-        else
-        {
-            if (auto* params = ctx.try_get(chart))
-                node.children.push_back(params);
-        }
+
+        if (auto* params = ctx.try_get(chart))
+            node.children.push_back(params);
     }
 
     struct DeclLoader : detail::LoaderVisitorBase {
@@ -350,7 +351,7 @@ namespace ifc::util {
 
         void operator()(DeclIndex, const symbolic::TupleDecl& tuple)
         {
-            node.children.reserve((size_t)tuple.cardinality);
+            node.children.reserve(ifc::to_underlying(tuple.cardinality));
             for (auto item : ctx.reader.sequence(tuple))
                 add_child(item);
         }
@@ -371,8 +372,8 @@ namespace ifc::util {
         {
             node.props.emplace("name", ctx.reader.get(segment.name));
             node.props.emplace("class_id", ctx.reader.get(segment.class_id));
-            node.props.emplace("seg_spec", std::to_string((int)segment.class_id));
-            node.props.emplace("seg_type", std::to_string((int)segment.type));
+            node.props.emplace("seg_spec", std::to_string(ifc::to_underlying(segment.class_id)));
+            node.props.emplace("seg_type", std::to_string(ifc::to_underlying(segment.type)));
         }
 
         void operator()(DeclIndex, const symbolic::SyntacticDecl& decl)

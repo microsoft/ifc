@@ -7,6 +7,7 @@
 #include <cstring>
 
 #include <compare>
+#include <limits>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -103,8 +104,9 @@ namespace ifc {
 
         value_type back() const
         {
-            IFCASSERT(length() > 0);
-            return begin()[length() - 1];
+            const auto n = length();
+            IFCASSERT(n != 0);
+            return begin()[static_cast<difference_type>(n - 1)];
         }
 
         void prepend(value_type c)

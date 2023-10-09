@@ -99,7 +99,7 @@ std::vector<std::byte> load_file(const std::string& name)
     std::vector<std::byte> v;
     v.resize(size);
     std::ifstream file(name, std::ios::binary);
-    file.read(reinterpret_cast<char*>(v.data()), v.size());
+    file.read(reinterpret_cast<char*>(v.data()), static_cast<std::streamsize>(v.size()));
     return v;
 }
 

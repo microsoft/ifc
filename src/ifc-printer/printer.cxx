@@ -30,7 +30,7 @@ namespace ifc::util {
 
         class ScopedConsoleColor {
         public:
-            ScopedConsoleColor(std::ostream& os, ConsoleColor color, bool enabled = true) : os(os), enabled(enabled)
+            ScopedConsoleColor(std::ostream& os_, ConsoleColor color, bool enabled_ = true) : os(os_), enabled(enabled_)
             {
                 if (enabled)
                 {
@@ -126,7 +126,7 @@ namespace ifc::util {
                     // use requested printing of index, we will print it as requested.
                     if (depth == 0 and implies(options, PrintOptions::Top_level_index)
                         and n.key.kind() != SortKind::Decl)
-                        stream << "-" << (int)n.key.index();
+                        stream << "-" << n.key.index();
                 }
                 if (auto it = n.props.find("type"); it != n.props.end())
                 {
@@ -177,11 +177,11 @@ namespace ifc::util {
                     dump_node_header(n, ChildType::Only_child);
 
                 ++depth;
-                const auto total = n.children.size();
-                size_t count     = 0;
+                const auto total   = n.children.size();
+                size_t child_count = 0;
                 for (auto* child : n.children)
                 {
-                    dump_node_header(*child, compute_child_type(++count, total));
+                    dump_node_header(*child, compute_child_type(++child_count, total));
                     visit(*child);
                 }
                 --depth;
@@ -192,7 +192,7 @@ namespace ifc::util {
 
             void update_indent(size_t, ChildType);
 
-            explicit TreePrinter(std::ostream& stream, PrintOptions options = {}) : stream(stream), options(options) {}
+            explicit TreePrinter(std::ostream& stream_, PrintOptions options_ = {}) : stream(stream_), options(options_) {}
 
             struct ColorSetter : ScopedConsoleColor {
                 ColorSetter(TreePrinter& pp, ConsoleColor color)
@@ -210,12 +210,6 @@ namespace ifc::util {
             std::stack<IndentAction> indents;
             std::string indent_strs[static_cast<int>(IndentAction::Recurse_last) + 1]{"|-", "\\-", "| ", "  "};
         };
-
-        TreePrinter& TreePrinter::operator<<(std::string_view str)
-        {
-            stream << str;
-            return *this;
-        }
 
         TreePrinter& TreePrinter::operator<<(IndentAction action)
         {
@@ -235,35 +229,35 @@ namespace ifc::util {
             return *this;
         }
 
-        void TreePrinter::update_indent(size_t depth, ChildType child_type)
+        void TreePrinter::update_indent(size_t indent_depth, ChildType child_type)
         {
-            if (depth != 0)
+            if (indent_depth == 0)
+                return;
+
+            if (not indents.empty() and (child_type == ChildType::First or child_type == ChildType::Only_child))
             {
-                if (not indents.empty() and (child_type == ChildType::First or child_type == ChildType::Only_child))
+                if (indents.top() == IndentAction::Child)
                 {
-                    if (indents.top() == IndentAction::Child)
-                    {
-                        *this << IndentAction::Undo << IndentAction::Recurse;
-                    }
-                    else if (indents.top() == IndentAction::Last_child)
-                    {
-                        *this << IndentAction::Undo << IndentAction::Recurse_last;
-                    }
+                    *this << IndentAction::Undo << IndentAction::Recurse;
                 }
+                else if (indents.top() == IndentAction::Last_child)
+                {
+                    *this << IndentAction::Undo << IndentAction::Recurse_last;
+                }
+            }
 
-                while (indents.size() >= depth)
-                {
-                    *this << IndentAction::Undo;
-                }
+            while (indents.size() >= indent_depth)
+            {
+                *this << IndentAction::Undo;
+            }
 
-                if (child_type == ChildType::First or child_type == ChildType::Regular)
-                {
-                    *this << IndentAction::Child;
-                }
-                else
-                {
-                    *this << IndentAction::Last_child;
-                }
+            if (child_type == ChildType::First or child_type == ChildType::Regular)
+            {
+                *this << IndentAction::Child;
+            }
+            else
+            {
+                *this << IndentAction::Last_child;
             }
         }
     } // namespace

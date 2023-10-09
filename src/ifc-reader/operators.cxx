@@ -218,7 +218,7 @@ namespace ifc::util {
         template<typename Operator>
         using OperatorNameTable = std::map<Operator, const char*>;
 
-        template<typename Op, int N>
+        template<typename Op, auto N>
         OperatorNameTable<Op> create_op_table(const OperatorNameMapEntry<Op> (&seq)[N])
         {
             OperatorNameTable<Op> map;
@@ -236,7 +236,8 @@ namespace ifc::util {
                 return it->second;
 
             auto sort = operator_sort(op);
-            return "unknown-op-" + std::to_string((int)sort) + "-" + std::to_string((int)op);
+            return "unknown-op-" + std::to_string(ifc::to_underlying(sort)) + "-"
+                   + std::to_string(ifc::to_underlying(op));
         }
     } // namespace
 
@@ -258,7 +259,7 @@ namespace ifc::util {
         case OperatorSort::Triadic: return to_string(TriadicOperator{ifc::to_underlying(op.index())});
         case OperatorSort::Storage: return to_string(StorageOperator{ifc::to_underlying(op.index())});
         case OperatorSort::Variadic: return to_string(VariadicOperator{ifc::to_underlying(op.index())});
-        default: return "unknown-operator-sort-" + std::to_string((int)op.sort());
+        default: return "unknown-operator-sort-" + std::to_string(ifc::to_underlying(op.sort()));
         }
     }
     // clang-format on
