@@ -30,6 +30,9 @@
 namespace ifc {
     using index_like::Index;
 
+    // This describes the basic alignment that all structures in the IFC must adhere to.
+    inline constexpr int partition_alignment = 4;
+
     // For every sort-like enumeration, return the maximum value
     // as indicated by its Count enumerator.
     template<typename S>
@@ -3150,6 +3153,7 @@ namespace ifc {
                               // representing the source file information.
                               // FIXME: this goes away once bump the IFC version and have UnitIndex point to a source
                               // file instead of a TextOffset for header units.
+        FileHash,             // A file hash associated with an indexed source file after compilation with MSVC.
         Count,
     };
 
@@ -3235,6 +3239,24 @@ namespace ifc {
             LineNumber last;  // The last line in the file (inclusive).
         };
 
+        enum class MsvcFileHashSort : uint8_t
+        {
+            None,
+            MD5,
+            SHA128,
+            SHA256,
+        };
+
+        struct alignas(partition_alignment) MsvcFileHashData {
+            static constexpr auto msvc_file_hash_size = 32;
+
+            std::array<uint8_t, msvc_file_hash_size> bytes{};
+            MsvcFileHashSort sort = MsvcFileHashSort::None;
+            std::array<uint8_t, 3> unused;
+        };
+
+        static_assert(sizeof(MsvcFileHashData) == 36);
+
         struct MsvcUuid : AssociatedTrait<DeclIndex, StringIndex>, TraitTag<MsvcTraitSort::Uuid> {};
         struct MsvcSegment : AssociatedTrait<DeclIndex, DeclIndex>, TraitTag<MsvcTraitSort::Segment> {};
         struct MsvcSpecializationEncoding : AssociatedTrait<DeclIndex, TextOffset>,
@@ -3265,6 +3287,8 @@ namespace ifc {
                                   TraitTag<MsvcTraitSort::FileBoundary> {};
         struct MsvcHeaderUnitSourceFile : AssociatedTrait<TextOffset, NameIndex>,
                                           TraitTag<MsvcTraitSort::HeaderUnitSourceFile> {};
+        struct MsvcFileHash : AssociatedTrait<NameIndex, MsvcFileHashData>,
+                                TraitTag<MsvcTraitSort::FileHash> {};
     } // namespace symbolic::trait
 
     // Partition summaries for the table of contents.

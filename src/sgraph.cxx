@@ -382,6 +382,7 @@ namespace ifc {
             {MsvcTraitSort::LexicalScopeIndex, ".msvc.trait.lexical-scope-index"},
             {MsvcTraitSort::FileBoundary, ".msvc.trait.file-boundary"},
             {MsvcTraitSort::HeaderUnitSourceFile, ".msvc.trait.header-unit-source-file"},
+            {MsvcTraitSort::FileHash, ".msvc.trait.file-hash"},
         };
 
         static_assert(retractible_by_key(msvc_traitsort_table));
