@@ -36,7 +36,7 @@ else()
   target_sources(ifc-reader PRIVATE src/sha256.cxx)
 endif()
 target_link_libraries(ifc-reader PUBLIC Microsoft.GSL::GSL)
-target_compile_features(ifc-reader PUBLIC cxx_std_20)
+target_compile_features(ifc-reader PUBLIC cxx_std_23)
 target_include_directories(ifc-reader PUBLIC "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>")
 
 add_library(
@@ -54,7 +54,7 @@ add_library(
 add_library(Microsoft.IFC::DOM ALIAS ifc-dom)
 set_property(TARGET ifc-dom PROPERTY EXPORT_NAME DOM)
 target_link_libraries(ifc-dom PUBLIC ifc-reader)
-target_compile_features(ifc-dom PUBLIC cxx_std_20)
+target_compile_features(ifc-dom PUBLIC cxx_std_23)
 target_include_directories(ifc-reader PUBLIC "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>")
 
 add_library(SDK INTERFACE)
@@ -70,7 +70,7 @@ if(BUILD_PRINTER)
       src/assert.cxx
   )
   target_link_libraries(ifc-printer PRIVATE ifc-dom ifc-reader)
-  target_compile_features(ifc-printer PRIVATE cxx_std_20)
+  target_compile_features(ifc-printer PRIVATE cxx_std_23)
 endif()
 
 if(NOT CMAKE_SKIP_INSTALL_RULES)
