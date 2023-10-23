@@ -380,6 +380,12 @@ namespace ifc::util {
         {
             node.props.emplace("syntax", ctx.ref(decl.index));
         }
+
+        void operator()(DeclIndex, const symbolic::BarrenDecl& decl)
+        {
+            // TODO: Add more detail.
+            load_common_props(ctx, node, decl);
+        }
     };
 
     void load(Loader& ctx, Node& node, DeclIndex index)
