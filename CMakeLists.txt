@@ -1,7 +1,7 @@
 # Copyright Microsoft Corporation.
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.26)
 
 # Corresponds to https://github.com/microsoft/ifc-spec
 set(ifc_spec_version 0.43)
