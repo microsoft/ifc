@@ -381,10 +381,10 @@ namespace ifc::util {
             node.props.emplace("syntax", ctx.ref(decl.index));
         }
 
-        void operator()(DeclIndex, const symbolic::BarrenDecl&)
+        void operator()(DeclIndex, const symbolic::BarrenDecl& decl)
         {
             // TODO: Add more detail.
-            node.props.emplace("barren-decl");
+            load_common_props(ctx, node, decl);
         }
     };
 
