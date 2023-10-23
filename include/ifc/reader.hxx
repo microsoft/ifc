@@ -278,8 +278,8 @@ namespace ifc {
             case DeclSort::Property:     return std::forward<F>(f)(index, get<symbolic::PropertyDecl>(index));
             case DeclSort::OutputSegment: return std::forward<F>(f)(index, get<symbolic::SegmentDecl>(index));
             case DeclSort::SyntaxTree:   return std::forward<F>(f)(index, get<symbolic::SyntacticDecl>(index));
-            case DeclSort::Barren:       return std::forward<F>(f)(index, get<symbolic::BarrenDecl>(index));
 
+            case DeclSort::Barren:       // IFC has no corresponding structure as of 05/12/2022
             case DeclSort::VendorExtension:
             case DeclSort::Count:
             default:
