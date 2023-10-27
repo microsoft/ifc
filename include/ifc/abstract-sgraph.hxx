@@ -3544,7 +3544,18 @@ namespace ifc {
 
     // -- exception type in case of an invalid partition name
     struct InvalidPartitionName {
-        std::string_view name;
+        static constexpr unsigned NAME_BUFFER_SIZE = 64;
+
+        char name[NAME_BUFFER_SIZE]                = "";
+
+        static InvalidPartitionName make(std::string_view name) noexcept
+        {
+            InvalidPartitionName e{};
+            name = name.substr(0, NAME_BUFFER_SIZE - 1);
+            strncpy_s(e.name, name.data(), name.length());
+            e.name[name.length()] = 0;
+            return e;
+        }
     };
 
     // Retrieve a partition summary based on the partition's name.

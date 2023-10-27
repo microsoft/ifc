@@ -546,7 +546,7 @@ namespace ifc {
         {
             auto p = table.find(name);
             if (p == table.end())
-                throw InvalidPartitionName{name};
+                throw InvalidPartitionName::make(name);
             return p->sort;
         }
 
