@@ -3,14 +3,13 @@
 
 #include "ifc/util.hxx"
 #include "ifc/reader.hxx"
-#include <cassert>
 
 namespace ifc {
     constexpr std::string_view analysis_partition_prefix = ".msvc.code-analysis.";
 
     Reader::Reader(const ifc::InputIfc& ifc_) : ifc(ifc_)
     {
-        assert(ifc.header());
+        IFCASSERT(ifc.header());
         read_table_of_contents();
     }
 
