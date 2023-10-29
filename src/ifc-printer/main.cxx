@@ -20,7 +20,7 @@ void translate_exception()
     }
     catch (const ifc::InvalidPartitionName& e)
     {
-        std::cerr << "invalid partition name: " << e.name << '\n';
+        std::cerr << "invalid partition name: " << e.partition_name() << '\n';
     }
     catch (ifc::error_condition::UnexpectedVisitor& e)
     {

@@ -18,6 +18,8 @@
 #include <concepts>
 #include <string_view>
 #include <type_traits>
+#include <array>
+#include <algorithm>
 
 #include <ifc/underlying.hxx>
 #include <ifc/basic-types.hxx>
@@ -3544,18 +3546,20 @@ namespace ifc {
 
     // -- exception type in case of an invalid partition name
     struct InvalidPartitionName {
-        static constexpr unsigned NAME_BUFFER_SIZE = 64;
-
-        char name[NAME_BUFFER_SIZE]                = "";
-
-        static InvalidPartitionName make(std::string_view name) noexcept
+        InvalidPartitionName(std::string_view partition_name)
         {
-            InvalidPartitionName e{};
-            name = name.substr(0, NAME_BUFFER_SIZE - 1);
-            strncpy_s(e.name, name.data(), name.length());
-            e.name[name.length()] = 0;
-            return e;
+            partition_name = partition_name.substr(0, partition_name_buffer.size() - 1);
+            std::copy(partition_name.begin(), partition_name.end(), partition_name_buffer.begin());
+            partition_name_buffer[partition_name.length()] = 0;
         }
+
+        constexpr const char* partition_name() const noexcept
+        {
+            return partition_name_buffer.data();
+        }
+
+    private:
+        std::array<char, 64> partition_name_buffer;
     };
 
     // Retrieve a partition summary based on the partition's name.
