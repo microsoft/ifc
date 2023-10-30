@@ -3546,14 +3546,14 @@ namespace ifc {
 
     // -- exception type in case of an invalid partition name
     struct InvalidPartitionName {
-        InvalidPartitionName(std::string_view partition_name)
+        explicit InvalidPartitionName(std::string_view partition_name)
         {
             partition_name = partition_name.substr(0, partition_name_buffer.size() - 1);
             std::copy(partition_name.begin(), partition_name.end(), partition_name_buffer.begin());
             partition_name_buffer[partition_name.length()] = 0;
         }
 
-        constexpr const char* partition_name() const noexcept
+        const char* partition_name() const noexcept
         {
             return partition_name_buffer.data();
         }
