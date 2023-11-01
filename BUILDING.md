@@ -49,6 +49,31 @@ cmake --build build --config Release
 
 If you are using vcpkg as your C++ package manager, you might need to add `-DCMAKE_TOOLCHAIN_FILE=<path-to-your-vcpkd-root>/scripts/buildsystems/vcpkg.cmake` to the CMake command in the configuration step.
 
+### Unit Testing
+
+For configuring with testing enabled (only MSVC is enabled for now):
+
+```sh
+mkdir build
+cd build
+cmake .. --preset=test-msvc
+cmake --build test
+ctest -C debug test
+```
+
+### vcpkg (for testing)
+
+This project depends on [`vcpkg`](https://vcpkg.io) for managing dependencies.  This project does not provide a [`builtin-baseline`](https://learn.microsoft.com/en-us/vcpkg/reference/vcpkg-json#builtin-baseline) in the `vcpkg.json` intentionally so that system dependencies can be relied on.  If you are not using `vcpkg` in [classic mode](https://learn.microsoft.com/en-us/vcpkg/users/classic-mode) then you must introduce your own baseline (either through [`vcpkg x-update-baseline`](https://learn.microsoft.com/en-us/vcpkg/commands/update-baseline)) or add a custom [`vcpkg-configuration.json`](https://learn.microsoft.com/en-us/vcpkg/reference/vcpkg-configuration-json).  Here's an example of using the `x-update-baseline` method:
+
+```sh
+mkdir build
+cd build
+vcpkg x-update-baseline --add-initial-baseline
+cmake .. -DCMAKE_TOOLCHAIN_FILE=<path-to>/vcpkg.cmake --preset=test-msvc
+```
+
+Note: Using this method will locally modify `/vcpkg.json` so be sure to revert it or exclude it from your commit before submitting any change for PR.
+
 ## Install
 
 Here is the command for installing the release mode artifacts with a

@@ -27,6 +27,8 @@ This will create an IFC file named test.cpp.ifc. This can be dumped with ifc-pri
 ifc-printer.exe --color test.cpp.ifc
 ```
 
+See [BUILDING.md](BUILDING.md) for more information.
+
 # Contributing
 This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to grant us the right to use your contribution. For details, visit https://cla.opensource.microsoft.com.
 
