@@ -1,5 +1,8 @@
 {
   "name": "microsoft-ifc-sdk",
   "version-semver": "0.43.2",
-  "dependencies": ["ms-gsl"]
+  "dependencies": [
+    "ms-gsl",
+    "doctest"
+  ]
 }
