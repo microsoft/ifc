@@ -54,25 +54,32 @@ If you are using vcpkg as your C++ package manager, you might need to add `-DCMA
 For configuring with testing enabled (only MSVC is enabled for now):
 
 ```sh
-mkdir build
+cmake -B build --preset=test-msvc
+cmake --build build/test
 cd build
-cmake .. --preset=test-msvc
-cmake --build test
 ctest -C debug test
 ```
 
-### vcpkg (for testing)
+### Using vcpkg (for testing)
 
-This project depends on [`vcpkg`](https://vcpkg.io) for managing dependencies.  This project does not provide a [`builtin-baseline`](https://learn.microsoft.com/en-us/vcpkg/reference/vcpkg-json#builtin-baseline) in the `vcpkg.json` intentionally so that system dependencies can be relied on.  If you are not using `vcpkg` in [classic mode](https://learn.microsoft.com/en-us/vcpkg/users/classic-mode) then you must introduce your own baseline (either through [`vcpkg x-update-baseline`](https://learn.microsoft.com/en-us/vcpkg/commands/update-baseline)) or add a custom [`vcpkg-configuration.json`](https://learn.microsoft.com/en-us/vcpkg/reference/vcpkg-configuration-json).  Here's an example of using the `x-update-baseline` method:
+This project depends on [`doctest`](https://github.com/doctest/doctest) for validating the SDK.  We recommend using [`vcpkg`](https://vcpkg.io) for managing this dependency.  This project does not provide a [`builtin-baseline`](https://learn.microsoft.com/en-us/vcpkg/reference/vcpkg-json#builtin-baseline) in the `vcpkg.json` intentionally so that system dependencies can be relied on.  If you are not using `vcpkg` in [classic mode](https://learn.microsoft.com/en-us/vcpkg/users/classic-mode) then you must introduce your own baseline (either through [`vcpkg x-update-baseline`](https://learn.microsoft.com/en-us/vcpkg/commands/update-baseline)) or add a custom [`vcpkg-configuration.json`](https://learn.microsoft.com/en-us/vcpkg/reference/vcpkg-configuration-json).  Here's an example of using the `x-update-baseline` method:
 
 ```sh
-mkdir build
-cd build
 vcpkg x-update-baseline --add-initial-baseline
-cmake .. -DCMAKE_TOOLCHAIN_FILE=<path-to>/vcpkg.cmake --preset=test-msvc
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path-to>/vcpkg.cmake --preset=test-msvc
 ```
 
 Note: Using this method will locally modify `/vcpkg.json` so be sure to revert it or exclude it from your commit before submitting any change for PR.
+
+On Linux platforms please consult your package manager for alternative distributions of the C++ `doctest` framework.  Some common alternatives:
+
+- arch: `doctest`
+- debian: `doctest-dev`
+- fedora: `doctest`
+- gentoo: `dev-cpp/doctest`
+- ubuntu: `doctest-dev`
+
+When using an alternative source for packages be sure to consult your distribution documentation on how to make that package available for CMake.
 
 ## Install
 

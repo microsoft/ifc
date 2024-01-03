@@ -18,9 +18,9 @@ target_compile_features(ifc-test PRIVATE cxx_std_23)
 # Libs for ifc-test
 target_link_libraries(ifc-test PRIVATE Microsoft.IFC::SDK)
 
-add_executable(ifc-basic basic.cxx)
-
 if (WIN32)
+  # Only enabled for MSVC for now.
+  add_executable(ifc-basic basic.cxx)
   # MSVC-specific testing
   # Test IFCs
   add_custom_target(test-ifcs
