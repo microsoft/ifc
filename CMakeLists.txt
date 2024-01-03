@@ -8,7 +8,7 @@ set(ifc_spec_version 0.43)
 
 project(
     ifc-sdk
-    VERSION "${ifc_spec_version}.1"
+    VERSION "${ifc_spec_version}.2"
     LANGUAGES CXX
 )
 
