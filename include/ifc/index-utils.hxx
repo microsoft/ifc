@@ -4,8 +4,7 @@
 #ifndef IFC_INDEX_UTILS_INCLUDED
 #define IFC_INDEX_UTILS_INCLUDED
 
-#pragma once
-
+#include <cstdint>
 #include <limits>
 #include <type_traits>
 #include <ifc/assertions.hxx>
@@ -21,15 +20,15 @@ namespace index_like {
     // is useful mainly to guard against the anarchic implicit conversions
     // between builtin types.  It is a best-effort attempt to prevent value truncation.
     template<typename S>
-    concept Uint32 = std::same_as<S, uint32_t>;
+    concept Uint32 = std::same_as<S, std::uint32_t>;
 
     // Note: This really is a variable template in disguise.
     template<typename T>
-    constexpr uint32_t wilderness = std::numeric_limits<uint32_t>::max();
+    constexpr uint32_t wilderness = std::numeric_limits<std::uint32_t>::max();
 
     // Generic representational index value type.
     // Every other type is representationally isomorphic to this (or uint32_t).
-    enum class Index : uint32_t {};
+    enum class Index : std::uint32_t {};
 
     // Advance an index by a give amount.
     template<Uint32 T>
