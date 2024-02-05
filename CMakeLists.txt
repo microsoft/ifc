@@ -18,6 +18,7 @@ include(CMakeDependentOption)
 
 find_package(Microsoft.GSL REQUIRED)
 
+# The `reader` component.
 add_library(
     ifc-reader STATIC
     src/file.cxx
@@ -39,6 +40,7 @@ target_link_libraries(ifc-reader PUBLIC Microsoft.GSL::GSL)
 target_compile_features(ifc-reader PUBLIC cxx_std_23)
 target_include_directories(ifc-reader PUBLIC "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>")
 
+# The `dom` component.
 add_library(
     ifc-dom STATIC
     src/ifc-dom/charts.cxx
@@ -55,8 +57,20 @@ add_library(Microsoft.IFC::DOM ALIAS ifc-dom)
 set_property(TARGET ifc-dom PROPERTY EXPORT_NAME DOM)
 target_link_libraries(ifc-dom PUBLIC ifc-reader)
 target_compile_features(ifc-dom PUBLIC cxx_std_23)
-target_include_directories(ifc-reader PUBLIC "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>")
+target_include_directories(ifc-dom PUBLIC "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>")
 
+# The `ifc` tool executable.
+add_executable(
+  ifc
+  src/tools/ifc.cxx
+)
+add_executable(Microsoft.IFC::Tool ALIAS ifc)
+set_property(TARGET ifc PROPERTY EXPORT_NAME Tool)
+target_compile_features(ifc PUBLIC cxx_std_23)
+target_link_libraries(ifc ifc-reader)
+target_include_directories(ifc PUBLIC "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>")
+
+# The IFC SDK comprises the `reader`, the `dom`, and the tool.
 add_library(SDK INTERFACE)
 add_library(Microsoft.IFC::SDK ALIAS SDK)
 target_link_libraries(SDK INTERFACE ifc-reader ifc-dom)

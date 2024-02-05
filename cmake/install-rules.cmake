@@ -20,6 +20,11 @@ install(
 )
 
 install(
+    TARGETS ifc
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+)
+
+install(
     TARGETS ifc-dom ifc-reader SDK
     EXPORT Microsoft.IFCTargets
     INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
