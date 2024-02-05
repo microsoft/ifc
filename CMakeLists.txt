@@ -18,6 +18,11 @@ include(CMakeDependentOption)
 
 find_package(Microsoft.GSL REQUIRED)
 
+# Those pesky min/max macros.
+if(WIN32)
+  add_compile_definitions(NOMINMAX)
+endif()
+
 # The `reader` component.
 add_library(
     ifc-reader STATIC

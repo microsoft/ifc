@@ -18,7 +18,7 @@
 #ifdef WIN32
 #   define STR(S) L ## S
 #   define IFC_MAIN wmain
-#   define IFC_OUT std::cout
+#   define IFC_OUT std::wcout
 #   define IFC_ERR std::wcerr
 #else 
 #   define STR(S) S
@@ -41,7 +41,7 @@ namespace {
     {
         auto name = prog.stem();
         IFC_ERR << name << STR(" usage:\n\t")
-            << name.string() << STR(" <cmd> [options] <ifc-files>\n");
+            << name.native() << STR(" <cmd> [options] <ifc-files>\n");
     }
 
     // -- Check that the input file has a valid IFC file header signature.
