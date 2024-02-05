@@ -6,38 +6,98 @@
 #include <span>
 #include <algorithm>
 #include <iostream>
+#include <fstream>
 
 #ifdef WIN32
 #   include <windows.h>
 #endif
 
+#include "ifc/file.hxx"
 #include "ifc/tooling.hxx"
 
 #ifdef WIN32
 #   define STR(S) L ## S
 #   define IFC_MAIN wmain
+#   define IFC_OUT std::cout
 #   define IFC_ERR std::wcerr
 #else 
 #   define STR(S) S
 #   define IFC_MAIN main
+#   define IFC_OUT std::cout
 #   define IFC_ERR std::cerr
 #endif
 
 namespace {
     using ProgramName = ifc::tool::StringView;
 
-    void print_usage(const ProgramName& prog)
+    // This predicate holds if the argument starts with a dash.
+    bool resemble_option(const ifc::tool::StringView& s)
     {
-        IFC_ERR << prog << STR(" usage:\n\t")
-            << prog << STR(" <cmd> [options] <ifc-files>\n");
+        return s.starts_with(STR("-"));
+    }
+
+    // -- Print a brief message of how to invoke the ifc tool.
+    void print_usage(const ifc::fs::path& prog)
+    {
+        auto name = prog.stem();
+        IFC_ERR << name << STR(" usage:\n\t")
+            << name.string() << STR(" <cmd> [options] <ifc-files>\n");
+    }
+
+    // -- Check that the input file has a valid IFC file header signature.
+    bool validate_ifc_signature(std::ifstream& file)
+    {
+        constexpr auto sz = sizeof ifc::InterfaceSignature;
+        std::array<std::uint8_t, sz> sig { };
+        if (not file.read(reinterpret_cast<char*>(sig.data()), sz))
+            return false;
+        return std::memcmp(sig.data(), std::begin(ifc::InterfaceSignature), sz) == 0;
     }
 
     // -- Subcommand printing the Spec version from an IFC file.
     struct VersionCommand : ifc::tool::Extension {
         ifc::tool::Name name() const final { return STR("version"); }
-        int run_with(const ifc::tool::Arguments&) const final
+        int run_with(const ifc::tool::Arguments& args) const final
         {
-            return 0;
+            int error_count = 0;
+            for (auto& arg : args)
+            {
+                if (resemble_option(arg))
+                {
+                    IFC_ERR << STR("invalid option ") << arg 
+                            << STR(" to ifc subcommand ")
+                            << name() << std::endl;
+                    ++error_count;
+                    continue;
+                }
+                ifc::fs::path path{arg};
+                std::ifstream file{path, std::ios_base::binary};
+                if (not file)
+                {
+                    IFC_ERR << arg << STR(": couldn't open file") << std::endl;
+                    ++error_count;
+                    continue;
+                }
+                if (not validate_ifc_signature(file))
+                {
+                    IFC_ERR << arg << STR(" is not an IFC file") << std::endl;
+                    ++error_count;
+                    continue;
+                }
+                ifc::Header header {};
+                if (not file.read(reinterpret_cast<char*>(&header), sizeof header))
+                {
+                    IFC_ERR << arg << STR(" is truncated or corrupted") << std::endl;
+                    ++error_count;
+                    continue;
+                }
+                IFC_OUT << arg << STR(":\n\tversion: ")
+                        << static_cast<int>(std::to_underlying(header.version.major))
+                        << STR(".")
+                        << static_cast<int>(std::to_underlying(header.version.minor))
+                        << std::endl;
+            }
+            return error_count;
         }
     };
 
@@ -73,14 +133,16 @@ int IFC_MAIN(int argc, ifc::tool::NativeChar* argv[])
 {
     // The `ifc` tool itself does not accept any option.
     int idx = 1;
-    while (idx < argc) {
+    while (idx < argc)
+    {
         ifc::tool::StringView s { argv[idx] };
         if (not s.starts_with(STR("-")))
             break;
         ++idx;
     }
 
-    if (argc < 2 or idx > 1 or idx >= argc) {
+    if (argc < 2 or idx > 1 or idx >= argc)
+    {
         print_usage(argv[0]);
         return 1;
     }
@@ -88,7 +150,8 @@ int IFC_MAIN(int argc, ifc::tool::NativeChar* argv[])
     // The subcommand name is next, after possibly invalid options.
     // It shall not contain any path separator character.
     ifc::tool::Name cmd { argv[idx] };
-    if (cmd.contains(STR("/")[0]) or cmd.contains(STR("\\")[0])) {
+    if (cmd.contains(STR("/")[0]) or cmd.contains(STR("\\")[0]))
+    {
         IFC_ERR << STR("ifc subcommand cannot contain pathname separator") << std::endl;
         return 1;
     }
@@ -101,7 +164,8 @@ int IFC_MAIN(int argc, ifc::tool::NativeChar* argv[])
     ifc::tool::String tool = STR("ifc-");
     tool += cmd;
     ifc::tool::String command = quote(tool);
-    for (auto& arg : args) {
+    for (auto& arg : args)
+    {
         command += STR(" ");
         command += quote(arg);
     }
