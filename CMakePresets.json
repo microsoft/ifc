@@ -119,6 +119,10 @@
     {
       "name": "ci-windows",
       "inherits": ["ci-build", "ci-win64", "dev-mode", "vcpkg", "vcpkg-win64-static"]
+    },
+    {
+      "name": "test-msvc",
+      "inherits": ["ci-build", "ci-win64", "dev-mode", "vcpkg", "vcpkg-win64-static"]
     }
   ]
 }
