@@ -135,7 +135,6 @@ void process_ifc(const std::string& name, PrintOptions options)
 int main(int argc, char** argv)
 {
     Arguments arguments = process_args(argc, argv);
-    int return_code = EXIT_SUCCESS;
 
     try
     {
@@ -145,8 +144,8 @@ int main(int argc, char** argv)
     catch (...)
     {
         translate_exception();
-        return_code = EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
 
-    return return_code;
+    return EXIT_SUCCESS;
 }
