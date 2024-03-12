@@ -23,9 +23,6 @@ namespace ifc {
 
     // The current version of file format emitted by the toolset
     inline constexpr FormatVersion CurrentFormatVersion = MinimumFormatVersion;
-
-    // The version of file format understood by the latest EDG drop
-    inline constexpr FormatVersion EDGFormatVersion{Version{0}, Version{42}};
 } // namespace ifc
 
 #endif // IFC_VERSION_INCLUDED

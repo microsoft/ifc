@@ -226,6 +226,7 @@ namespace ifc {
         None                     = 0,
         IntegrityCheck           = 1U << 0, // Enable the SHA256 file check.
         AllowAnyPrimaryInterface = 1U << 1, // Allow any primary module interface without checking for a matching name.
+        SkipVersionCheck         = 1U << 2, // Allow skipping the version check.  Useful when the version needs to be validated against some external source.
     };
 
     SHA256Hash hash_bytes(const std::byte* first, const std::byte* last);
@@ -503,9 +504,12 @@ namespace ifc {
             if (header == nullptr)
                 return false;
 
-            if (header->version > CurrentFormatVersion
-                || (header->version < MinimumFormatVersion && header->version != EDGFormatVersion))
-                throw UnsupportedFormatVersion{header->version};
+            if (!implies(options, IfcOptions::SkipVersionCheck))
+            {
+                if (header->version > CurrentFormatVersion
+                    || (header->version < MinimumFormatVersion))
+                    throw UnsupportedFormatVersion{header->version};
+            }
 
             // If the user requested an unknown architecture, we do not perform architecture check.
             if (arch != Architecture::Unknown and not compatible_architectures(header->arch, arch))
