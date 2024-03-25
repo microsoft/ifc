@@ -250,35 +250,36 @@ namespace ifc {
             // clang-format off
             switch (index.sort())
             {
-            case DeclSort::Enumerator:   return std::forward<F>(f)(index, get<symbolic::EnumeratorDecl>(index));
-            case DeclSort::Variable:     return std::forward<F>(f)(index, get<symbolic::VariableDecl>(index));
-            case DeclSort::Parameter:    return std::forward<F>(f)(index, get<symbolic::ParameterDecl>(index));
-            case DeclSort::Field:        return std::forward<F>(f)(index, get<symbolic::FieldDecl>(index));
-            case DeclSort::Bitfield:     return std::forward<F>(f)(index, get<symbolic::BitfieldDecl>(index));
-            case DeclSort::Scope:        return std::forward<F>(f)(index, get<symbolic::ScopeDecl>(index));
-            case DeclSort::Enumeration:  return std::forward<F>(f)(index, get<symbolic::EnumerationDecl>(index));
-            case DeclSort::Alias:        return std::forward<F>(f)(index, get<symbolic::AliasDecl>(index));
-            case DeclSort::Temploid:     return std::forward<F>(f)(index, get<symbolic::TemploidDecl>(index));
-            case DeclSort::Template:     return std::forward<F>(f)(index, get<symbolic::TemplateDecl>(index));
-            case DeclSort::PartialSpecialization:  return std::forward<F>(f)(index, get<symbolic::PartialSpecializationDecl>(index));
-            case DeclSort::Specialization: return std::forward<F>(f)(index, get<symbolic::SpecializationDecl>(index));
-            case DeclSort::Concept:      return std::forward<F>(f)(index, get<symbolic::ConceptDecl>(index));
-            case DeclSort::Function:     return std::forward<F>(f)(index, get<symbolic::FunctionDecl>(index));
-            case DeclSort::Method:       return std::forward<F>(f)(index, get<symbolic::NonStaticMemberFunctionDecl>(index));
-            case DeclSort::Constructor:  return std::forward<F>(f)(index, get<symbolic::ConstructorDecl>(index));
-            case DeclSort::InheritedConstructor: return std::forward<F>(f)(index, get<symbolic::InheritedConstructorDecl>(index));
-            case DeclSort::Destructor:   return std::forward<F>(f)(index, get<symbolic::DestructorDecl>(index));
-            case DeclSort::Reference:    return std::forward<F>(f)(index, get<symbolic::ReferenceDecl>(index));
-            case DeclSort::Using:        return std::forward<F>(f)(index, get<symbolic::UsingDecl>(index));
-            case DeclSort::Friend:       return std::forward<F>(f)(index, get<symbolic::FriendDecl>(index));
-            case DeclSort::Expansion:    return std::forward<F>(f)(index, get<symbolic::ExpansionDecl>(index));
-            case DeclSort::DeductionGuide:   return std::forward<F>(f)(index, get<symbolic::DeductionGuideDecl>(index));
-            case DeclSort::Tuple:        return std::forward<F>(f)(index, get<symbolic::TupleDecl>(index));
-            case DeclSort::Intrinsic:    return std::forward<F>(f)(index, get<symbolic::IntrinsicDecl>(index));
-            case DeclSort::Property:     return std::forward<F>(f)(index, get<symbolic::PropertyDecl>(index));
-            case DeclSort::OutputSegment: return std::forward<F>(f)(index, get<symbolic::SegmentDecl>(index));
-            case DeclSort::SyntaxTree:   return std::forward<F>(f)(index, get<symbolic::SyntacticDecl>(index));
-            case DeclSort::Barren:       return std::forward<F>(f)(index, get<symbolic::BarrenDecl>(index));
+            case DeclSort::Enumerator:            return std::forward<F>(f)(index, get<symbolic::EnumeratorDecl>(index));
+            case DeclSort::Variable:              return std::forward<F>(f)(index, get<symbolic::VariableDecl>(index));
+            case DeclSort::Parameter:             return std::forward<F>(f)(index, get<symbolic::ParameterDecl>(index));
+            case DeclSort::Field:                 return std::forward<F>(f)(index, get<symbolic::FieldDecl>(index));
+            case DeclSort::Bitfield:              return std::forward<F>(f)(index, get<symbolic::BitfieldDecl>(index));
+            case DeclSort::Scope:                 return std::forward<F>(f)(index, get<symbolic::ScopeDecl>(index));
+            case DeclSort::Enumeration:           return std::forward<F>(f)(index, get<symbolic::EnumerationDecl>(index));
+            case DeclSort::Alias:                 return std::forward<F>(f)(index, get<symbolic::AliasDecl>(index));
+            case DeclSort::Temploid:              return std::forward<F>(f)(index, get<symbolic::TemploidDecl>(index));
+            case DeclSort::Template:              return std::forward<F>(f)(index, get<symbolic::TemplateDecl>(index));
+            case DeclSort::PartialSpecialization: return std::forward<F>(f)(index, get<symbolic::PartialSpecializationDecl>(index));
+            case DeclSort::Specialization:        return std::forward<F>(f)(index, get<symbolic::SpecializationDecl>(index));
+            case DeclSort::Concept:               return std::forward<F>(f)(index, get<symbolic::ConceptDecl>(index));
+            case DeclSort::Function:              return std::forward<F>(f)(index, get<symbolic::FunctionDecl>(index));
+            case DeclSort::Method:                return std::forward<F>(f)(index, get<symbolic::NonStaticMemberFunctionDecl>(index));
+            case DeclSort::Constructor:           return std::forward<F>(f)(index, get<symbolic::ConstructorDecl>(index));
+            case DeclSort::InheritedConstructor:  return std::forward<F>(f)(index, get<symbolic::InheritedConstructorDecl>(index));
+            case DeclSort::Destructor:            return std::forward<F>(f)(index, get<symbolic::DestructorDecl>(index));
+            case DeclSort::Reference:             return std::forward<F>(f)(index, get<symbolic::ReferenceDecl>(index));
+            case DeclSort::Using:                 return std::forward<F>(f)(index, get<symbolic::UsingDecl>(index));
+            case DeclSort::Friend:                return std::forward<F>(f)(index, get<symbolic::FriendDecl>(index));
+            case DeclSort::Expansion:             return std::forward<F>(f)(index, get<symbolic::ExpansionDecl>(index));
+            case DeclSort::DeductionGuide:        return std::forward<F>(f)(index, get<symbolic::DeductionGuideDecl>(index));
+            case DeclSort::Tuple:                 return std::forward<F>(f)(index, get<symbolic::TupleDecl>(index));
+            case DeclSort::Intrinsic:             return std::forward<F>(f)(index, get<symbolic::IntrinsicDecl>(index));
+            case DeclSort::Property:              return std::forward<F>(f)(index, get<symbolic::PropertyDecl>(index));
+            case DeclSort::OutputSegment:         return std::forward<F>(f)(index, get<symbolic::SegmentDecl>(index));
+            case DeclSort::SyntaxTree:            return std::forward<F>(f)(index, get<symbolic::SyntacticDecl>(index));
+            case DeclSort::Barren:                return std::forward<F>(f)(index, get<symbolic::BarrenDecl>(index));
+            case DeclSort::DefaultArgument:       return std::forward<F>(f)(index, get<symbolic::DefaultArgumentDecl>(index));
 
             case DeclSort::VendorExtension:
             case DeclSort::Count:
@@ -350,6 +351,7 @@ namespace ifc {
                 case ExprSort::PackedTemplateArguments: return std::forward<F>(f)(get<symbolic::PackedTemplateArgumentsExpr>(index));
                 case ExprSort::Tokens: return std::forward<F>(f)(get<symbolic::TokenExpr>(index));
                 case ExprSort::AssignInitializer: return std::forward<F>(f)(get<symbolic::AssignInitializerExpr>(index));
+                case ExprSort::Statement: return std::forward<F>(f)(get<symbolic::StatementExpr>(index));
 
                 case ExprSort::VendorExtension:
                 case ExprSort::Generic: // C11 generic extension (no IFC structure yet)

@@ -386,6 +386,12 @@ namespace ifc::util {
             // TODO: Add more detail.
             load_common_props(ctx, node, decl);
         }
+
+        void operator()(DeclIndex, const symbolic::DefaultArgumentDecl& decl)
+        {
+            // TODO: Add more detail.
+            load_common_props(ctx, node, decl);
+        }
     };
 
     void load(Loader& ctx, Node& node, DeclIndex index)
