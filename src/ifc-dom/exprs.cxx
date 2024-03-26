@@ -357,7 +357,7 @@ namespace ifc::util {
 
     void load(Loader& ctx, Node& node, symbolic::DefaultIndex index)
     {
-        load(ctx, node, std::bit_cast<ExprIndex>(index));
+        load(ctx, node, as_expr_index(index));
     }
 
     std::string expr_list(Loader& ctx, ExprIndex index, std::string delimiters)
