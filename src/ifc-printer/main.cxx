@@ -4,6 +4,7 @@
 #include <iostream>
 #include <filesystem>
 #include <fstream>
+#include <cstdlib>
 #include "ifc/reader.hxx"
 #include "ifc/dom/node.hxx"
 #include "printer.hxx"
@@ -143,5 +144,8 @@ int main(int argc, char** argv)
     catch (...)
     {
         translate_exception();
+        return EXIT_FAILURE;
     }
+
+    return EXIT_SUCCESS;
 }
