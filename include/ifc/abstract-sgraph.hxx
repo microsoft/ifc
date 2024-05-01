@@ -3245,17 +3245,17 @@ namespace ifc {
 
         static_assert(sizeof(MsvcFileHashData) == 36);
 
-        // Index type of a suppressed warning.
-        enum class MsvcSuppressedWarning : uint16_t {};
+        // The MSVC warning number.
+        enum class MsvcWarningNumber : uint16_t {};
 
-        // The category of the warning suppression.
-        enum class MsvcWarningLevel : uint8_t {};
+        // The state of the warning associated with this pragma.
+        enum class MsvcWarningState : uint8_t {};
 
         struct MsvcPragmaWarningRegion {
             SourceLocation start_locus{};
             SourceLocation end_locus{};
-            MsvcSuppressedWarning suppressed_warning{};
-            MsvcWarningLevel warning_level{};
+            MsvcWarningNumber warning_number{};
+            MsvcWarningState warning_state{};
         };
 
         static_assert(sizeof(MsvcPragmaWarningRegion) == 20);
@@ -3321,7 +3321,7 @@ namespace ifc {
         PartitionSummaryData charts;                               // Sequence of unilevel charts.
         PartitionSummaryData multi_charts;                         // Sequence of multi-level charts.
         PartitionSummaryData heaps[count<HeapSort>];               // Set of various abstract reference sequences.
-        PartitionSummaryData suppressed_warnings;                  // Association map of suppressed warnings.
+        PartitionSummaryData pragma_warnings;                      // Association map of pragma warning info.
         PartitionSummaryData macros[count<MacroSort>];             // Table of exported macros.
         PartitionSummaryData pragma_directives[count<PragmaSort>]; // Table of pragma directives.
         PartitionSummaryData attrs[count<AttrSort>];               // Table of all attributes.

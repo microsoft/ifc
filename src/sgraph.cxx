@@ -422,7 +422,7 @@ namespace ifc {
             //{ &TableOfContents::segments, ".msvc.trait.code-segment" },
             //{ &TableOfContents::vendor_traits, ".msvc.trait.vendor-traits" },
             // { &TableOfContents::uuids, ".msvc.trait.uuid" },
-            {&TableOfContents::suppressed_warnings, ".msvc.trait.suppressed-warnings"},
+            {&TableOfContents::pragma_warnings, ".msvc.trait.pragma-warnings"},
             //{ &TableOfContents::specialization_encodings, ".msvc.trait.specialization-encodings" },
             //{ &TableOfContents::named_function_parameters, ".msvc.trait.named-function-parameters" },
             //{ &TableOfContents::template_template_parameter_hacks, ".msvc.trait.template-template-parameter-classes"
