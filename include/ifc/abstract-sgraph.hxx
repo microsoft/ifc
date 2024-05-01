@@ -252,12 +252,6 @@ namespace ifc {
                                            // to functions returning that type.
     };
 
-    // FIXME: Move to an MSVC-specific file.  Index type of sequences of suppressed warnings.
-    enum class SuppressedWarningSequenceIndex : uint32_t {};
-
-    // FIXME: Move to an MSVC-specific file. Index type of a suppressed warning.
-    enum class SuppressedWarning : uint16_t {};
-
     // FIXME: Move to an MSVC-specific file. Attributes of segments.
     enum class SegmentTraits : uint32_t {};
 
@@ -2882,12 +2876,6 @@ namespace ifc {
             uint32_t variadic : 1 {};     // True if this macro is variadic.
         };
 
-        struct PragmaWarningRegion {
-            SourceLocation start_locus{};
-            SourceLocation end_locus{};
-            SuppressedWarning suppressed_warning{};
-        };
-
         // Note: this class is not meant to be used to create objects -- it is just a traits class.
         template<typename T, LiteralSort s>
         struct constant_traits : Tag<s> {
@@ -3256,6 +3244,21 @@ namespace ifc {
         };
 
         static_assert(sizeof(MsvcFileHashData) == 36);
+
+        // Index type of a suppressed warning.
+        enum class MsvcSuppressedWarning : uint16_t {};
+
+        // The category of the warning suppression.
+        enum class MsvcWarningLevel : uint8_t {};
+
+        struct MsvcPragmaWarningRegion {
+            SourceLocation start_locus{};
+            SourceLocation end_locus{};
+            MsvcSuppressedWarning suppressed_warning{};
+            MsvcWarningLevel warning_level{};
+        };
+
+        static_assert(sizeof(MsvcPragmaWarningRegion) == 20);
 
         struct MsvcUuid : AssociatedTrait<DeclIndex, StringIndex>, TraitTag<MsvcTraitSort::Uuid> {};
         struct MsvcSegment : AssociatedTrait<DeclIndex, DeclIndex>, TraitTag<MsvcTraitSort::Segment> {};
