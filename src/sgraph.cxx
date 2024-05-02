@@ -422,7 +422,7 @@ namespace ifc {
             //{ &TableOfContents::segments, ".msvc.trait.code-segment" },
             //{ &TableOfContents::vendor_traits, ".msvc.trait.vendor-traits" },
             // { &TableOfContents::uuids, ".msvc.trait.uuid" },
-            {&TableOfContents::suppressed_warnings, ".msvc.trait.suppressed-warnings"},
+            {&TableOfContents::pragma_warnings, ".msvc.trait.pragma-warnings"},
             //{ &TableOfContents::specialization_encodings, ".msvc.trait.specialization-encodings" },
             //{ &TableOfContents::named_function_parameters, ".msvc.trait.named-function-parameters" },
             //{ &TableOfContents::template_template_parameter_hacks, ".msvc.trait.template-template-parameter-classes"
@@ -590,7 +590,7 @@ namespace ifc {
         PartitionSummaryData& msvc_trait_lookup(TableOfContents& toc, std::string_view name)
         {
             // A couple of msvc traits are not AssociatedTraits and require special handling
-            if (has_prefix(name, ".msvc.trait.impl-pragmas") or has_prefix(name, ".msvc.trait.suppressed-warnings"))
+            if (has_prefix(name, ".msvc.trait.impl-pragmas") or has_prefix(name, ".msvc.trait.pragma-warnings"))
                 return uncategorized_partition_lookup(toc, name);
 
             return entry_by_name<msvc_traitsort_table, &TableOfContents::msvc_traits>(toc, name);

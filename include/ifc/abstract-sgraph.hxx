@@ -252,12 +252,6 @@ namespace ifc {
                                            // to functions returning that type.
     };
 
-    // FIXME: Move to an MSVC-specific file.  Index type of sequences of suppressed warnings.
-    enum class SuppressedWarningSequenceIndex : uint32_t {};
-
-    // FIXME: Move to an MSVC-specific file. Index type of a suppressed warning.
-    enum class SuppressedWarning : uint16_t {};
-
     // FIXME: Move to an MSVC-specific file. Attributes of segments.
     enum class SegmentTraits : uint32_t {};
 
@@ -2882,12 +2876,6 @@ namespace ifc {
             uint32_t variadic : 1 {};     // True if this macro is variadic.
         };
 
-        struct PragmaWarningRegion {
-            SourceLocation start_locus{};
-            SourceLocation end_locus{};
-            SuppressedWarning suppressed_warning{};
-        };
-
         // Note: this class is not meant to be used to create objects -- it is just a traits class.
         template<typename T, LiteralSort s>
         struct constant_traits : Tag<s> {
@@ -3257,6 +3245,21 @@ namespace ifc {
 
         static_assert(sizeof(MsvcFileHashData) == 36);
 
+        // The MSVC warning number.
+        enum class MsvcWarningNumber : uint16_t {};
+
+        // The state of the warning associated with this pragma.
+        enum class MsvcWarningState : uint8_t {};
+
+        struct MsvcPragmaWarningRegion {
+            SourceLocation start_locus{};
+            SourceLocation end_locus{};
+            MsvcWarningNumber warning_number{};
+            MsvcWarningState warning_state{};
+        };
+
+        static_assert(sizeof(MsvcPragmaWarningRegion) == 20);
+
         struct MsvcUuid : AssociatedTrait<DeclIndex, StringIndex>, TraitTag<MsvcTraitSort::Uuid> {};
         struct MsvcSegment : AssociatedTrait<DeclIndex, DeclIndex>, TraitTag<MsvcTraitSort::Segment> {};
         struct MsvcSpecializationEncoding : AssociatedTrait<DeclIndex, TextOffset>,
@@ -3318,7 +3321,7 @@ namespace ifc {
         PartitionSummaryData charts;                               // Sequence of unilevel charts.
         PartitionSummaryData multi_charts;                         // Sequence of multi-level charts.
         PartitionSummaryData heaps[count<HeapSort>];               // Set of various abstract reference sequences.
-        PartitionSummaryData suppressed_warnings;                  // Association map of suppressed warnings.
+        PartitionSummaryData pragma_warnings;                      // Association map of pragma warning info.
         PartitionSummaryData macros[count<MacroSort>];             // Table of exported macros.
         PartitionSummaryData pragma_directives[count<PragmaSort>]; // Table of pragma directives.
         PartitionSummaryData attrs[count<AttrSort>];               // Table of all attributes.
