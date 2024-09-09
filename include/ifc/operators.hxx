@@ -84,6 +84,7 @@ namespace ifc {
         LookupGlobally,                                     // ::x
         Artificial,                                         // Compiler-generated expression wrapper
         MetaDescriptor,                                     // a runtime reification of a type
+        Suffix,                                             // The expression representing both a literal string or constant and the user-defined literal function to call.
 
         Msvc = 0x0400,
         MsvcAssume,                                         // __assume(x)
