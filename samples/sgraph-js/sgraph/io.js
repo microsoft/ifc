@@ -211,6 +211,16 @@ class UnitIndex {
     }
 }
 
+function null_scope(index) {
+    return index.value == 0;
+}
+
+class ScopeIndex {
+    constructor(reader) {
+        this.value = reader.read_uint32();
+    }
+}
+
 class Header {
     constructor(reader) {
         this.signature = new Signature(reader);
@@ -225,7 +235,7 @@ class Header {
         this.string_table_size = reader.read_uint32();
         this.unit_sort = new UnitIndex(reader);
         this.src_path = reader.read_uint32();
-        this.scope_index = reader.read_uint32();
+        this.scope_index = new ScopeIndex(reader);
         this.toc = reader.read_uint32();
         this.partition_count = reader.read_uint32();
         this.internal_partition = reader.read_uint8();

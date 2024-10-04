@@ -114,7 +114,7 @@ class ScopeDecl {
         this.identity = new IdentityNameIndex(reader);
         this.type = new TypeIndex(reader);
         this.base = new TypeIndex(reader);
-        this.initializer = reader.read_uint32();
+        this.initializer = new ScopeIndex(reader);
         this.home_scope = new DeclIndex(reader);
         this.alignment = new ExprIndex(reader);
         this.pack_size = reader.read_uint16();

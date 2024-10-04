@@ -490,6 +490,15 @@ class OperatorFunctionId {
     }
 }
 
+class ConversionFunctionId {
+    static partition_name = "name.conversion";
+
+    constructor(reader) {
+        this.target = new TypeIndex(reader); // The type to convert to.
+        this.name = new TextOffset(reader);  // The index for the name (if we have one).
+    }
+}
+
 class SourceFileName {
     static partition_name = "name.source-file";
 
