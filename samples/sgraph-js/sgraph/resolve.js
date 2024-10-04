@@ -50,6 +50,10 @@ class Resolver {
         return this.read(OperatorFunctionId, index.index);
     }
 
+    resolve_conversion_id(index) {
+        return this.read(ConversionFunctionId, index.index);
+    }
+
     resolve_name_index(index) {
         switch (index.sort) {
         case NameIndex.Sort.Identifier:
@@ -57,6 +61,7 @@ class Resolver {
         case NameIndex.Sort.Operator:
             return this.resolve_text_offset(this.resolve_operator_id(index).name);
         case NameIndex.Sort.Conversion:
+            return this.resolve_text_offset(this.resolve_conversion_id(index).name);
         case NameIndex.Sort.Literal:
         case NameIndex.Sort.Template:
         case NameIndex.Sort.Specialization:
