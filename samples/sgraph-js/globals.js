@@ -26,6 +26,9 @@ const bad_filter_opacity_text = document.getElementById('bad-filter-opacity-text
 const graph_fps_toggle = document.getElementById('graph-fps-toggle');
 const graph_animations = document.getElementById('graph-animations');
 
+// Various helper constants.
+const invalid_css_class = "is-invalid";
+
 // IFC explorer dialog
 const ifc_explorer = {
     button: document.getElementById('ifc-explorer-button'),
@@ -39,21 +42,24 @@ const ifc_explorer = {
         content: document.getElementById('ifc-explorer-content-decls'),
         sort_dropdown: document.getElementById('ifc-explorer-content-decls-sort-dropdown'),
         index_edit: document.getElementById('ifc-explorer-content-decls-index-edit'),
-        load: document.getElementById('ifc-explorer-content-decls-load')
+        load: document.getElementById('ifc-explorer-content-decls-load'),
+        validation_tooltip: document.getElementById('ifc-explorer-content-decls-load-validation')
     },
     types: {
         tab: '#ifc-explorer-types-tab',
         content: document.getElementById('ifc-explorer-content-types'),
         sort_dropdown: document.getElementById('ifc-explorer-content-types-sort-dropdown'),
         index_edit: document.getElementById('ifc-explorer-content-types-index-edit'),
-        load: document.getElementById('ifc-explorer-content-types-load')
+        load: document.getElementById('ifc-explorer-content-types-load'),
+        validation_tooltip: document.getElementById('ifc-explorer-content-types-load-validation')
     },
     exprs: {
         tab: '#ifc-explorer-exprs-tab',
         content: document.getElementById('ifc-explorer-content-exprs'),
         sort_dropdown: document.getElementById('ifc-explorer-content-exprs-sort-dropdown'),
         index_edit: document.getElementById('ifc-explorer-content-exprs-index-edit'),
-        load: document.getElementById('ifc-explorer-content-exprs-load')
+        load: document.getElementById('ifc-explorer-content-exprs-load'),
+        validation_tooltip: document.getElementById('ifc-explorer-content-exprs-load-validation')
     },
     toc: {
         content: document.getElementById('ifc-explorer-content-toc')

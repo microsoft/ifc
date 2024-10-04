@@ -8,6 +8,24 @@ class Resolver {
         this.string_table = string_table;
     }
 
+    decl_index_in_bounds(index) {
+        const symbolic = symbolic_for_decl_sort(index.sort);
+        const partition = this.toc.partition(symbolic);
+        return { in_bounds: index.index < partition.cardinality, partition_size: partition.cardinality };
+    }
+
+    type_index_in_bounds(index) {
+        const symbolic = symbolic_for_type_sort(index.sort);
+        const partition = this.toc.partition(symbolic);
+        return { in_bounds: index.index < partition.cardinality, partition_size: partition.cardinality };
+    }
+
+    expr_index_in_bounds(index) {
+        const symbolic = symbolic_for_expr_sort(index.sort);
+        const partition = this.toc.partition(symbolic);
+        return { in_bounds: index.index < partition.cardinality, partition_size: partition.cardinality };
+    }
+
     read(T, index) {
         const partition = this.toc.partition(T);
         const offset = partition.tell(index);
@@ -79,7 +97,7 @@ class Resolver {
 
     decls_for_scope(index) {
         // Note: ScopeIndex is a 1-based index but stored in the IFC as 0-based.
-        const scope = this.read(Scope, index - 1);
+        const scope = this.read(Scope, index.value - 1);
         const partition = this.toc.partition(Declaration);
         var offset = partition.tell(scope.seq.start);
         var decls = new Array();

@@ -16,6 +16,23 @@ function remove_all_children(content) {
     }
 }
 
+function valid_integral_value(str) {
+    if (str == "")
+        return false;
+    if (isNaN(str))
+        return false;
+    return true;
+}
+
+function mark_edit_valid(edit) {
+    edit.classList.remove(invalid_css_class);
+}
+
+function mark_edit_invalid(edit, tooltip, reason) {
+    tooltip.innerHTML = reason;
+    edit.classList.add(invalid_css_class);
+}
+
 // Implementation pulled from: https://www.freecodecamp.org/news/javascript-debounce-example/
 function debounce(func, timeout = 300) {
     let timer = undefined;

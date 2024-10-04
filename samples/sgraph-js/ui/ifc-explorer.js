@@ -129,6 +129,17 @@ class IFCExplorerJSONReplacer {
         return resolved_seq;
     }
 
+    static replace_scope_index(index) {
+        if (null_scope(index)) {
+            return { scope_index: index.value, decls: [] };
+        }
+        const decls = sgraph
+                        .resolver
+                        .decls_for_scope(index)
+                        .map(x => x.decl);
+        return { scope_index: index.value, decls: decls };
+    }
+
     static generic_bitset_to_string(T, bitset) {
         return bitset_to_string(T, bitset.value);
     }
@@ -160,6 +171,8 @@ function ifc_explorer_json_replacer(key, value) {
         return IFCExplorerJSONReplacer.replace_unilevel_chart(value);
     if (value instanceof SourceLocation)
         return IFCExplorerJSONReplacer.replace_locus(value);
+    if (value instanceof ScopeIndex)
+        return IFCExplorerJSONReplacer.replace_scope_index(value);
     if (value instanceof Operator)
         return IFCExplorerJSONReplacer.replace_operator(value);
     if (value instanceof HeapSequence)
@@ -240,9 +253,22 @@ function set_ifc_explorer_selected_decl(index, from_history, skip_navigation) {
 }
 
 function ifc_explorer_load_decl(e) {
+    mark_edit_valid(ifc_explorer.decls.index_edit);
     const sort = parseInt(ifc_explorer.decls.sort_dropdown.value);
-    const index = parseInt(ifc_explorer.decls.index_edit.value);
-    set_ifc_explorer_selected_decl({ sort: sort, index: index }, false);
+    const value = ifc_explorer.decls.index_edit.value;
+    if (!valid_integral_value(value)) {
+        mark_edit_invalid(ifc_explorer.decls.index_edit, ifc_explorer.decls.validation_tooltip, `"${value}" is not an integer value.`);
+        return;
+    }
+    const index = parseInt(value);
+    const decl_index = { sort: sort, index: index };
+    const bounded = sgraph.resolver.decl_index_in_bounds(decl_index);
+    if (!bounded.in_bounds) {
+        const err = `DeclIndex{${sort}(${sort_to_string(DeclIndex, sort)}),${index}} is out of bounds (Cardinality: ${bounded.partition_size}).`;
+        mark_edit_invalid(ifc_explorer.decls.index_edit, ifc_explorer.decls.validation_tooltip, err);
+        return;
+    }
+    set_ifc_explorer_selected_decl(decl_index, false);
 }
 
 function ifc_explorer_init_decls() {
@@ -293,9 +319,22 @@ function set_ifc_explorer_selected_type(index, from_history) {
 }
 
 function ifc_explorer_load_type(e) {
+    mark_edit_valid(ifc_explorer.types.index_edit);
     const sort = parseInt(ifc_explorer.types.sort_dropdown.value);
-    const index = parseInt(ifc_explorer.types.index_edit.value);
-    set_ifc_explorer_selected_type({ sort: sort, index: index }, false);
+    const value = ifc_explorer.types.index_edit.value;
+    if (!valid_integral_value(value)) {
+        mark_edit_invalid(ifc_explorer.types.index_edit, ifc_explorer.types.validation_tooltip, `"${value}" is not an integer value.`);
+        return;
+    }
+    const index = parseInt(value);
+    const type_index = { sort: sort, index: index };
+    const bounded = sgraph.resolver.type_index_in_bounds(type_index);
+    if (!bounded.in_bounds) {
+        const err = `TypeIndex{${sort}(${sort_to_string(TypeIndex, sort)}),${index}} is out of bounds (Cardinality: ${bounded.partition_size}).`;
+        mark_edit_invalid(ifc_explorer.types.index_edit, ifc_explorer.types.validation_tooltip, err);
+        return;
+    }
+    set_ifc_explorer_selected_type(type_index, false);
 }
 
 function ifc_explorer_init_types() {
@@ -346,9 +385,22 @@ function set_ifc_explorer_selected_expr(index, from_history) {
 }
 
 function ifc_explorer_load_expr(e) {
+    mark_edit_valid(ifc_explorer.exprs.index_edit);
     const sort = parseInt(ifc_explorer.exprs.sort_dropdown.value);
-    const index = parseInt(ifc_explorer.exprs.index_edit.value);
-    set_ifc_explorer_selected_expr({ sort: sort, index: index }, false);
+    const value = ifc_explorer.exprs.index_edit.value;
+    if (!valid_integral_value(value)) {
+        mark_edit_invalid(ifc_explorer.exprs.index_edit, ifc_explorer.exprs.validation_tooltip, `"${value}" is not an integer value.`);
+        return;
+    }
+    const index = parseInt(value);
+    const expr_index = { sort: sort, index: index };
+    const bounded = sgraph.resolver.expr_index_in_bounds(expr_index);
+    if (!bounded.in_bounds) {
+        const err = `ExprIndex{${sort}(${sort_to_string(ExprIndex, sort)}),${index}} is out of bounds (Cardinality: ${bounded.partition_size}).`;
+        mark_edit_invalid(ifc_explorer.exprs.index_edit, ifc_explorer.exprs.validation_tooltip, err);
+        return;
+    }
+    set_ifc_explorer_selected_expr(expr_index, false);
 }
 
 function ifc_explorer_init_exprs() {

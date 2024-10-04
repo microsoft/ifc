@@ -39,7 +39,7 @@ function json_for_scope(resolver, index, template_name, root) {
     var scope_name = template_name;
     if (scope_name == null)
         scope_name = append_name_meta(resolver.resolve_name_index(scope_decl.identity.name), index);
-    if (scope_decl.initializer != 0) {
+    if (!null_scope(scope_decl.initializer)) {
         var nested_root = { };
         const scope = resolver.decls_for_scope(scope_decl.initializer);
         // Defined, but no members.
@@ -94,6 +94,20 @@ function json_for_template(resolver, index, root) {
     }
 }
 
+function json_for_template_specialization(resolver, index, root) {
+    var nested_root = { };
+    const specialization_decl = resolver.read(SpecializationDecl, index.index);
+    const decl = { decl: specialization_decl.decl };
+    build_json(resolver, decl, nested_root);
+    // Extract the name to populate for the specialization.
+    const symbolic = symbolic_for_decl_sort(specialization_decl.decl.sort);
+    const symbolic_decl = resolver.read(symbolic, specialization_decl.decl.index);
+    const identity = resolver.resolve_identity(symbolic_decl.identity);
+    const entry_name = `<T>{${identity.name}}`;
+    const name = append_name_meta(entry_name, index);
+    root[name] = nested_root;
+}
+
 function json_for_unsorted(resolver, index, root) {
     const symbolic = symbolic_for_decl_sort(index.sort);
     var symbolic_decl = resolver.read(symbolic, index.index);
@@ -106,6 +120,12 @@ function json_for_unsorted(resolver, index, root) {
             const entry_name = `Barren{${sort},${idx}}`;
             const name = append_name_meta(entry_name, index);
             root[name] = 1;
+            return;
+        }
+
+        if (index.sort == DeclIndex.Sort.Specialization)
+        {
+            json_for_template_specialization(resolver, index, root);
             return;
         }
         root[`unknown_${sort_to_string(DeclIndex, index.sort)}_${index.index}`] = 1;
@@ -145,15 +165,21 @@ function format_basic_spec(decl) {
 }
 
 function locus_of_symbolic_decl(symbolic_decl, index) {
-    if (index.sort != DeclIndex.Sort.Barren) {
-        return sgraph.resolver.resolve_identity(symbolic_decl.identity).locus;
+    if (index.sort == DeclIndex.Sort.Specialization) {
+        const symbolic = symbolic_for_decl_sort(symbolic_decl.decl.sort);
+        const symbolic_spec_decl = sgraph.resolver.read(symbolic, symbolic_decl.decl.index);
+        return locus_of_symbolic_decl(symbolic_spec_decl, symbolic_decl.decl);
     }
-    // Barren decls are a bit more complicated.  Their locations are nested within the symbolic directive
-    // structure.
-    const symbolic = symbolic_for_dir_sort(symbolic_decl.directive.sort);
-    const symbolic_dir = sgraph.resolver.read(symbolic, symbolic_decl.directive.index);
-    // Each symbolic directive has a location as its first member.
-    return new ResolvedLocus(symbolic_dir.locus, sgraph.resolver);
+
+    if (index.sort == DeclIndex.Sort.Barren) {
+        // Barren decls are a bit more complicated.  Their locations are nested within the symbolic directive
+        // structure.
+        const symbolic = symbolic_for_dir_sort(symbolic_decl.directive.sort);
+        const symbolic_dir = sgraph.resolver.read(symbolic, symbolic_decl.directive.index);
+        // Each symbolic directive has a location as its first member.
+        return new ResolvedLocus(symbolic_dir.locus, sgraph.resolver);
+    }
+    return sgraph.resolver.resolve_identity(symbolic_decl.identity).locus;
 }
 
 function on_decl_selected(decl) {
