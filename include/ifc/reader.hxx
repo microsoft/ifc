@@ -43,6 +43,11 @@ namespace ifc {
         const ifc::InputIfc& ifc;
         explicit Reader(const ifc::InputIfc& ifc);
 
+        const TableOfContents& table_of_contents() const
+        {
+            return toc;
+        }
+
         // get(index) -> get a reference to a data structure of the appropriate type
         //               the type is deduced from the type of the index.
         // get<T>(index) -> get a reference to a data to a particular type (one of the possible
