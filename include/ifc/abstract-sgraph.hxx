@@ -3142,6 +3142,7 @@ namespace ifc {
                               // FIXME: this goes away once bump the IFC version and have UnitIndex point to a source
                               // file instead of a TextOffset for header units.
         FileHash,             // A file hash associated with an indexed source file after compilation with MSVC.
+        DebugRecord,          // A debug record for this decl is.
         Count,
     };
 
@@ -3260,6 +3261,8 @@ namespace ifc {
 
         static_assert(sizeof(MsvcPragmaWarningRegion) == 20);
 
+        enum class MsvcDebugRecordIndex : uint32_t {};
+
         struct MsvcUuid : AssociatedTrait<DeclIndex, StringIndex>, TraitTag<MsvcTraitSort::Uuid> {};
         struct MsvcSegment : AssociatedTrait<DeclIndex, DeclIndex>, TraitTag<MsvcTraitSort::Segment> {};
         struct MsvcSpecializationEncoding : AssociatedTrait<DeclIndex, TextOffset>,
@@ -3292,6 +3295,8 @@ namespace ifc {
                                           TraitTag<MsvcTraitSort::HeaderUnitSourceFile> {};
         struct MsvcFileHash : AssociatedTrait<NameIndex, MsvcFileHashData>,
                                 TraitTag<MsvcTraitSort::FileHash> {};
+        struct MsvcDebugRecord : AssociatedTrait<DeclIndex, MsvcDebugRecordIndex>,
+                                TraitTag<MsvcTraitSort::DebugRecord> {};
     } // namespace symbolic::trait
 
     // Partition summaries for the table of contents.
@@ -3328,6 +3333,7 @@ namespace ifc {
         PartitionSummaryData dirs[count<DirSort>];                 // Table of all directives.
         PartitionSummaryData implementation_pragmas; // Sequence of PragmaIndex from the TU which can influence
                                                      // semantics of the current TU.
+        PartitionSummaryData debug_records;          // Implementation-specific data for debugging.
 
         // Facilities for iterating over the ToC as a sequence of partition summaries.
         // Note: the use of reinterpret_cast below is avoidable. One way uses

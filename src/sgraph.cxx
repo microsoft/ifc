@@ -383,6 +383,7 @@ namespace ifc {
             {MsvcTraitSort::FileBoundary, ".msvc.trait.file-boundary"},
             {MsvcTraitSort::HeaderUnitSourceFile, ".msvc.trait.header-unit-source-file"},
             {MsvcTraitSort::FileHash, ".msvc.trait.file-hash"},
+            {MsvcTraitSort::DebugRecord, ".msvc.trait.debug-record"},
         };
 
         static_assert(retractible_by_key(msvc_traitsort_table));
@@ -431,6 +432,7 @@ namespace ifc {
             // { &TableOfContents::macros, "macro." },
             //{ &TableOfContents::sal_annotations, ".msvc.trait.code-analysis.sal"},
             {&TableOfContents::implementation_pragmas, ".msvc.trait.impl-pragmas"},
+            {&TableOfContents::debug_records, ".msvc.trait.debug-records"},
         };
 
         constexpr SortNameMapEntry<PragmaSort> pragma_sort_table[] = {
@@ -590,7 +592,10 @@ namespace ifc {
         PartitionSummaryData& msvc_trait_lookup(TableOfContents& toc, std::string_view name)
         {
             // A couple of msvc traits are not AssociatedTraits and require special handling
-            if (has_prefix(name, ".msvc.trait.impl-pragmas") or has_prefix(name, ".msvc.trait.pragma-warnings"))
+            if (has_prefix(name, ".msvc.trait.impl-pragmas")
+                or has_prefix(name, ".msvc.trait.suppressed-warnings")
+                or has_prefix(name, ".msvc.trait.debug-records")
+                or has_prefix(name, ".msvc.trait.pragma-warnings"))
                 return uncategorized_partition_lookup(toc, name);
 
             return entry_by_name<msvc_traitsort_table, &TableOfContents::msvc_traits>(toc, name);
