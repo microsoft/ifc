@@ -425,6 +425,23 @@ function ifc_explorer_init_exprs() {
     ifc_explorer.exprs.load.addEventListener("click", e => ifc_explorer_load_expr(e));
 }
 
+function ifc_explorer_init_files() {
+    const sourcefile_partition = sgraph.resolver.toc.partition(SourceFileName);
+    if (sourcefile_partition == null) {
+        return;
+    }
+    const count = sourcefile_partition.cardinality;
+    var files = new Array();
+    for (var i = 0; i < count; ++i) {
+        const source_file = sgraph.resolver.read(SourceFileName, i);
+        files.push(sgraph.resolver.string_table.get(source_file.name));
+    }
+    const json_str = JSON.stringify(files, null, 2);
+    const container = document.createElement("pre");
+    container.innerHTML = json_str;
+    ifc_explorer.files.content.appendChild(container);
+}
+
 function ifc_explorer_init_header() {
     const json_str = JSON.stringify(sgraph.header, null, 2);
     const container = document.createElement("pre");
@@ -450,6 +467,7 @@ function ifc_explorer_ifc_loaded() {
     ifc_explorer_init_decls();
     ifc_explorer_init_types();
     ifc_explorer_init_exprs();
+    ifc_explorer_init_files();
     ifc_explorer_init_header();
     ifc_explorer_init_toc();
 }
