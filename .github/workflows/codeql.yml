@@ -34,7 +34,7 @@ jobs:
       run: Add-Content "$env:GITHUB_ENV" "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT"
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v3
       with:
         languages: cpp
 
