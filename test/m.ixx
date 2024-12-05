@@ -6,6 +6,11 @@ void glb_void_void_func();
 void glb_void_void_func_not_exported();
 
 export
+extern void glb_void_void_extern_func();
+
+extern void glb_void_void_extern_func_not_exported();
+
+export
 int glb_int_int_func(int);
 
 export
