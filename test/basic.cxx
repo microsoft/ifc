@@ -359,7 +359,7 @@ namespace
         // No arguments.
         CHECK(null(func_decl.chart));
         CHECK(func_decl.traits == FunctionTraits::None);
-        CHECK(func_decl.basic_spec == (BasicSpecifiers::Cxx | BasicSpecifiers::External));
+        CHECK(func_decl.basic_spec == (BasicSpecifiers::Cxx));
         // Access only applies to class members.
         CHECK(func_decl.access == Access::None);
         // The function is defined in the module.
@@ -394,7 +394,76 @@ namespace
         CHECK(null(func_decl.chart));
         CHECK(func_decl.traits == FunctionTraits::None);
         // This is not exported
-        CHECK(func_decl.basic_spec == (BasicSpecifiers::Cxx | BasicSpecifiers::External | BasicSpecifiers::NonExported));
+        CHECK(func_decl.basic_spec == (BasicSpecifiers::Cxx | BasicSpecifiers::NonExported));
+        // Access only applies to class members.
+        CHECK(func_decl.access == Access::None);
+        // The function is defined in the module.
+        CHECK(func_decl.properties == ReachableProperties::Nothing);
+        // Type check.
+        REQUIRE(func_decl.type.sort() == TypeSort::Function);
+        auto& type = reader->get<symbolic::FunctionType>(func_decl.type);
+        CHECK(not null(type.target));
+        // This function takes no arguments.
+        CHECK(null(type.source));
+        CHECK(type.eh_spec.sort == NoexceptSort::None);
+        // This can change based on architecture compiled for.
+        const bool valid_calling = type.convention == CallingConvention::Cdecl or type.convention == CallingConvention::Std;
+        CHECK(valid_calling);
+
+        // Check return type.
+        check_fundamental_type(reader,
+                                type.target,
+                                make_fundamental_type(symbolic::TypeBasis::Void,
+                                                        symbolic::TypePrecision::Default,
+                                                        symbolic::TypeSign::Plain));
+    }
+
+    void check_glb_void_void_extern_func(Reader* reader, DeclIndex idx)
+    {
+        const auto sort = idx.sort();
+        REQUIRE(sort == DeclSort::Function);
+        auto& func_decl = reader->get<symbolic::FunctionDecl>(idx);
+        // This is a global function, the home_scope is null.
+        CHECK(null(func_decl.home_scope));
+        // No arguments.
+        CHECK(null(func_decl.chart));
+        CHECK(func_decl.traits == FunctionTraits::None);
+        CHECK(func_decl.basic_spec == (BasicSpecifiers::Cxx | BasicSpecifiers::External));
+        // Access only applies to class members.
+        CHECK(func_decl.access == Access::None);
+        // The function is defined in the module.
+        CHECK(func_decl.properties == ReachableProperties::Nothing);
+        // Type check.
+        REQUIRE(func_decl.type.sort() == TypeSort::Function);
+        auto& type = reader->get<symbolic::FunctionType>(func_decl.type);
+        CHECK(not null(type.target));
+        // This function takes no arguments.
+        CHECK(null(type.source));
+        CHECK(type.eh_spec.sort == NoexceptSort::None);
+        // This can change based on architecture compiled for.
+        const bool valid_calling = type.convention == CallingConvention::Cdecl or type.convention == CallingConvention::Std;
+        CHECK(valid_calling);
+
+        // Check return type.
+        check_fundamental_type(reader,
+                                type.target,
+                                make_fundamental_type(symbolic::TypeBasis::Void,
+                                                        symbolic::TypePrecision::Default,
+                                                        symbolic::TypeSign::Plain));
+    }
+
+    void check_glb_void_void_extern_func_not_exported(Reader* reader, DeclIndex idx)
+    {
+        const auto sort = idx.sort();
+        REQUIRE(sort == DeclSort::Function);
+        auto& func_decl = reader->get<symbolic::FunctionDecl>(idx);
+        // This is a global function, the home_scope is null.
+        CHECK(null(func_decl.home_scope));
+        // No arguments.
+        CHECK(null(func_decl.chart));
+        CHECK(func_decl.traits == FunctionTraits::None);
+        // This is not exported
+        CHECK(func_decl.basic_spec == (BasicSpecifiers::Cxx | BasicSpecifiers::NonExported | BasicSpecifiers::External));
         // Access only applies to class members.
         CHECK(func_decl.access == Access::None);
         // The function is defined in the module.
@@ -445,7 +514,7 @@ namespace
         CHECK(parm.properties == ReachableProperties::Nothing);
 
         CHECK(func_decl.traits == FunctionTraits::None);
-        CHECK(func_decl.basic_spec == (BasicSpecifiers::Cxx | BasicSpecifiers::External));
+        CHECK(func_decl.basic_spec == (BasicSpecifiers::Cxx));
         // Access only applies to class members.
         CHECK(func_decl.access == Access::None);
         // The function is defined in the module.
@@ -533,7 +602,7 @@ namespace
         }
 
         CHECK(func_decl.traits == FunctionTraits::None);
-        CHECK(func_decl.basic_spec == (BasicSpecifiers::Cxx | BasicSpecifiers::External));
+        CHECK(func_decl.basic_spec == (BasicSpecifiers::Cxx));
         // Access only applies to class members.
         CHECK(func_decl.access == Access::None);
         // The function is defined in the module.
@@ -750,6 +819,8 @@ TEST_CASE("IFC spec - decls")
     MatchingDeclSet expected_decls {
         { "glb_void_void_func", check_glb_void_void_func },
         { "glb_void_void_func_not_exported", check_glb_void_void_func_not_exported },
+        { "glb_void_void_extern_func", check_glb_void_void_extern_func },
+        { "glb_void_void_extern_func_not_exported", check_glb_void_void_extern_func_not_exported },
         { "glb_int_int_func", check_glb_int_int_func },
         { "glb_int_int_char_char_ptr_func", check_glb_int_int_char_char_ptr_func },
         { "FunctionTraits", check_function_traits },

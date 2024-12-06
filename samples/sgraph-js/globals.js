@@ -61,6 +61,9 @@ const ifc_explorer = {
         load: document.getElementById('ifc-explorer-content-exprs-load'),
         validation_tooltip: document.getElementById('ifc-explorer-content-exprs-load-validation')
     },
+    files: {
+        content: document.getElementById('ifc-explorer-content-ifc-files')
+    },
     toc: {
         content: document.getElementById('ifc-explorer-content-toc')
     },
