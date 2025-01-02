@@ -4,6 +4,7 @@
 // Windows Implementation of SHA256
 
 #include <windows.h>
+#include <bcrypt.h>
 #include <gsl/util>
 #include <ifc/file.hxx>
 #include <vector>
