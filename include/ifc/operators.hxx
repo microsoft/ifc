@@ -214,6 +214,7 @@ namespace ifc {
         ZeroInitialize,                     //                      -- abstract machine, zero-initialize an object or subject
         ClearStorage,                       //                      -- abstract machine, clear a storage span
         Select,                             // x :: y
+        Address,                            // &X::y for a non-static member y
 
         Msvc = 0x0400,
         MsvcTryCast,                        // WinRT try cast
