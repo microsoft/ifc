@@ -233,8 +233,8 @@ namespace ifc::util {
         using Kind = symbolic::ExpressionListExpr::Delimiter;
         switch (delimiter)
         {
-        case Kind::Unknown:
-            return "Unknown";
+        case Kind::None:
+            return "None";
         case Kind::Brace:
             return "Brace";
         case Kind::Parenthesis:
