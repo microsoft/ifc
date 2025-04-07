@@ -2786,9 +2786,9 @@ namespace ifc {
         // FIXME: Remove at earliest convenience.
         struct ExpressionListExpr : Tag<ExprSort::ExpressionList> {
             enum class Delimiter : uint8_t {
-                Unknown,
-                Brace,
-                Parenthesis,
+                None,               // No delimiter
+                Brace,              // Brace delimiters
+                Parenthesis,        // Parenthesis delimiters
             };
             SourceLocation left_delimiter{};  // The source location of the left delimiter
             SourceLocation right_delimiter{}; // The source location of the right delimiter
