@@ -85,6 +85,8 @@ namespace ifc {
         Artificial,                                         // Compiler-generated expression wrapper
         MetaDescriptor,                                     // a runtime reification of a type
         Suffix,                                             // The expression representing both a literal string or constant and the user-defined literal function to call.
+        DecayArray,                                         //      -- abstract machine, decay an array to a pointer to its first element
+        DecayFunction,                                      //      -- abstract machine, decay a function lvalue to a pointer to that function
 
         Msvc = 0x0400,
         MsvcAssume,                                         // __assume(x)
