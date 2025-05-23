@@ -203,6 +203,7 @@ namespace ifc {
         Immediate    = 1 << 10, // Immediate function
         Final        = 1 << 11, // A function marked as 'final'
         Override     = 1 << 12, // A function marked as 'override'
+        ExplicitObjectParameter = 1 << 13,  // A function with an explicit object parameter 
         Vendor       = 1 << 15, // The function has extended vendor specific traits
     };
 
