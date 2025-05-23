@@ -95,6 +95,15 @@ class IFCExplorerJSONReplacer {
         return { index: dir_index_str, value: symbolic_dir };
     }
 
+    static replace_vendor_index(index) {
+        // Note: VendorIndex utilizes 0-based indexing.
+        const symbolic = symbolic_for_vendor_sort(index.sort);
+        const symbolic_vendor = sgraph.resolver.read(symbolic, index.index);
+        const sort = sort_to_string(VendorIndex, index.sort);
+        const vendor_index_str = `VendorIndex{${index.sort}(${sort}),${index.index}}`;
+        return { index: vendor_index_str, value: symbolic_vendor };
+    }
+
     static replace_lit_index(index) {
         const literal = sgraph.resolver.resolve_lit_index(index);
         const sort = sort_to_string(LitIndex, index.sort);
@@ -159,6 +168,8 @@ function ifc_explorer_json_replacer(key, value) {
         return IFCExplorerJSONReplacer.replace_expr_index(value);
     if (value instanceof DirIndex)
         return IFCExplorerJSONReplacer.replace_dir_index(value);
+    if (value instanceof VendorIndex)
+        return IFCExplorerJSONReplacer.replace_vendor_index(value);
     if (value instanceof TextOffset)
         return IFCExplorerJSONReplacer.replace_text_offset(value);
     if (value instanceof NameIndex)

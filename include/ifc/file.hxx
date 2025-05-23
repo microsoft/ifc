@@ -83,7 +83,7 @@ namespace ifc {
     inline Cardinality& operator++(Cardinality& n)
     {
         auto x = to_underlying(n);
-        IFCASSERT(x < index_like::wilderness<std::underlying_type_t<Cardinality>>);
+        IFCASSERT(x < index_like::wilderness<Cardinality>);
         return n = Cardinality(x + 1);
     }
 

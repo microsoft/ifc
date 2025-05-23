@@ -142,6 +142,9 @@ namespace ifc {
         MsvcConfusedSubstitution,                           // Represents a template parameter substitution 'P -> expr' where 'expr' could be a type or a non-type argument replacement.
         MsvcConfusedAggregateReturn,                        // Decorates a return statement which returns an aggregate class type with a user-defined destructor.
         MsvcConfusedVftblPointerInit,                       // An initialization of a derived class's vftbl pointer.
+        MsvcConfusedTemporaryArray,                         // The backing temporary array for a std::initializer_list
+        MsvcConfusedDependentNestedDecl,                    // The parser saw a nested-name as part of a declaration of a dependent expression (e.g. 'friend void X<T>::mf()') and 'mf' is the
+                                                            // named declaration here.
 
         Last
     };

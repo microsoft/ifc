@@ -59,6 +59,9 @@ class MonadicOperator {
         LookupGlobally: 34, // ::x
         Artificial:     35, // Compiler-generated expression wrapper
         MetaDescriptor: 36, // a runtime reification of a type
+        Suffix:         37, // The expression representing both a literal string or constant and the user-defined literal function to call.
+        DecayArray:     38, //      -- abstract machine, decay an array to a pointer to its first element
+        DecayFunction:  39, //      -- abstract machine, decay a function lvalue to a pointer to that function
 
         Msvc:                               0x0400,
         MsvcAssume:                         0x0401, // __assume(x)

@@ -120,6 +120,7 @@ namespace ifc {
             {StmtSort::SyntaxTree, "stmt.syntax-tree"},
             {StmtSort::Handler, "stmt.handler"},
             {StmtSort::Tuple, "stmt.tuple"},
+            {StmtSort::Dir, "stmt.dir"},
         };
 
         static_assert(retractible_by_key(stmtsort_table));
@@ -318,6 +319,7 @@ namespace ifc {
             {SyntaxSort::StructuredBindingDeclaration, "syntax.structured-binding-declaration"},
             {SyntaxSort::StructuredBindingIdentifier, "syntax.structured-binding-identifier"},
             {SyntaxSort::UsingEnumDeclaration, "syntax.using-enum-declaration"},
+            {SyntaxSort::IfConsteval, "syntax.if-consteval"},
         };
 
         static_assert(retractible_by_key(syntax_sort_table));
@@ -333,7 +335,7 @@ namespace ifc {
             {HeapSort::Decl, "heap.decl"},   {HeapSort::Type, "heap.type"},  {HeapSort::Stmt, "heap.stmt"},
             {HeapSort::Expr, "heap.expr"},   {HeapSort::Syntax, "heap.syn"}, {HeapSort::Word, "heap.word"},
             {HeapSort::Chart, "heap.chart"}, {HeapSort::Spec, "heap.spec"},  {HeapSort::Form, "heap.pp"},
-            {HeapSort::Attr, "heap.attr"},   {HeapSort::Dir, "heap.dir"},
+            {HeapSort::Attr, "heap.attr"},   {HeapSort::Dir, "heap.dir"},    {HeapSort::Vendor, "heap.vendor"},
         };
 
         static_assert(retractible_by_key(heapsort_table));
@@ -433,10 +435,12 @@ namespace ifc {
             //{ &TableOfContents::sal_annotations, ".msvc.trait.code-analysis.sal"},
             {&TableOfContents::implementation_pragmas, ".msvc.trait.impl-pragmas"},
             {&TableOfContents::debug_records, ".msvc.trait.debug-records"},
+            {&TableOfContents::gmf_specializations, ".msvc.trait.gmf-specializations"},
         };
 
         constexpr SortNameMapEntry<PragmaSort> pragma_sort_table[] = {
             {PragmaSort::VendorExtension, "pragma-directive.vendor-extension"},
+            {PragmaSort::Expr, "pragma-directive.expr"},
         };
 
         static_assert(retractible_by_key(pragma_sort_table));
@@ -461,7 +465,7 @@ namespace ifc {
             {DirSort::Expr, "dir.expr"},
             {DirSort::StructuredBinding, "dir.struct-binding"},
             {DirSort::SpecifiersSpread, "dir.specifiers-spread"},
-            {DirSort::Unused0, "dir.unused0"},
+            {DirSort::Stmt, "dir.stmt"},
             {DirSort::Unused1, "dir.unused1"},
             {DirSort::Unused2, "dir.unused2"},
             {DirSort::Unused3, "dir.unused3"},
@@ -487,6 +491,15 @@ namespace ifc {
         };
 
         static_assert(retractible_by_key(dirsort_table));
+
+        constexpr SortNameMapEntry<VendorSort> vendor_sort_table[] = {
+            {VendorSort::SEHTry, "vendor.seh-try"},
+            {VendorSort::SEHFinally, "vendor.seh-finally"},
+            {VendorSort::SEHExcept, "vendor.seh-except"},
+            {VendorSort::SEHLeave, "vendor.seh-leave"},
+        };
+
+        static_assert(retractible_by_key(vendor_sort_table));
 
         // This is a sorted array by the 'name' field in 'SortNameMapEntry'
         template<typename S, auto N>
@@ -595,7 +608,8 @@ namespace ifc {
             if (has_prefix(name, ".msvc.trait.impl-pragmas")
                 or has_prefix(name, ".msvc.trait.suppressed-warnings")
                 or has_prefix(name, ".msvc.trait.debug-records")
-                or has_prefix(name, ".msvc.trait.pragma-warnings"))
+                or has_prefix(name, ".msvc.trait.pragma-warnings")
+                or has_prefix(name, ".msvc.trait.gmf-specializations"))
                 return uncategorized_partition_lookup(toc, name);
 
             return entry_by_name<msvc_traitsort_table, &TableOfContents::msvc_traits>(toc, name);
@@ -621,6 +635,7 @@ namespace ifc {
             {"attr.", entry_by_name<attrsort_table, &TableOfContents::attrs>},
             {"dir.", entry_by_name<dirsort_table, &TableOfContents::dirs>},
             {".msvc.", &msvc_trait_lookup},
+            {"vendor.", &entry_by_name<vendor_sort_table, &TableOfContents::vendor>},
         };
 
         // Helper function: map a given sort to its external name.
@@ -705,6 +720,11 @@ namespace ifc {
     const char* sort_name(MsvcTraitSort s)
     {
         return retrieve_name<msvc_traitsort_table>(s);
+    }
+
+    const char* sort_name(VendorSort s)
+    {
+        return retrieve_name<vendor_sort_table>(s);
     }
 
     PartitionSummaryData& summary_by_partition_name(TableOfContents& toc, std::string_view name)
