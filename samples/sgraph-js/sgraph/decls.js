@@ -463,6 +463,14 @@ class SegmentDecl {
     }
 }
 
+class VendorDecl {
+    static partition_name = "decl.vendor-extension";
+
+    constructor(reader) {
+        this.index = new VendorIndex(reader);
+    }
+}
+
 function symbolic_for_decl_sort(sort) {
     switch (sort) {
     case DeclIndex.Sort.Enumerator:
@@ -525,8 +533,9 @@ function symbolic_for_decl_sort(sort) {
         return PropertyDecl;
     case DeclIndex.Sort.OutputSegment:
         return SegmentDecl;
-    case DeclIndex.Sort.UnusedSort0:
     case DeclIndex.Sort.VendorExtension:
+        return VendorDecl;
+    case DeclIndex.Sort.UnusedSort0:
     default:
         console.error(`Bad sort: ${sort}`);
         return null;

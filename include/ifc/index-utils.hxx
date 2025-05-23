@@ -14,6 +14,10 @@
 // These are types that have the same representational characteristics as
 // the 32-bit unsigned integer type uint32_t.
 namespace index_like {
+    // Useful for generating sentinel values for enumerations.  Typically placeholder for null values.
+    template<ifc::Enum E>
+    inline constexpr auto sentinel_for = std::numeric_limits<ifc::raw<E>>::max();
+
     // Check whether the type parameter is uint32_t.
     // In fact, it would be acceptable if values of that type
     // promotes to an integer type with rank less than uint32_t.  This concept
@@ -22,9 +26,11 @@ namespace index_like {
     template<typename S>
     concept Uint32 = std::same_as<S, std::uint32_t>;
 
-    // Note: This really is a variable template in disguise.
     template<typename T>
-    constexpr uint32_t wilderness = std::numeric_limits<std::uint32_t>::max();
+    concept U32Enum = ifc::Enum<T> and Uint32<ifc::raw<T>>;
+
+    template<U32Enum T>
+    inline constexpr uint32_t wilderness = sentinel_for<T>;
 
     // Generic representational index value type.
     // Every other type is representationally isomorphic to this (or uint32_t).
@@ -99,7 +105,7 @@ namespace index_like {
 
     // When a data type is certified as a bona fide fiber, return the sort value derived from that certification
     template<Fiber T>
-    constexpr auto algebra_sort = sort_value(T{});
+    inline constexpr auto algebra_sort = sort_value(T{});
 
     // This predicate holds for any fiber U (an implementation for a given sort) with index type embedded in
     // a multi-sorted algebra V.
@@ -156,13 +162,13 @@ namespace index_like {
     //       inappropriately elevate an implementation detail/trick to specification.
     // Note: suffices to subtract 1 from 'Count' since it is 1 greater than the actual largest value.
     template<typename S>
-    constexpr auto tag_precision =
+    inline constexpr auto tag_precision =
         ifc::to_underlying(S::Count) == 0 ? 0u : ifc::bit_length(ifc::to_underlying(S::Count) - 1u);
 
     // For an index-like type T over a sort S, return the number of bits
     // available for representation of indicies over T.
     template<typename S>
-    constexpr auto index_precision = 32 - tag_precision<S>;
+    inline constexpr auto index_precision = 32 - tag_precision<S>;
 
     // Basic representation of an index-like type with specified bit precision
     // for the sort.  This structure is parameterized directly by the sort type

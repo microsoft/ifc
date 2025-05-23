@@ -88,6 +88,9 @@ function json_for_template(resolver, index, root) {
     case DeclIndex.Sort.Scope:
         json_for_parameterized_scope(resolver, template_decl, index, root);
         break;
+    case DeclIndex.Sort.VendorExtension:
+        json_for_vendor(resolver, template_decl.entity.decl, root);
+        break;
     default:
         json_for_unsorted(resolver, index, root);
         break;
@@ -136,9 +139,24 @@ function json_for_unsorted(resolver, index, root) {
     root[name] = 1;
 }
 
+function json_for_vendor(resolver, index, root) {
+    // Vendor indices should be at least 1.
+    if (null_index(index))
+        return;
+    const vendor_decl = resolver.read(VendorDecl, index.index);
+    const vendor_symbolic = symbolic_for_vendor_sort(vendor_decl.index.sort);
+    const symbolic_decl = resolver.read(vendor_symbolic, vendor_decl.index.index);
+    const identity = resolver.resolve_identity(symbolic_decl.identity);
+    const name = append_name_meta(identity.name, index);
+    root[name] = 1;
+}
+
 function build_json(resolver, decl, root) {
     //log_decl(resolver, decl);
     switch (decl.decl.sort) {
+    case DeclIndex.Sort.VendorExtension:
+        json_for_vendor(resolver, decl.decl, root);
+        break;
     case DeclIndex.Sort.Scope:
         json_for_scope(resolver, decl.decl, null, root);
         break;
@@ -169,6 +187,13 @@ function locus_of_symbolic_decl(symbolic_decl, index) {
         const symbolic = symbolic_for_decl_sort(symbolic_decl.decl.sort);
         const symbolic_spec_decl = sgraph.resolver.read(symbolic, symbolic_decl.decl.index);
         return locus_of_symbolic_decl(symbolic_spec_decl, symbolic_decl.decl);
+    }
+
+    if (index.sort == DeclIndex.Sort.VendorExtension) {
+        const vendor_decl = sgraph.resolver.read(VendorDecl, index.index);
+        const vendor_symbolic = symbolic_for_vendor_sort(vendor_decl.index.sort);
+        const symbolic_decl = sgraph.resolver.read(vendor_symbolic, vendor_decl.index.index);
+        return sgraph.resolver.resolve_identity(symbolic_decl.identity).locus;
     }
 
     if (index.sort == DeclIndex.Sort.Barren) {

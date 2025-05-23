@@ -379,6 +379,19 @@ class DirIndex {
     }
 }
 
+// Vendor-specific syntax (or future additions to the IFC specification).
+class VendorIndex {
+    static Sort = {
+        Count: 0
+    };
+
+    constructor(reader) {
+        var index = reader.read_index_bitfield(VendorIndex.Sort.Count);
+        this.sort = index.sort;
+        this.index = index.index;
+    }
+};
+
 class ChartIndex {
     static Sort = {
         None:       0, // No template parameters; e.g. explicit specialization.
@@ -396,17 +409,18 @@ class ChartIndex {
 
 class HeapSort {
     static Values = {
-        Decl:   { heap: "heap.decl",  T: DeclIndex },
-        Type:   { heap: "heap.type",  T: TypeIndex },
-        Stmt:   { heap: "heap.stmt",  T: undefined },
-        Expr:   { heap: "heap.expr",  T: ExprIndex },
-        Syntax: { heap: "heap.syn",   T: SyntaxIndex },
-        Dir:    { heap: "heap.dir",   T: DirIndex },
-        Word:   { heap: "heap.word",  T: undefined },
-        Chart:  { heap: "heap.chart", T: ChartIndex },
-        Spec:   { heap: "heap.spec",  T: undefined },
-        Form:   { heap: "heap.pp",    T: undefined },
-        Attr:   { heap: "heap.attr",  T: undefined }
+        Decl:   { heap: "heap.decl",   T: DeclIndex },
+        Type:   { heap: "heap.type",   T: TypeIndex },
+        Stmt:   { heap: "heap.stmt",   T: undefined },
+        Expr:   { heap: "heap.expr",   T: ExprIndex },
+        Syntax: { heap: "heap.syn",    T: SyntaxIndex },
+        Dir:    { heap: "heap.dir",    T: DirIndex },
+        Word:   { heap: "heap.word",   T: undefined },
+        Chart:  { heap: "heap.chart",  T: ChartIndex },
+        Spec:   { heap: "heap.spec",   T: undefined },
+        Form:   { heap: "heap.pp",     T: undefined },
+        Attr:   { heap: "heap.attr",   T: undefined },
+        Vendor: { heap: "heap.vendor", T: VendorIndex }
     };
 }
 
@@ -612,21 +626,22 @@ class ObjectTraits {
 
 class FunctionTraits {
     static Values = {
-        None:            0,
-        Inline:          1 << 0,           // inline function
-        Constexpr:       1 << 1,           // constexpr function
-        Explicit:        1 << 2,           // For conversion functions.
-        Virtual:         1 << 3,           // virtual function
-        NoReturn:        1 << 4,           // The 'noreturn' attribute
-        PureVirtual:     1 << 5,           // A pure virtual function ('= 0')
-        HiddenFriend:    1 << 6,           // A hidden friend function
-        Defaulted:       1 << 7,           // A '= default' function
-        Deleted:         1 << 8,           // A '= delete' function
-        Constrained:     1 << 9,           // For functions which have constraint expressions.
-        Immediate:       1 << 10,          // Immediate function
-        Final:           1 << 11,          // A function marked as 'final'
-        Override:        1 << 12,          // A function marked as 'override'
-        Vendor:          1 << 15           // The function has extended vendor specific traits
+        None:                    0,
+        Inline:                  1 << 0,  // inline function
+        Constexpr:               1 << 1,  // constexpr function
+        Explicit:                1 << 2,  // For conversion functions.
+        Virtual:                 1 << 3,  // virtual function
+        NoReturn:                1 << 4,  // The 'noreturn' attribute
+        PureVirtual:             1 << 5,  // A pure virtual function ('= 0')
+        HiddenFriend:            1 << 6,  // A hidden friend function
+        Defaulted:               1 << 7,  // A '= default' function
+        Deleted:                 1 << 8,  // A '= delete' function
+        Constrained:             1 << 9,  // For functions which have constraint expressions.
+        Immediate:               1 << 10, // Immediate function
+        Final:                   1 << 11, // A function marked as 'final'
+        Override:                1 << 12, // A function marked as 'override'
+        ExplicitObjectParameter: 1 << 13, // A function with an explicit object parameter
+        Vendor:                  1 << 15  // The function has extended vendor specific traits
     };
 
     constructor(reader) {

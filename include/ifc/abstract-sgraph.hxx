@@ -186,25 +186,25 @@ namespace ifc {
 
     // Semantic traits of functions.
     enum class FunctionTraits : uint16_t {
-        None         = 0,
-        Inline       = 1 << 0,  // inline function
-        Constexpr    = 1 << 1,  // constexpr function
-        Explicit     = 1 << 2,  // For conversion functions.
-        Virtual      = 1 << 3,  // virtual function
-        NoReturn     = 1 << 4,  // The 'noreturn' attribute.
-                                // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/120
-        PureVirtual  = 1 << 5,  // A pure virtual function ('= 0')
-        HiddenFriend = 1 << 6,  // A hidden friend function
-        Defaulted    = 1 << 7,  // A '= default' function.
-                                // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/121
-        Deleted      = 1 << 8,  // A '= delete' function.
-                                // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/121
-        Constrained  = 1 << 9,  // For functions which have constraint expressions.
-        Immediate    = 1 << 10, // Immediate function
-        Final        = 1 << 11, // A function marked as 'final'
-        Override     = 1 << 12, // A function marked as 'override'
-        ExplicitObjectParameter = 1 << 13,  // A function with an explicit object parameter 
-        Vendor       = 1 << 15, // The function has extended vendor specific traits
+        None                    = 0,
+        Inline                  = 1 << 0,   // inline function
+        Constexpr               = 1 << 1,   // constexpr function
+        Explicit                = 1 << 2,   // For conversion functions.
+        Virtual                 = 1 << 3,   // virtual function
+        NoReturn                = 1 << 4,   // The 'noreturn' attribute.
+                                            // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/120
+        PureVirtual             = 1 << 5,   // A pure virtual function ('= 0')
+        HiddenFriend            = 1 << 6,   // A hidden friend function
+        Defaulted               = 1 << 7,   // A '= default' function.
+                                            // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/121
+        Deleted                 = 1 << 8,   // A '= delete' function.
+                                            // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/121
+        Constrained             = 1 << 9,   // For functions which have constraint expressions.
+        Immediate               = 1 << 10,  // Immediate function
+        Final                   = 1 << 11,  // A function marked as 'final'
+        Override                = 1 << 12,  // A function marked as 'override'
+        ExplicitObjectParameter = 1 << 13,  // A function with an explicit object parameter
+        Vendor                  = 1 << 15,  // The function has extended vendor specific traits
     };
 
     // Semantic traits of deduction guides.
@@ -251,6 +251,8 @@ namespace ifc {
                                            // function cannot utilize NRVO on this function.  This is important due to the
                                            // MSVC C++ calling convention which passes UDTs on the stack as a hidden parameter
                                            // to functions returning that type.
+        MultiBytePTMRep         = 1 << 28, // a c1xx-ism which indicates that the pointer-to-member representation for a class
+                                           // type is a generalized multi-byte representation for ABI purposes.
     };
 
     // FIXME: Move to an MSVC-specific file. Attributes of segments.
@@ -481,8 +483,13 @@ namespace ifc {
         StructuredBindingDeclaration, // A structured binding
         StructuredBindingIdentifier,  // A structured binding identifier
         UsingEnumDeclaration,         // A using-enum-declaration
-        Count,
+        IfConsteval,                  // FIXME: Once we bump the major version of
+                                      // the IFC fields in this should be moved to IfStatement.
+        Count
     };
+
+    // If this changes then we have a binary break.
+    static_assert(index_like::tag_precision<SyntaxSort> == 7);
 
     // Type of abstract references to syntactic element structures.
     struct SyntaxIndex : index_like::Over<SyntaxSort> {
@@ -532,8 +539,12 @@ namespace ifc {
         SyntaxTree,      // A syntax tree for an unelaborated statement.
         Handler,         // An exception-handler statement (catch-clause).
         Tuple,           // A general tuple of statements.
+        Dir,             // A directive statement.
         Count
     };
+
+    // If this changes then we have a binary break.
+    static_assert(index_like::tag_precision<StmtSort> == 5);
 
     // Type of abstract references to statement structures
     struct StmtIndex : index_like::Over<StmtSort> {
@@ -655,6 +666,7 @@ namespace ifc {
 
     enum class PragmaSort : uint8_t {
         VendorExtension,
+        Expr,            // Pragma with a description and expression representing compiler information, e.g. #pragma message "literal"
         Count,
     };
 
@@ -662,6 +674,9 @@ namespace ifc {
     struct PragmaIndex : index_like::Over<PragmaSort> {
         using Over<PragmaSort>::Over;
     };
+
+    static_assert(index_like::tag_precision<PragmaSort> == 1);
+    static_assert(index_like::index_precision<PragmaSort> == 31);
 
     enum class AttrSort : uint8_t {
         Nothing,    // no attribute - [[ ]]
@@ -692,7 +707,7 @@ namespace ifc {
         StructuredBinding, // Structured binding declaration - auto [a, b, c] = x
         SpecifiersSpread,  // A spread of sequence of decl-specifiers over a collection of init-declarators in a single
                            // grammatical declaration - int* p, i, **x, ...
-        Unused0,           // Empty slot
+        Stmt,              // Phased-evaluation of a statement - if, while, for, etc.
         Unused1,           // Empty slot
         Unused2,           // Empty slot
         Unused3,           // Empty slot
@@ -736,7 +751,21 @@ namespace ifc {
         Form,   // FormIndex heap
         Attr,   // AttrIndex heap
         Dir,    // DirIndex heap
+        Vendor, // VendorIndex heap
         Count
+    };
+
+    // Vendor-specific syntax (or future additions to the IFC specification).
+    enum class VendorSort : uint8_t {
+        SEHTry,                 // A structured exception handling try block.
+        SEHFinally,             // A structured exception handling finally block.
+        SEHExcept,              // A structured exception handling except block.
+        SEHLeave,               // A structured exception handling leave statement.
+        Count
+    };
+
+    struct VendorIndex : index_like::Over<VendorSort> {
+        using Over<VendorSort>::Over;
     };
 
     // Typed projection of a homogeneous sequence.
@@ -1442,7 +1471,17 @@ namespace ifc {
                 SyntaxIndex if_false{};           // The sub-statement(s) to be executed if the condition is false
                 SourceLocation if_keyword{};      // The source location of the 'if' keyword
                 SourceLocation constexpr_locus{}; // The source location of the 'constexpr' keyword (if provided)
-                SourceLocation else_keyword{};    // THe source location of the 'else' keyword
+                SourceLocation else_keyword{};    // The source location of the 'else' keyword
+            };
+
+            struct IfConsteval : Tag<SyntaxSort::IfConsteval> {
+                SentenceIndex pragma_tokens{};    // The index for any preceding #pragma tokens.
+                SyntaxIndex if_true{};            // The sub-statement(s) to be executed if the condition is true
+                SyntaxIndex if_false{};           // The sub-statement(s) to be executed if the condition is false
+                SourceLocation if_keyword{};      // The source location of the 'if' keyword
+                SourceLocation consteval_locus{}; // The source location of the 'consteval' keyword (if provided)
+                SourceLocation not_locus{};       // The source location of the optional '!'
+                SourceLocation else_keyword{};    // The source location of the 'else' keyword
             };
 
             struct WhileStatement : Tag<SyntaxSort::WhileStatement> {
@@ -1751,11 +1790,23 @@ namespace ifc {
                 SourceLocation right_bracket{}; // The source location of the ']'
             };
 
+            struct LambdaDeclaratorSpecifier {
+                enum class SpecifierSort : uint8_t {
+                    None      = 0,
+                    Mutable   = 1 << 0,
+                    Constexpr = 1 << 1,
+                    Consteval = 1 << 2,
+                    Static    = 1 << 3,
+                };
+                SourceLocation locus{};
+                SpecifierSort spec = SpecifierSort::None;
+            };
+
             struct LambdaDeclarator : Tag<SyntaxSort::LambdaDeclarator> {
                 SyntaxIndex parameters{};              // The parameters
                 SyntaxIndex exception_specification{}; // The exception-specification (if present)
                 SyntaxIndex trailing_return_type{};    // The trailing return type (if present)
-                Keyword keyword{};                     // 'mutable' or 'constexpr' (if present)
+                LambdaDeclaratorSpecifier spec{};      // Trailing specifiers, e.g. 'constexpr', 'mutable', etc. (if present)
                 SourceLocation left_paren{};           // The source location of the '('
                 SourceLocation right_paren{};          // The source location of the ')'
                 SourceLocation ellipsis{};             // The source location of the '...' (if present)
@@ -2422,6 +2473,10 @@ namespace ifc {
         static_assert(offsetof(UsingDecl, identity) == 0,
                       "The name population code expects 'identity' to be at offset zero");
 
+        struct VendorDecl : Tag<DeclSort::VendorExtension> {
+            VendorIndex index{};
+        };
+
         // A sequence of declaration indices.
         struct Scope : Sequence<Declaration> {};
 
@@ -2529,6 +2584,15 @@ namespace ifc {
         };
 
         struct TupleStmt : LocationAndType<StmtSort::Tuple>, Sequence<StmtIndex, HeapSort::Stmt> {};
+
+        struct DirStmt : Tag<StmtSort::Dir> {
+            DirIndex directive{};
+        };
+
+        // The location information will be stored in the vendor-specific structure.
+        struct VendorStmt : Tag<StmtSort::VendorExtension> {
+            VendorIndex index{};
+        };
 
         // Expression trees for integer constants below this threshold are directly represented by their indices.
         inline constexpr auto immediate_upper_bound = uint64_t(1) << index_like::index_precision<ExprSort>;
@@ -2968,6 +3032,12 @@ namespace ifc {
                 PragmaCommentSort sort  = PragmaCommentSort::Unknown;
             };
         } // namespace microsoft
+
+        struct PragmaExpr : Location<PragmaSort::Expr> {
+            TextOffset name{};   // The name of the pragma
+            ExprIndex operand{}; // The operand of the #pragma expression
+        };
+
         enum class Phases : uint32_t {
             Unknown        = 0,
             Reading        = 1 << 0,
@@ -3008,6 +3078,11 @@ namespace ifc {
 
         struct ExprDir : Location<DirSort::Expr> {
             ExprIndex expr{}; // Denotes the expression to evaluate.
+            Phases phases{};  // Denotes the set of phases of translation which this directive is to be evaluated.
+        };
+
+        struct StmtDir : Location<DirSort::Stmt> {
+            StmtIndex stmt{}; // Denotes the statement to evaluate.
             Phases phases{};  // Denotes the set of phases of translation which this directive is to be evaluated.
         };
 
@@ -3264,6 +3339,11 @@ namespace ifc {
 
         enum class MsvcDebugRecordIndex : uint32_t {};
 
+        struct MsvcGMFSpecializedTemplate {
+            DeclIndex template_decl{}; // The template declaration.
+            DeclIndex home_scope{};    // The enclosing scope of the template declaration.
+        };
+
         struct MsvcUuid : AssociatedTrait<DeclIndex, StringIndex>, TraitTag<MsvcTraitSort::Uuid> {};
         struct MsvcSegment : AssociatedTrait<DeclIndex, DeclIndex>, TraitTag<MsvcTraitSort::Segment> {};
         struct MsvcSpecializationEncoding : AssociatedTrait<DeclIndex, TextOffset>,
@@ -3300,6 +3380,20 @@ namespace ifc {
                                 TraitTag<MsvcTraitSort::DebugRecord> {};
     } // namespace symbolic::trait
 
+    namespace symbolic::vendor {
+        struct SEHTryStmt : Location<VendorSort::SEHTry>, Sequence<StmtIndex, HeapSort::Stmt> {
+            StmtIndex handler{}; // Handler for __try.
+        };
+
+        struct SEHFinallyStmt : Location<VendorSort::SEHFinally>, Sequence<StmtIndex, HeapSort::Stmt> { };
+
+        struct SEHExceptStmt : Location<VendorSort::SEHExcept>, Sequence<StmtIndex, HeapSort::Stmt> {
+            ExprIndex filter{}; // Expression on the __except filter.
+        };
+
+        struct SEHLeaveStmt : Location<VendorSort::SEHLeave> { };
+    } // namespace symbolic::vendor
+
     // Partition summaries for the table of contents.
     struct TableOfContents {
         PartitionSummaryData command_line;                // Command line information
@@ -3324,6 +3418,7 @@ namespace ifc {
         PartitionSummaryData forms[count<FormSort>];      // Table of form partitions.
         PartitionSummaryData traits[count<TraitSort>];    // Table of traits
         PartitionSummaryData msvc_traits[count<MsvcTraitSort>];    // Table of msvc specific traits
+        PartitionSummaryData vendor[count<VendorSort>];            // Table of vendor-specific syntax.
         PartitionSummaryData charts;                               // Sequence of unilevel charts.
         PartitionSummaryData multi_charts;                         // Sequence of multi-level charts.
         PartitionSummaryData heaps[count<HeapSort>];               // Set of various abstract reference sequences.
@@ -3335,6 +3430,7 @@ namespace ifc {
         PartitionSummaryData implementation_pragmas; // Sequence of PragmaIndex from the TU which can influence
                                                      // semantics of the current TU.
         PartitionSummaryData debug_records;          // Implementation-specific data for debugging.
+        PartitionSummaryData gmf_specializations;    // Decl-reachable template specializations in the global module fragment.
 
         // Facilities for iterating over the ToC as a sequence of partition summaries.
         // Note: the use of reinterpret_cast below is avoidable. One way uses
@@ -3347,6 +3443,7 @@ namespace ifc {
         {
             return reinterpret_cast<PartitionSummaryData*>(this);
         }
+
         auto end()
         {
             return begin() + sizeof(*this) / sizeof(PartitionSummaryData);
@@ -3356,6 +3453,7 @@ namespace ifc {
         {
             return reinterpret_cast<const PartitionSummaryData*>(this);
         }
+
         auto end() const
         {
             return begin() + sizeof(*this) / sizeof(PartitionSummaryData);
@@ -3421,6 +3519,7 @@ namespace ifc {
         {
             return partition(decls, s);
         }
+
         const PartitionSummaryData& operator[](DeclSort s) const
         {
             return partition(decls, s);
@@ -3430,6 +3529,7 @@ namespace ifc {
         {
             return partition(types, s);
         }
+
         const PartitionSummaryData& operator[](TypeSort s) const
         {
             return partition(types, s);
@@ -3439,6 +3539,7 @@ namespace ifc {
         {
             return partition(stmts, s);
         }
+
         const PartitionSummaryData& operator[](StmtSort s) const
         {
             return partition(stmts, s);
@@ -3448,6 +3549,7 @@ namespace ifc {
         {
             return partition(exprs, s);
         }
+
         const PartitionSummaryData& operator[](ExprSort s) const
         {
             return partition(exprs, s);
@@ -3457,6 +3559,7 @@ namespace ifc {
         {
             return partition(elements, s);
         }
+
         const PartitionSummaryData& operator[](SyntaxSort s) const
         {
             return partition(elements, s);
@@ -3466,6 +3569,7 @@ namespace ifc {
         {
             return partition(macros, s);
         }
+
         const PartitionSummaryData& operator[](MacroSort s) const
         {
             return partition(macros, s);
@@ -3475,6 +3579,7 @@ namespace ifc {
         {
             return partition(pragma_directives, s);
         }
+
         const PartitionSummaryData& operator[](PragmaSort s) const
         {
             return partition(pragma_directives, s);
@@ -3484,6 +3589,7 @@ namespace ifc {
         {
             return partition(attrs, s);
         }
+
         const PartitionSummaryData& operator[](AttrSort s) const
         {
             return partition(attrs, s);
@@ -3493,6 +3599,7 @@ namespace ifc {
         {
             return partition(dirs, s);
         }
+
         const PartitionSummaryData& operator[](DirSort s) const
         {
             return partition(dirs, s);
@@ -3502,6 +3609,7 @@ namespace ifc {
         {
             return partition(heaps, s);
         }
+
         const PartitionSummaryData& operator[](HeapSort s) const
         {
             return partition(heaps, s);
@@ -3511,6 +3619,7 @@ namespace ifc {
         {
             return partition(forms, s);
         }
+
         const PartitionSummaryData& operator[](FormSort s) const
         {
             return partition(forms, s);
@@ -3520,6 +3629,7 @@ namespace ifc {
         {
             return partition(traits, s);
         }
+
         const PartitionSummaryData& operator[](TraitSort s) const
         {
             return partition(traits, s);
@@ -3529,9 +3639,20 @@ namespace ifc {
         {
             return partition(msvc_traits, s);
         }
+
         const PartitionSummaryData& operator[](MsvcTraitSort s) const
         {
             return partition(msvc_traits, s);
+        }
+
+        const PartitionSummaryData& operator[](VendorSort s) const
+        {
+            return partition(vendor, s);
+        }
+
+        PartitionSummaryData& operator[](VendorSort s)
+        {
+            return partition(vendor, s);
         }
 
         template<typename S>
@@ -3576,6 +3697,7 @@ namespace ifc {
     const char* sort_name(FormSort);
     const char* sort_name(TraitSort);
     const char* sort_name(MsvcTraitSort);
+    const char* sort_name(VendorSort);
 
 } // namespace ifc
 
