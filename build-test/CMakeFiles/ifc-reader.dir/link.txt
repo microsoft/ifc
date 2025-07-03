@@ -1,0 +1,2 @@
+/usr/bin/ar qc libifc-reader.a "CMakeFiles/ifc-reader.dir/src/file.cxx.o" "CMakeFiles/ifc-reader.dir/src/sgraph.cxx.o" "CMakeFiles/ifc-reader.dir/src/ifc-reader/operators.cxx.o" "CMakeFiles/ifc-reader.dir/src/ifc-reader/reader.cxx.o" "CMakeFiles/ifc-reader.dir/src/ifc-reader/util.cxx.o" "CMakeFiles/ifc-reader.dir/src/sha256.cxx.o"
+/usr/bin/ranlib libifc-reader.a

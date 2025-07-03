@@ -167,17 +167,23 @@ namespace ifc::util {
             return "..." + to_string(index);  // Return a reference to break the cycle
         }
         
-        // Mark this type as being processed
-        ctx.processing_types.insert(index);
+        // RAII guard to ensure index is removed from processing_types even if exceptions occur
+        struct ProcessingGuard {
+            std::set<TypeIndex>& processing_types;
+            TypeIndex index;
+            
+            ProcessingGuard(std::set<TypeIndex>& types, TypeIndex idx) 
+                : processing_types(types), index(idx) {
+                processing_types.insert(index);
+            }
+            
+            ~ProcessingGuard() {
+                processing_types.erase(index);
+            }
+        };
         
-        try {
-            std::string result = ctx.reader.visit(index, TypeTranslator{ctx});
-            ctx.processing_types.erase(index);
-            return result;
-        } catch (...) {
-            ctx.processing_types.erase(index);
-            throw;
-        }
+        ProcessingGuard guard(ctx.processing_types, index);
+        return ctx.reader.visit(index, TypeTranslator{ctx});
     }
 
     // Load types as full blown nodes.

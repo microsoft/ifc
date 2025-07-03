@@ -185,7 +185,7 @@ namespace ifc::util {
 
         std::set<NodeKey> referenced_nodes;
         // Track indices currently being processed to detect cycles
-        mutable std::set<TypeIndex> processing_types;
+        std::set<TypeIndex> processing_types;
 
     private:
         using NodeMap = std::map<NodeKey, Node>;

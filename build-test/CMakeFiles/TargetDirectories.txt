@@ -1,0 +1,11 @@
+/home/runner/work/ifc/ifc/build-test/CMakeFiles/ifc-reader.dir
+/home/runner/work/ifc/ifc/build-test/CMakeFiles/ifc-dom.dir
+/home/runner/work/ifc/ifc/build-test/CMakeFiles/ifc.dir
+/home/runner/work/ifc/ifc/build-test/CMakeFiles/package.dir
+/home/runner/work/ifc/ifc/build-test/CMakeFiles/package_source.dir
+/home/runner/work/ifc/ifc/build-test/CMakeFiles/edit_cache.dir
+/home/runner/work/ifc/ifc/build-test/CMakeFiles/rebuild_cache.dir
+/home/runner/work/ifc/ifc/build-test/CMakeFiles/list_install_components.dir
+/home/runner/work/ifc/ifc/build-test/CMakeFiles/install.dir
+/home/runner/work/ifc/ifc/build-test/CMakeFiles/install/local.dir
+/home/runner/work/ifc/ifc/build-test/CMakeFiles/install/strip.dir

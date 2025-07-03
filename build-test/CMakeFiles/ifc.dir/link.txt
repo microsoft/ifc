@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/ifc.dir/link.d CMakeFiles/ifc.dir/src/tools/ifc.cxx.o -o ifc  libifc-reader.a
