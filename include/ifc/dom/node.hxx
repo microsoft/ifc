@@ -184,6 +184,8 @@ namespace ifc::util {
         std::string ref(const symbolic::Identity<NameIndex>& id);
 
         std::set<NodeKey> referenced_nodes;
+        // Track indices currently being processed to detect cycles
+        mutable std::set<TypeIndex> processing_types;
 
     private:
         using NodeMap = std::map<NodeKey, Node>;

@@ -159,9 +159,25 @@ namespace ifc::util {
 
     std::string get_string_if_possible(Loader& ctx, TypeIndex index)
     {
-        if (not null(index))
-            return ctx.reader.visit(index, TypeTranslator{ctx});
-        return "no-type";
+        if (null(index))
+            return "no-type";
+        
+        // Check for cycles to prevent infinite recursion
+        if (ctx.processing_types.find(index) != ctx.processing_types.end()) {
+            return "..." + to_string(index);  // Return a reference to break the cycle
+        }
+        
+        // Mark this type as being processed
+        ctx.processing_types.insert(index);
+        
+        try {
+            std::string result = ctx.reader.visit(index, TypeTranslator{ctx});
+            ctx.processing_types.erase(index);
+            return result;
+        } catch (...) {
+            ctx.processing_types.erase(index);
+            throw;
+        }
     }
 
     // Load types as full blown nodes.
