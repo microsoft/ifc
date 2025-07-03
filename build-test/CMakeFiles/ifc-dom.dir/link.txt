@@ -1,2 +1,0 @@
-/usr/bin/ar qc libifc-dom.a "CMakeFiles/ifc-dom.dir/src/ifc-dom/charts.cxx.o" "CMakeFiles/ifc-dom.dir/src/ifc-dom/decls.cxx.o" "CMakeFiles/ifc-dom.dir/src/ifc-dom/exprs.cxx.o" "CMakeFiles/ifc-dom.dir/src/ifc-dom/literals.cxx.o" "CMakeFiles/ifc-dom.dir/src/ifc-dom/names.cxx.o" "CMakeFiles/ifc-dom.dir/src/ifc-dom/sentences.cxx.o" "CMakeFiles/ifc-dom.dir/src/ifc-dom/stmts.cxx.o" "CMakeFiles/ifc-dom.dir/src/ifc-dom/syntax.cxx.o" "CMakeFiles/ifc-dom.dir/src/ifc-dom/types.cxx.o"
-/usr/bin/ranlib libifc-dom.a
