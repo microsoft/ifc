@@ -29,7 +29,7 @@ namespace ifc {
         {
             const auto byte_offset = ifc::to_underlying(offset);
             const auto& contents   = ifc.contents();
-            IFCASSERT(byte_offset <= contents.size() && (contents.size() - byte_offset) >= sizeof(T));
+            IFCASSERT(byte_offset < contents.size() && (contents.size() - byte_offset) >= sizeof(T));
 
             const auto byte_ptr = &contents[byte_offset];
             const auto ptr      = reinterpret_cast<const T*>(byte_ptr);
