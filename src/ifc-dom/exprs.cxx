@@ -128,7 +128,7 @@ namespace ifc::util {
 
             void operator()(const symbolic::MemberAccessExpr& expr)
             {
-                node.props.emplace("name", index_like::null(expr.name) ? "" : ctx.reader.get(expr.name));
+                node.props.emplace("name", ctx.reader_get(expr.name));
                 node.props.emplace("parent", ctx.ref(expr.parent));
                 add_child(expr.offset);
             }
@@ -192,12 +192,12 @@ namespace ifc::util {
 
             void operator()(const symbolic::FunctionStringExpr& expr)
             {
-                node.props.emplace("macro", index_like::null(expr.macro) ? "" : ctx.reader.get(expr.macro));
+                node.props.emplace("macro", ctx.reader_get(expr.macro));
             }
 
             void operator()(const symbolic::CompoundStringExpr& expr)
             {
-                node.props.emplace("prefix", index_like::null(expr.prefix) ? "" : ctx.reader.get(expr.prefix));
+                node.props.emplace("prefix", ctx.reader_get(expr.prefix));
                 add_child(expr.string);
             }
 
@@ -306,7 +306,7 @@ namespace ifc::util {
 
             void operator()(const symbolic::DesignatedInitializerExpr& expr)
             {
-                node.props.emplace("name", index_like::null(expr.member) ? "" : ctx.reader.get(expr.member));
+                node.props.emplace("name", ctx.reader_get(expr.member));
                 add_child(expr.initializer);
             }
 
