@@ -384,7 +384,7 @@ namespace ifc {
         struct IllFormedPartitionName {};
 
         // Exception tag used to signal that the IFC header is not available or not initialized.
-        struct IfcHeaderNotAvailable {};
+        struct MissingIfcHeader {};
 
         static OwningModuleAndPartition separate_module_name(UTF8ViewType name)
         {
