@@ -9,7 +9,7 @@ namespace ifc::util {
 
         std::string operator()(const symbolic::OperatorFunctionId& val)
         {
-            return std::string("operator") + ctx.reader.get(val.name);
+            return std::string("operator") + (index_like::null(val.name) ? "" : ctx.reader.get(val.name));
         }
         std::string operator()(const symbolic::ConversionFunctionId& val)
         {
@@ -17,7 +17,7 @@ namespace ifc::util {
         }
         std::string operator()(const symbolic::LiteralOperatorId& val)
         {
-            return std::string("operator ") + ctx.reader.get(val.name_index);
+            return std::string("operator ") + (index_like::null(val.name_index) ? "" : ctx.reader.get(val.name_index));
         }
         std::string operator()(const symbolic::TemplateName& val)
         {
@@ -29,7 +29,9 @@ namespace ifc::util {
         }
         std::string operator()(const symbolic::SourceFileName& val)
         {
-            return std::string("src:") + ctx.reader.get(val.name) + ":" + ctx.reader.get(val.include_guard);
+            return std::string("src:") + 
+                   (index_like::null(val.name) ? "" : ctx.reader.get(val.name)) + ":" + 
+                   (index_like::null(val.include_guard) ? "" : ctx.reader.get(val.include_guard));
         }
         std::string operator()(const symbolic::GuideName& val)
         {
