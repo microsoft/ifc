@@ -364,14 +364,14 @@ namespace ifc::util {
         void operator()(DeclIndex, const symbolic::PropertyDecl& prop)
         {
             node.props.emplace("ref", ctx.ref(prop.data_member));
-            node.props.emplace("get", ctx.reader.get(prop.get_method_name));
-            node.props.emplace("set", ctx.reader.get(prop.set_method_name));
+            node.props.emplace("get", ctx.reader_get(prop.get_method_name));
+            node.props.emplace("set", ctx.reader_get(prop.set_method_name));
         }
 
         void operator()(DeclIndex, const symbolic::SegmentDecl& segment)
         {
-            node.props.emplace("name", ctx.reader.get(segment.name));
-            node.props.emplace("class_id", ctx.reader.get(segment.class_id));
+            node.props.emplace("name", ctx.reader_get(segment.name));
+            node.props.emplace("class_id", ctx.reader_get(segment.class_id));
             node.props.emplace("seg_spec", std::to_string(ifc::to_underlying(segment.class_id)));
             node.props.emplace("seg_type", std::to_string(ifc::to_underlying(segment.type)));
         }
