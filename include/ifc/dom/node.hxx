@@ -183,7 +183,7 @@ namespace ifc::util {
         std::string ref(const symbolic::Identity<TextOffset>& id);
         std::string ref(const symbolic::Identity<NameIndex>& id);
 
-        // Safe wrapper for reader.get() that returns empty string for null TextOffset
+        // Wrapper for reader.get() that returns empty string for null TextOffset
         std::string reader_get(TextOffset offset) const
         {
             return index_like::null(offset) ? "" : reader.get(offset);
