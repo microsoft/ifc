@@ -226,7 +226,8 @@ namespace ifc {
         None                     = 0,
         IntegrityCheck           = 1U << 0, // Enable the SHA256 file check.
         AllowAnyPrimaryInterface = 1U << 1, // Allow any primary module interface without checking for a matching name.
-        SkipVersionCheck         = 1U << 2, // Allow skipping the version check.  Useful when the version needs to be validated against some external source.
+        SkipVersionCheck = 1U << 2, // Allow skipping the version check.  Useful when the version needs to be validated
+                                    // against some external source.
     };
 
     SHA256Hash hash_bytes(const std::byte* first, const std::byte* last);
@@ -382,6 +383,9 @@ namespace ifc {
 
         struct IllFormedPartitionName {};
 
+        // Exception tag used to signal that the IFC header is not available or not initialized.
+        struct MissingIfcHeader {};
+
         static OwningModuleAndPartition separate_module_name(UTF8ViewType name)
         {
             // The full module name for a partition will be of the form "M:P"
@@ -506,8 +510,7 @@ namespace ifc {
 
             if (!implies(options, IfcOptions::SkipVersionCheck))
             {
-                if (header->version > CurrentFormatVersion
-                    || (header->version < MinimumFormatVersion))
+                if (header->version > CurrentFormatVersion || (header->version < MinimumFormatVersion))
                     throw UnsupportedFormatVersion{header->version};
             }
 

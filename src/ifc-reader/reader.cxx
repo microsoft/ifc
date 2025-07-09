@@ -10,7 +10,7 @@ namespace ifc {
     Reader::Reader(const ifc::InputIfc& ifc_) : ifc(ifc_)
     {
         if (not ifc.header())
-            throw "file not found";
+            throw InputIfc::MissingIfcHeader{};
         read_table_of_contents();
     }
 
