@@ -28,6 +28,7 @@ add_library(
     ifc-reader STATIC
     src/file.cxx
     src/sgraph.cxx
+    src/input-file.cxx
     src/ifc-reader/operators.cxx
     src/ifc-reader/reader.cxx
     src/ifc-reader/util.cxx

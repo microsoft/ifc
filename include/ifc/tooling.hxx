@@ -16,8 +16,11 @@ namespace ifc {
 
 // Basic datatypes for tooling extension.
 namespace ifc::tool {
+    // -- String type preferred by the host OS to specify pathnames.
+    using SystemPath = std::filesystem::path::string_type;
+
     // -- Native pathname character type.
-    using NativeChar = fs::path::value_type;
+    using NativeChar = SystemPath::value_type;
 
     // -- A read-only view type over native strings.
     using StringView = std::basic_string_view<NativeChar>;
@@ -36,6 +39,43 @@ namespace ifc::tool {
         virtual Name name() const = 0;
         virtual int run_with(const Arguments&) const = 0;
     };
+
+    // -- Type for the error code values used by the host OS.
+#ifdef _WIN32
+    using ErrorCode = unsigned long;    // DWORD
+#else
+    using ErrorCode = int;
+#endif
+
+    // -- Exception type used to signal inability of the host OS to access a file.
+    struct AccessError {
+        SystemPath path;
+        ErrorCode error_code;
+    };
+
+    // -- Exception type used to signal the file designated by th `path` is not a regular file.
+    struct RegularFileError {
+        SystemPath path;
+    };
+
+    // -- Exception type used to signal inability of the host OS to memory-map a file.
+    struct FileMappingError {
+        SystemPath path;
+        ErrorCode error_code;
+    };
+
+    // -- Input file mapped to memory as sequence of raw bytes.
+    struct InputFile {
+        using View = gsl::span<const std::byte>;
+
+        explicit InputFile(const SystemPath&);
+        InputFile(InputFile&&) noexcept;
+        ~InputFile();
+        View contents() const noexcept { return view; }
+    private:
+        View view;
+    };
+
 }
 
 #endif
