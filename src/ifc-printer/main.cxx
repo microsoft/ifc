@@ -9,31 +9,6 @@
 #include "ifc/dom/node.hxx"
 #include "printer.hxx"
 
-void translate_exception()
-{
-    try
-    {
-        throw;
-    }
-    catch (const ifc::IfcArchMismatch&)
-    {
-        std::cerr << "ifc architecture mismatch\n";
-    }
-    catch(ifc::error_condition::UnexpectedVisitor& e)
-    {
-        std::cerr << "visit unexpected " << e.category << ": " 
-                  << e.sort << '\n';
-    }
-    catch (const char* message)
-    {
-        std::cerr << "caught: " << message;
-    }
-    catch (...)
-    {
-        std::cerr << "unknown exception caught\n";
-    }
-}
-
 using namespace ifc::util;
 using namespace std::literals;
 
@@ -52,23 +27,23 @@ void print_help(std::filesystem::path path)
     std::cout << name << " --help/-h\n";
 }
 
-Arguments process_args(int argc, char** argv)
+Arguments process_args(int argc, char* argv[])
 {
     Arguments result;
     for (int i = 1; i < argc; ++i)
     {
-        if (argv[i] == "--help"sv or argv[i] == "-h"sv)
+        if (argv[i] == "--help"sv)
         {
             print_help(argv[0]);
             exit(0);
         }
-        else if (argv[i] == "--color"sv or argv[i] == "-c"sv)
+        else if (argv[i] == "--color"sv)
         {
             result.options |= PrintOptions::Use_color;
         }
         // Future flags to add as needed
-        //   -l --location: print locations
-        //   -h --header: print module header
+        //   --location: print locations
+        //   --header: print module header
         // etc.
 
         else if (argv[i][0] != '-')
@@ -132,7 +107,7 @@ void process_ifc(const std::string& name, PrintOptions options)
     }
 }
 
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 {
     Arguments arguments = process_args(argc, argv);
 
@@ -140,12 +115,26 @@ int main(int argc, char** argv)
     {
         for (const auto& file : arguments.files)
             process_ifc(file, arguments.options);
+
+        return EXIT_SUCCESS;
+    }
+    catch (const ifc::IfcArchMismatch&)
+    {
+        std::cerr << "ifc architecture mismatch\n";
+    }
+    catch(ifc::error_condition::UnexpectedVisitor& e)
+    {
+        std::cerr << "visit unexpected " << e.category << ": " 
+                  << e.sort << '\n';
+    }
+    catch(const ifc::InputIfc::MissingIfcHeader&)
+    {
+        std::cerr << "Missing ifc binary file header\n";
     }
     catch (...)
     {
-        translate_exception();
-        return EXIT_FAILURE;
+        std::cerr << "unknown exception caught\n";
     }
 
-    return EXIT_SUCCESS;
+    return EXIT_FAILURE;
 }
