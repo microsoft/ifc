@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <fstream>
 #include <cstdlib>
+#include <vector>
 #include "ifc/tooling.hxx"
 #include "ifc/reader.hxx"
 #include "ifc/dom/node.hxx"
