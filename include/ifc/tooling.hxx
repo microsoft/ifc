@@ -7,6 +7,7 @@
 #include <string_view>
 #include <string>
 #include <filesystem>
+#include <vector>
 
 namespace ifc {
     // Filesystem component.  Forward to standard facilities.
