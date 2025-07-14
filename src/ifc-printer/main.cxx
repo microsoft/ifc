@@ -5,9 +5,25 @@
 #include <filesystem>
 #include <fstream>
 #include <cstdlib>
+#include "ifc/tooling.hxx"
 #include "ifc/reader.hxx"
 #include "ifc/dom/node.hxx"
 #include "printer.hxx"
+
+// -- A macro to abstract over differences of host literal string views. 
+#ifdef WIN32
+#  define WIDEN(S) L ## S ## sv
+#  define NSV(S) WIDEN(S)
+#else
+#  define NSV(S) S ## sv
+#endif
+
+// -- Abstract over standard output and error channels.
+#ifdef WIN32
+auto& std_error = std::wcerr;
+#else
+auto& std_error = std::cerr;
+#endif
 
 using namespace ifc::util;
 using namespace std::literals;
@@ -16,10 +32,11 @@ struct Arguments {
     PrintOptions options = PrintOptions::None;
 
     // Files to process.
-    std::vector<std::string> files;
+    std::vector<ifc::fs::path> files;
 };
 
-void print_help(std::filesystem::path path)
+
+void print_help(const ifc::fs::path& path)
 {
     auto name = path.stem().string();
     std::cout << "Usage:\n\n";
@@ -27,17 +44,17 @@ void print_help(std::filesystem::path path)
     std::cout << name << " --help/-h\n";
 }
 
-Arguments process_args(int argc, char* argv[])
+Arguments process_args(int argc, ifc::tool::NativeChar* argv[])
 {
     Arguments result;
     for (int i = 1; i < argc; ++i)
     {
-        if (argv[i] == "--help"sv)
+        if (argv[i] == NSV("--help"))
         {
             print_help(argv[0]);
             exit(0);
         }
-        else if (argv[i] == "--color"sv)
+        else if (argv[i] == NSV("--color"))
         {
             result.options |= PrintOptions::Use_color;
         }
@@ -48,11 +65,11 @@ Arguments process_args(int argc, char* argv[])
 
         else if (argv[i][0] != '-')
         {
-            result.files.push_back(argv[i]);
+            result.files.emplace_back(argv[i]);
         }
         else
         {
-            std::cout << "Unknown command line argument '" << argv[i] << "'\n";
+            std_error << NSV("Unknown command line argument '") << argv[i] << NSV("'\n");
             print_help(argv[0]);
             std::exit(1);
         }
@@ -60,7 +77,7 @@ Arguments process_args(int argc, char* argv[])
 
     if (result.files.empty())
     {
-        std::cout << "Specify filepath of an ifc file\n";
+        std_error << NSV("Specify filepath of an ifc file\n");
         print_help(argv[0]);
         std::exit(1);
     }
@@ -68,24 +85,23 @@ Arguments process_args(int argc, char* argv[])
     return result;
 }
 
-std::vector<std::byte> load_file(const std::string& name)
+std::vector<std::byte> load_file(const ifc::fs::path& path)
 {
-    std::filesystem::path path{name};
     auto size = std::filesystem::file_size(path);
     std::vector<std::byte> v;
     v.resize(size);
-    std::ifstream file(name, std::ios::binary);
+    std::ifstream file(path.string(), std::ios::binary);
     file.read(reinterpret_cast<char*>(v.data()), static_cast<std::streamsize>(v.size()));
     return v;
 }
 
-void process_ifc(const std::string& name, PrintOptions options)
+void process_ifc(const ifc::fs::path& path, PrintOptions options)
 {
-    auto contents = load_file(name);
+    auto contents = load_file(path);
 
     ifc::InputIfc file{gsl::span(contents)};
-    ifc::Pathname path{name.c_str()};
-    file.validate<ifc::UnitSort::Primary>(path, ifc::Architecture::Unknown, ifc::Pathname{},
+    ifc::Pathname name{path.u8string().c_str()};
+    file.validate<ifc::UnitSort::Primary>(name, ifc::Architecture::Unknown, ifc::Pathname{},
                                           ifc::IfcOptions::IntegrityCheck);
 
     ifc::Reader reader(file);
@@ -107,7 +123,11 @@ void process_ifc(const std::string& name, PrintOptions options)
     }
 }
 
+#ifdef WIN32
+int wmain(int argc, wchar_t* argv[])
+#else
 int main(int argc, char* argv[])
+#endif
 {
     Arguments arguments = process_args(argc, argv);
 
