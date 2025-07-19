@@ -8,6 +8,7 @@
 #include <string>
 #include <filesystem>
 #include <vector>
+#include <gsl/span>
 
 namespace ifc {
     // Filesystem component.  Forward to standard facilities.
