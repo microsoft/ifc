@@ -24,7 +24,7 @@ if(WIN32)
 endif()
 
 # By default we don't want the Visual Studio default "sources" and "headers" folders, the following put's everything directly in the project
-if (MSVC)
+if (${CMAKE_GENERATOR} MATCHES "^Visual Studio")
     source_group( " "  REGULAR_EXPRESSION .*)
 endif()
 
