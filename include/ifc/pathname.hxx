@@ -4,13 +4,16 @@
 #ifndef IFC_PATHNAME_INCLUDED
 #define IFC_PATHNAME_INCLUDED
 
-#include <cstring>
-
-#include <compare>
-#include <limits>
-#include <string>
-#include <string_view>
-#include <vector>
+#if defined(IFC_BUILD_USING_STD_MODULE)
+    import std;
+#else
+    #include <cstring>
+    #include <compare>
+    #include <limits>
+    #include <string>
+    #include <string_view>
+    #include <vector>
+#endif
 
 namespace ifc {
 

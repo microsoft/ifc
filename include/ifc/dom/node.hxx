@@ -21,14 +21,18 @@
 #include "ifc/reader.hxx"
 #include "ifc/util.hxx"
 
-#include <compare>
-#include <iosfwd>
-#include <map>
-#include <set>
-#include <utility>
-#include <variant>
-#include <stdexcept>
-#include <vector>
+#if defined(IFC_BUILD_USING_STD_MODULE)
+    import std;
+#else
+    #include <compare>
+    #include <iosfwd>
+    #include <map>
+    #include <set>
+    #include <utility>
+    #include <variant>
+    #include <stdexcept>
+    #include <vector>
+#endif
 
 namespace ifc::util {
     enum class SortKind : uint16_t {

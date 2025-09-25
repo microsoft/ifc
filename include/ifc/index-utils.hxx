@@ -4,9 +4,14 @@
 #ifndef IFC_INDEX_UTILS_INCLUDED
 #define IFC_INDEX_UTILS_INCLUDED
 
-#include <cstdint>
-#include <limits>
-#include <type_traits>
+#if defined(IFC_BUILD_USING_STD_MODULE)
+    import std;
+#else
+    #include <cstdint>
+    #include <limits>
+    #include <type_traits>
+#endif
+
 #include <ifc/assertions.hxx>
 #include <ifc/underlying.hxx>
 

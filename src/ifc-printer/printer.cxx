@@ -2,10 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include "printer.hxx"
-#include <iostream>
 
-#include <stack>
-#include <set>
+#if defined(IFC_BUILD_USING_STD_MODULE)
+    import std;
+#else
+    #include <stack>
+    #include <set>
+#endif
 
 namespace ifc::util {
     namespace {

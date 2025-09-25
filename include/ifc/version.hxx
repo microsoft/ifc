@@ -4,9 +4,13 @@
 #ifndef IFC_VERSION_INCLUDED
 #define IFC_VERSION_INCLUDED
 
-#include <cstdint>
+#if defined(IFC_BUILD_USING_STD_MODULE)
+    import std;
+#else
+    #include <cstdint>
 
-#include <compare>
+    #include <compare>
+#endif
 
 namespace ifc {
     // File format versioning description

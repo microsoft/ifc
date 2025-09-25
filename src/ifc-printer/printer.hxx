@@ -5,7 +5,12 @@
 #define IFC_TOOLS_PRINTER_HXX
 
 #include "ifc/dom/node.hxx"
-#include <ostream>
+
+#if defined(IFC_BUILD_USING_STD_MODULE)
+    import std;
+#else
+    #include <ostream>
+#endif
 
 namespace ifc::util {
     enum class PrintOptions : int8_t {

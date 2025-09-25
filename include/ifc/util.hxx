@@ -4,7 +4,12 @@
 #ifndef IFC_UTILS_H
 #define IFC_UTILS_H
 
-#include <string>
+#if defined(IFC_BUILD_USING_STD_MODULE)
+    import std;
+#else
+    #include <string>
+#endif
+
 #include "ifc/abstract-sgraph.hxx"
 
 namespace ifc::util {

@@ -4,9 +4,14 @@
 #ifndef IFC_FILE_INCLUDED
 #define IFC_FILE_INCLUDED
 
-#include <array>
-#include <string>
-#include <cstring>
+#if defined(IFC_BUILD_USING_STD_MODULE)
+    import std;
+#else
+    #include <array>
+    #include <span>
+    #include <string>
+    #include <cstring>
+#endif
 
 #include <ifc/assertions.hxx>
 #include "ifc/index-utils.hxx"
