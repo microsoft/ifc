@@ -242,7 +242,7 @@ namespace ifc {
         auto size = static_cast<std::size_t>(byte_count);
 
         SHA256Hash hash{};
-        std::uint8_t* alias = reinterpret_cast<uint8_t*>(hash.value.data());
+        std::uint8_t* alias = reinterpret_cast<std::uint8_t*>(hash.value.data());
         // std::copy in devcrt  issues a warning whenever you try to copy
         // an unbounded T* so we will just use std::memcpy instead.
         std::memcpy(alias, first, size);
@@ -556,6 +556,5 @@ namespace ifc {
         StringTable str_tab{};
     };
 } // namespace ifc
-
 
 #endif // IFC_FILE_INCLUDED

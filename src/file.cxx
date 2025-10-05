@@ -8,14 +8,14 @@ namespace ifc {
     {
         // Verify integrity of ifc.  To do this we know that the header content after the hash
         // starts after the interface signature and the first 256 bits.
-        constexpr size_t hash_start     = sizeof(InterfaceSignature);
-        constexpr size_t contents_start = hash_start + sizeof(SHA256Hash);
+        constexpr std::size_t hash_start     = sizeof(InterfaceSignature);
+        constexpr std::size_t contents_start = hash_start + sizeof(SHA256Hash);
         static_assert(contents_start == 36); // 4 bytes for Signature + 8*4 bytes for SHA2
         const auto& contents = file.contents();
         auto result          = hash_bytes(contents.data() + contents_start, contents.data() + contents.size());
-        auto actual_first    = reinterpret_cast<const uint8_t*>(result.value.data());
+        auto actual_first    = reinterpret_cast<const std::uint8_t*>(result.value.data());
         auto actual_last     = actual_first + std::size(result.value) * 4;
-        auto expected_first  = reinterpret_cast<const uint8_t*>(&contents[hash_start]);
+        auto expected_first  = reinterpret_cast<const std::uint8_t*>(&contents[hash_start]);
         auto expected_last   = expected_first + sizeof(SHA256Hash);
         if (not std::equal(actual_first, actual_last, expected_first, expected_last))
         {

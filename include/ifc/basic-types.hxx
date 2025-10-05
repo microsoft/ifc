@@ -6,6 +6,8 @@
 
 #include <ifc/underlying.hxx>
 
+#include <cstdint>
+
 namespace ifc {
     enum class ColumnNumber : std::int32_t {
         Invalid = -1,

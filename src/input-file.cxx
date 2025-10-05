@@ -8,6 +8,7 @@
 #  include <sys/mman.h>
 #  include <fcntl.h>
 #  include <unistd.h>
+#  include <errno.h>
 #endif
 
 #include "ifc/tooling.hxx"
