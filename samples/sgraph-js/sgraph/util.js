@@ -41,3 +41,33 @@ function debounce(func, timeout = 300) {
         timer = setTimeout(() => { func.apply(this, args); }, timeout);
     };
 }
+
+function binary_search(array, pred) {
+    let low = -1;
+    let high = array.length;
+    while (low + 1 < high) {
+        const mid = low + ((high - low) >> 1);
+        if (pred(array[mid])) {
+            high = mid;
+        } else {
+            low = mid;
+        }
+    }
+    return high;
+}
+
+// 'pred' should model "val <= x".
+function lower_bound(array, pred) {
+    return binary_search(array, pred);
+}
+
+// Useful array prototypes.
+Array.prototype.equal = function(other) {
+    if (this.length != other.length)
+        return false;
+    for (var i = 0; i < this.length; ++i) {
+        if (this[i] != other[i])
+            return false;
+    }
+    return true;
+}

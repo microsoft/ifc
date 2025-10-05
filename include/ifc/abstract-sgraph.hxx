@@ -316,7 +316,7 @@ namespace ifc {
         Destructor,            // A destructor declaration.
         Reference,             // A reference to a declaration from a given module.
         Using,                 // A using declaration.  FIXME: See bug https://github.com/microsoft/ifc-spec/issues/122
-        UnusedSort0,           // Empty slot
+        Prolongation,          // An out-of-home-scope definition for an entity previously declared in its home scope.
         Friend,                // A friend declaration.  FIXME: See bug https://github.com/microsoft/ifc-spec/issues/123
         Expansion,             // A pack-expansion of a declaration
         DeductionGuide,        // C(T) -> C<U>
@@ -2448,6 +2448,13 @@ namespace ifc {
             bool is_hidden{};                   // Is this using-declaration hidden?
         };
 
+        struct ProlongationDecl : Tag<DeclSort::Prolongation> {
+            Identity<NameIndex> identity{};
+            DeclIndex enclosing_scope{};   // Enclosing scope of this declaration.
+            DeclIndex home_scope{};        // The scope to which this decl belongs.
+            DeclIndex original_decl{};     // The original decl in home_scope.
+        };
+
         struct FriendDecl : Tag<DeclSort::Friend> {
             ExprIndex index{}; // The expression representing a reference to the declaration.
                                // Note: most of the time this is a NamedDeclExpression but it
@@ -3189,6 +3196,7 @@ namespace ifc {
         Attributes,      // attributes associated with a declaration
         Deprecated,      // deprecation message.
         DeductionGuides, // Declared deduction guides associated with a class
+        Prolongations,   // Prolongation declarations associated with a scope
         Count,
     };
 
@@ -3279,6 +3287,7 @@ namespace ifc {
         struct Attributes : AssociatedTrait<SyntaxIndex, SyntaxIndex>, TraitTag<TraitSort::Attributes> {};
         struct Deprecated : AssociatedTrait<DeclIndex, TextOffset>, TraitTag<TraitSort::Deprecated> {};
         struct DeductionGuides : AssociatedTrait<DeclIndex, DeclIndex>, TraitTag<TraitSort::DeductionGuides> {};
+        struct Prolongations : AssociatedTrait<DeclIndex, Sequence<Declaration>>, TraitTag<TraitSort::Prolongations> {};
     } // namespace symbolic::trait
 
     // Msvc specific traits. Should they be in their own namespace, like symbolic::MsvcTrait?
@@ -3431,6 +3440,7 @@ namespace ifc {
                                                      // semantics of the current TU.
         PartitionSummaryData debug_records;          // Implementation-specific data for debugging.
         PartitionSummaryData gmf_specializations;    // Decl-reachable template specializations in the global module fragment.
+        PartitionSummaryData prolongations;          // An association between scopes and prolongation declarations.
 
         // Facilities for iterating over the ToC as a sequence of partition summaries.
         // Note: the use of reinterpret_cast below is avoidable. One way uses

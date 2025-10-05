@@ -5,7 +5,6 @@
 #define IFC_VERSION_INCLUDED
 
 #include <cstdint>
-
 #include <compare>
 
 namespace ifc {
@@ -18,11 +17,16 @@ namespace ifc {
         auto operator<=>(const FormatVersion&) const = default;
     };
 
+    // Minimum and current version components.
+    inline constexpr Version MajorVersion { 0 }; 
+    inline constexpr Version MinimumMinorVersion { 43 };
+    inline constexpr Version CurrentMinorVersion { 44 };
+
     // Minimum supported file format version
-    inline constexpr FormatVersion MinimumFormatVersion{Version{0}, Version{43}};
+    inline constexpr FormatVersion MinimumFormatVersion{MajorVersion, MinimumMinorVersion};
 
     // The current version of file format emitted by the toolset
-    inline constexpr FormatVersion CurrentFormatVersion = MinimumFormatVersion;
+    inline constexpr FormatVersion CurrentFormatVersion{MajorVersion, CurrentMinorVersion};
 } // namespace ifc
 
 #endif // IFC_VERSION_INCLUDED

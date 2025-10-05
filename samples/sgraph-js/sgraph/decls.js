@@ -196,7 +196,7 @@ class PartialSpecializationDecl {
         this.home_scope = new DeclIndex(reader);
         this.chart = new ChartIndex(reader);
         this.entity = new ParameterizedEntity(reader);
-        this.specialization_info = reader.read_uint32();
+        this.specialization_form = new SpecFormIndex(reader);
         this.basic_spec = new BasicSpecifiers(reader);
         this.access = new Access(reader);
         this.properties = new ReachableProperties(reader);
@@ -219,7 +219,7 @@ class SpecializationDecl {
     static partition_name = "decl.specialization";
 
     constructor(reader) {
-        this.specialization_info = reader.read_uint32();
+        this.specialization_form = new SpecFormIndex(reader);
         this.decl = new DeclIndex(reader);
         this.sort = new SpecializationSort(reader);
         this.pad1 = new StructPadding(reader);
@@ -362,6 +362,17 @@ class UsingDecl {
         this.basic_spec = new BasicSpecifiers(reader);
         this.access = new Access(reader);
         this.is_hidden = reader.read_uint8();
+    }
+}
+
+class ProlongationDecl {
+    static partition_name = "decl.prolongation";
+
+    constructor(reader) {
+        this.identity = new IdentityNameIndex(reader);
+        this.enclosing_scope = new DeclIndex(reader);
+        this.home_scope = new DeclIndex(reader);
+        this.original_decl = new DeclIndex(reader);
     }
 }
 
@@ -515,6 +526,8 @@ function symbolic_for_decl_sort(sort) {
         return ReferenceDecl;
     case DeclIndex.Sort.Using:
         return UsingDecl;
+    case DeclIndex.Sort.Prolongation:
+        return ProlongationDecl;
     case DeclIndex.Sort.Friend:
         return FriendDecl;
     case DeclIndex.Sort.Expansion:
@@ -535,7 +548,6 @@ function symbolic_for_decl_sort(sort) {
         return SegmentDecl;
     case DeclIndex.Sort.VendorExtension:
         return VendorDecl;
-    case DeclIndex.Sort.UnusedSort0:
     default:
         console.error(`Bad sort: ${sort}`);
         return null;

@@ -1,9 +1,9 @@
 // Copyright Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// Based on IFC specification 0.43.
+// Based on IFC specification 0.44.
 function implemented_ifc_version() {
-    return new Version(0, 43);
+    return new Version(0, 44);
 }
 
 function ifc_version_compatible(version) {
@@ -69,7 +69,7 @@ class DeclIndex {
         Destructor:              19, // A destructor declaration.
         Reference:               20, // A reference to a declaration from a given module.
         Using:                   21, // A using declaration.  FIXME: See bug https://github.com/microsoft/ifc-spec/issues/122
-        UnusedSort0:             22, // Empty slot
+        Prolongation:            22, // An out-of-home-scope definition for an entity previously declared in its home scope.
         Friend:                  23, // A friend declaration.  FIXME: See bug https://github.com/microsoft/ifc-spec/issues/123
         Expansion:               24, // A pack-expansion of a declaration
         DeductionGuide:          25, // C(T) -> C<U>
@@ -860,3 +860,79 @@ class StructPadding {
         this.value = reader.read_uint8();
     }
 }
+
+// Symbolic representation of a specialization request, whether implicit or explicit.
+class SpecializationForm {
+    static partition_name = "form.spec";
+
+    constructor(reader) {
+        this.template_decl = new DeclIndex(reader);
+        this.arguments = new ExprIndex(reader);
+    }
+}
+
+class SpecFormIndex {
+    constructor(reader) {
+        this.T = SpecializationForm;
+        this.value = reader.read_uint32();
+    }
+}
+
+// MSVC-specific vendor traits.
+class MsvcVendorTraits {
+    static partition_name = ".msvc.trait.vendor-traits";
+
+    static Values = {
+        None:                    0,
+        ForceInline:             1 << 0,  // __forceinline function
+        Naked:                   1 << 1,  // __declspec(naked)
+        NoAlias:                 1 << 2,  // __declspec(noalias)
+        NoInline:                1 << 3,  // __declspec(noinline)
+        Restrict:                1 << 4,  // __declspec(restrict)
+        SafeBuffers:             1 << 5,  // __declspec(safebuffers)
+        DllExport:               1 << 6,  // __declspec(dllexport)
+        DllImport:               1 << 7,  // __declspec(dllimport)
+        CodeSegment:             1 << 8,  // __declspec(code_seg("segment"))
+        NoVtable:                1 << 9,  // __declspec(novtable) for a class type.
+        IntrinsicType:           1 << 10, // __declspec(intrin_type)
+        EmptyBases:              1 << 11, // __declspec(empty_bases)
+        Process:                 1 << 12, // __declspec(process)
+        Allocate:                1 << 13, // __declspec(allocate("segment"))
+        SelectAny:               1 << 14, // __declspec(selectany)
+        Comdat:                  1 << 15,
+        Uuid:                    1 << 16, // __declspec(uuid(....))
+        NoCtorDisplacement:      1 << 17, // #pragma vtordisp(0)
+        DefaultCtorDisplacement: 1 << 18, // #pragma vtordisp(1)
+        FullCtorDisplacement:    1 << 19, // #pragma vtordisp(2)
+        NoSanitizeAddress:       1 << 20, // __declspec(no_sanitize_address)
+        NoUniqueAddress:         1 << 21, // '[[msvc::no_unique_address]]'
+        NoInitAll:               1 << 22, // __declspec(no_init_all)
+        DynamicInitialization:   1 << 23, // Indicates that this entity is used for implementing
+                                          // aspects of dynamic initialization.
+        LexicalScopeIndex:      1 << 24,  // Indicates this entity has a local lexical scope index associated with it.
+        ResumableFunction:      1 << 25,  // Indicates this function was a transformed coroutine function.
+        PersistentTemporary:    1 << 26,  // a c1xx-ism which will create long-lived temporary symbols when expressions
+                                          // need their result to live beyond the full expression, e.g. lifetime
+                                          // extended temporaries.
+        IneligibleForNRVO:      1 << 27,  // a c1xx-ism in which the front-end conveys to the back-end that a particular
+                                          // function cannot utilize NRVO on this function.  This is important due to the
+                                          // MSVC C++ calling convention which passes UDTs on the stack as a hidden parameter
+                                          // to functions returning that type.
+        MultiBytePTMRep:        1 << 28   // a c1xx-ism which indicates that the pointer-to-member representation for a class
+                                          // type is a generalized multi-byte representation for ABI purposes.
+    };
+
+    constructor(reader) {
+        this.value = reader.read_uint32();
+    }
+}
+
+class AssociatedTrait {
+    constructor(part, K, V) {
+        this.partition_name = part;
+        this.K = K;
+        this.V = V;
+    }
+}
+
+const AssociatedMsvcTraits = new AssociatedTrait(MsvcVendorTraits.partition_name, DeclIndex, MsvcVendorTraits);
