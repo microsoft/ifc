@@ -23,6 +23,12 @@ if(WIN32)
   add_compile_definitions(NOMINMAX)
 endif()
 
+# By default we don't want the Visual Studio default "sources" and "headers" folders, the following put's everything directly in the project
+if (${CMAKE_GENERATOR} MATCHES "^Visual Studio")
+    source_group( " "  REGULAR_EXPRESSION .*)
+endif()
+
+
 # The `reader` component.
 add_library(
     ifc-reader STATIC
@@ -58,6 +64,7 @@ add_library(
     src/ifc-dom/stmts.cxx
     src/ifc-dom/syntax.cxx
     src/ifc-dom/types.cxx
+    src/ifc-dom/common.hxx
 )
 add_library(Microsoft.IFC::DOM ALIAS ifc-dom)
 set_property(TARGET ifc-dom PROPERTY EXPORT_NAME DOM)
@@ -87,6 +94,7 @@ if(BUILD_PRINTER)
       ifc-printer
       src/ifc-printer/main.cxx
       src/ifc-printer/printer.cxx
+      src/ifc-printer/printer.hxx
       src/assert.cxx
   )
   target_link_libraries(ifc-printer PRIVATE ifc-dom ifc-reader)
@@ -105,3 +113,32 @@ include(CTest)
 if(BUILD_TESTING)
   add_subdirectory(test)
 endif()
+
+# Add include headers
+add_custom_target(ifc-include SOURCES
+    include/ifc/abstract-sgraph.hxx
+    include/ifc/assertions.hxx
+    include/ifc/basic-types.hxx
+    include/ifc/file.hxx
+    include/ifc/index-utils.hxx
+    include/ifc/operators.hxx
+    include/ifc/pathname.hxx
+    include/ifc/pp-forms.hxx
+    include/ifc/reader.hxx
+    include/ifc/source-word.hxx
+    include/ifc/tooling.hxx
+    include/ifc/underlying.hxx
+    include/ifc/util.hxx
+    include/ifc/version.hxx
+    include/ifc/dom/node.hxx
+)
+
+set( SolutionItems
+    .clang-format
+    .gitignore
+    CMakePresets.json
+    LICENSE.txt
+    README.md
+    vcpkg.json)
+set_property(DIRECTORY APPEND PROPERTY VS_SOLUTION_ITEMS ${SolutionItems})
+source_group("Solution Items" FILES ${SolutionItems})
