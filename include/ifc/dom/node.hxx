@@ -35,7 +35,7 @@
 #endif
 
 namespace ifc::util {
-    enum class SortKind : uint16_t {
+    enum class SortKind : std::uint16_t {
         Expr,
         Decl,
         Type,
@@ -120,8 +120,8 @@ namespace ifc::util {
 
     private:
         const SortKind index_kind;
-        const uint16_t index_sort;
-        const uint32_t index_value;
+        const std::uint16_t index_sort;
+        const std::uint32_t index_value;
     };
 
     template<typename F>

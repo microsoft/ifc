@@ -26,7 +26,7 @@ namespace ifc {
     using index_like::Index;
 
     // Type for the size of a partition entry
-    enum class EntitySize : uint32_t {};
+    enum class EntitySize : std::uint32_t {};
 
     // Return the number of bytes in the object representation of type T.
     // This is, of course, the same thing as sizeof(T), except that we insist
@@ -37,7 +37,7 @@ namespace ifc {
     // Offset in a byte stream.
     // TODO: abstract over large file support.  For now, we expect module exports to be vastly smaller
     //       than the collection of all declarations from a header file content.
-    enum class ByteOffset : uint32_t {};
+    enum class ByteOffset : std::uint32_t {};
 
     constexpr bool zero(ByteOffset x)
     {
@@ -68,7 +68,7 @@ namespace ifc {
     }
 
     // Data type for assessing the 'size' of a collection.
-    enum class Cardinality : uint32_t {};
+    enum class Cardinality : std::uint32_t {};
 
     constexpr bool zero(Cardinality n)
     {
@@ -100,13 +100,13 @@ namespace ifc {
     }
 
     // Module Interface signature
-    inline constexpr uint8_t InterfaceSignature[4] = {0x54, 0x51, 0x45, 0x1A};
+    inline constexpr std::uint8_t InterfaceSignature[4] = {0x54, 0x51, 0x45, 0x1A};
 
     // ABI description.
-    enum class Abi : uint8_t {};
+    enum class Abi : std::uint8_t {};
 
     // Architecture description
-    enum class Architecture : uint8_t {
+    enum class Architecture : std::uint8_t {
         Unknown        = 0x00, // unknown target
         X86            = 0x01, // x86 (32-bit) target
         X64            = 0x02, // x64 (64-bit) target
@@ -117,21 +117,21 @@ namespace ifc {
     };
 
     // CplusPlus Version Info : defined by [cpp.predefined]/1
-    enum class CPlusPlus : uint32_t {};
+    enum class CPlusPlus : std::uint32_t {};
 
     // Names and strings are stored in a global string table.
     // The texts are referenced via offsets.
-    enum class TextOffset : uint32_t {};
+    enum class TextOffset : std::uint32_t {};
 
     // Index into the scope table.
-    enum ScopeIndex : uint32_t {};
+    enum ScopeIndex : std::uint32_t {};
 
     struct SHA256Hash {
-        std::array<uint32_t, 8> value;
+        std::array<std::uint32_t, 8> value;
     };
 
     // The various sort of translation units that can be represented in an IFC file.
-    enum class UnitSort : uint8_t {
+    enum class UnitSort : std::uint8_t {
         Source,     // General source translation unit.
         Primary,    // Module primary interface unit.
         Partition,  // Module interface partition unit.
@@ -237,7 +237,7 @@ namespace ifc {
 
     SHA256Hash hash_bytes(const std::byte* first, const std::byte* last);
 
-    inline SHA256Hash bytes_to_hash(const uint8_t* first, const uint8_t* last)
+    inline SHA256Hash bytes_to_hash(const std::uint8_t* first, const std::uint8_t* last)
     {
         auto byte_count = std::distance(first, last);
         if (byte_count != sizeof(SHA256Hash))
@@ -247,7 +247,7 @@ namespace ifc {
         auto size = static_cast<std::size_t>(byte_count);
 
         SHA256Hash hash{};
-        uint8_t* alias = reinterpret_cast<uint8_t*>(hash.value.data());
+        std::uint8_t* alias = reinterpret_cast<std::uint8_t*>(hash.value.data());
         // std::copy in devcrt  issues a warning whenever you try to copy
         // an unbounded T* so we will just use std::memcpy instead.
         std::memcpy(alias, first, size);
@@ -561,6 +561,5 @@ namespace ifc {
         StringTable str_tab{};
     };
 } // namespace ifc
-
 
 #endif // IFC_FILE_INCLUDED

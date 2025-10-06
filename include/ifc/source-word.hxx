@@ -15,7 +15,7 @@
 namespace ifc {
 
     // The many sorts of words that make up a sentence
-    enum class WordSort : uint8_t {
+    enum class WordSort : std::uint8_t {
         Unknown,    // Unclassified word.
         Directive,  // Implementation-defined control-line surviving Phase 4 of translation.
         Punctuator, // punctuators as defined by ISO C++, along with C1xx internal markers
@@ -32,7 +32,7 @@ namespace ifc {
     // shielded from the token-du-jour update vagaries.  These temporary measures will be
     // removed as c1xx gains more a principled internal representation.
     namespace source {
-        enum class Directive : uint16_t {
+        enum class Directive : std::uint16_t {
             Unknown = 0x0000,
 
             Msvc = 0x1FFF,
@@ -95,7 +95,7 @@ namespace ifc {
             MsvcPragmaP0line,
         };
 
-        enum class Punctuator : uint16_t {
+        enum class Punctuator : std::uint16_t {
             Unknown = 0x0000,
             LeftParenthesis,  // "("
             RightParenthesis, // ")"
@@ -119,7 +119,7 @@ namespace ifc {
             MsvcDefaultInitStart,
         };
 
-        enum class Literal : uint16_t {
+        enum class Literal : std::uint16_t {
             Unknown = 0x0000,
             Scalar,        // characters, integers, floating points, pointers
             String,        // string literals
@@ -136,7 +136,7 @@ namespace ifc {
             MsvcTemplateId,        // A reference to a known template template specialization.
         };
 
-        enum class Operator : uint16_t {
+        enum class Operator : std::uint16_t {
             Unknown = 0x0000,
             Equal,              // "="
             Comma,              // ","
@@ -182,7 +182,7 @@ namespace ifc {
             Msvc = 0x1FFF,
         };
 
-        enum class Keyword : uint16_t {
+        enum class Keyword : std::uint16_t {
             Unknown = 0x0000,
             Alignas,         // "alignas"
             Alignof,         // "alignof"
@@ -375,7 +375,7 @@ namespace ifc {
             MsvcConfusedAlignas, // Confusion in the token gatherer about "alignas"
         };
 
-        enum class Identifier : uint16_t {
+        enum class Identifier : std::uint16_t {
             Plain = 0x0000,
 
             Msvc = 0x1FFF,
@@ -402,7 +402,7 @@ namespace ifc {
 
     // Stores preprocessing operators and punctuators, before any semantic conversion is done.
     struct PPOperator {
-        enum class Index : uint16_t {};
+        enum class Index : std::uint16_t {};
         PPOperator() : tag{}, value{} {}
         template<PPOperatorCategory Category>
         PPOperator(Category c) : tag(ifc::to_underlying(pp_operator_sort(c))), value(ifc::to_underlying(c))
@@ -417,13 +417,13 @@ namespace ifc {
         }
 
     private:
-        uint16_t tag : 3;
-        uint16_t value : 13; // MSVC starts at 0x1FFF, so all values prior fit into 13 bits.
+        std::uint16_t tag : 3;
+        std::uint16_t value : 13; // MSVC starts at 0x1FFF, so all values prior fit into 13 bits.
         static_assert(ifc::bit_length(ifc::to_underlying(WordSort::Count)) == 3);
         static_assert(ifc::bit_length(ifc::to_underlying(source::Operator::Msvc)) == 13);
         static_assert(ifc::bit_length(ifc::to_underlying(source::Punctuator::Msvc)) == 13);
     };
-    static_assert(sizeof(PPOperator) == sizeof(uint16_t));
+    static_assert(sizeof(PPOperator) == sizeof(std::uint16_t));
 } // namespace ifc
 
 #endif

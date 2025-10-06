@@ -177,7 +177,7 @@ int IFC_MAIN(int argc, ifc::tool::NativeChar* argv[])
 #ifdef WIN32
     auto status = _wsystem(command.c_str());
 #else
-    auto status = system(command.c_str());
+    auto status = std::system(command.c_str());
 #endif
     if (status != 0)
         IFC_ERR << STR("ifc: no subcommand named '") << cmd << STR("'") << std::endl;

@@ -9,7 +9,7 @@
 namespace ifc {
     // Classification of pre-syntactic forms used to group
     // pp-tokens during, and out of, translation phases 1-4.
-    enum class FormSort : uint8_t {
+    enum class FormSort : std::uint8_t {
         Identifier,    // identifier form
         Number,        // number form
         Character,     // built-in or ud-suffixed character literal form

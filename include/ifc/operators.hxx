@@ -24,7 +24,7 @@
 namespace ifc {
     // The many sort of operators.
     // Note: Valid values of this type must fit in 4 bits.  See Operator class below.
-    enum class OperatorSort : uint8_t {
+    enum class OperatorSort : std::uint8_t {
         Niladic,        // no argument
         Monadic,        // one argument
         Dyadic,         // two arguments
@@ -35,7 +35,7 @@ namespace ifc {
 
     // The set of operators taking exactly no argument.
     // Note: Valid values of this type must fit in 12 bits.  See Operator class below.
-    enum class NiladicOperator : uint16_t {
+    enum class NiladicOperator : std::uint16_t {
         Unknown,  // also serves as a placeholder for undefined
         Phantom,  // no expression -- not the same as Nil, which has type void
         Constant, // scalar or string literal constants, constants of class types
@@ -51,7 +51,7 @@ namespace ifc {
     // The set of operators taking exactly one argument.
     // Note: Valid values of this type must fit in 12 bits.  See Operator class below.
     // clang-format off
-    enum class MonadicOperator : uint16_t {
+    enum class MonadicOperator : std::uint16_t {
         Unknown,
         Plus,                                               // +x                   -- unethical on non-literals, operator at source level
         Negate,                                             // -x
@@ -158,7 +158,7 @@ namespace ifc {
     // The set of operators taking exactly two arguments.
     // Note: Valid values of this type must fit in 12 bits.  See Operator class below.
     // clang-format off
-    enum class DyadicOperator : uint16_t {
+    enum class DyadicOperator : std::uint16_t {
         Unknown,
         Plus,                               // x + y
         Minus,                              // x - y
@@ -258,7 +258,7 @@ namespace ifc {
     // The set of operators taking exactly three arguments.
     // Note: Valid values of this type must fit in 12 bits.  See Operator class below.
     // clang-format off
-    enum class TriadicOperator : uint16_t {
+    enum class TriadicOperator : std::uint16_t {
         Unknown,
         Choice,                             // x ? : y: z
         ConstructAt,                        // new(p) T(x)
@@ -276,7 +276,7 @@ namespace ifc {
 
     // The set of operators for dynamic storage manipulation, not classified by arity.
     // Note: Valid values of this type must fit in 12 bits.  See Operator class below.
-    enum class StorageOperator : uint16_t {
+    enum class StorageOperator : std::uint16_t {
         Unknown,
         AllocateSingle,   // operator new
         AllocateArray,    // operator new[]
@@ -290,7 +290,7 @@ namespace ifc {
 
     // The set of operators taking any number of arguments.
     // Note: Valid values of this type must fit in 12 bits.  See Operator class below.
-    enum class VariadicOperator : uint16_t {
+    enum class VariadicOperator : std::uint16_t {
         Unknown,
         Collection, // x, y, z  -- collection of expressions, not the comma expression; no order of evaluation
         Sequence,   // Like Collection, but with a left-to-right sequencing order of evaluation
@@ -356,7 +356,7 @@ namespace ifc {
 
     // Universal representation of arity-graded operators
     struct Operator {
-        enum class Index : uint16_t {};
+        enum class Index : std::uint16_t {};
         constexpr Operator() : tag{}, value{} {}
         template<OperatorCategory Category>
         constexpr Operator(Category c) : tag(ifc::to_underlying(operator_sort(c))), value(ifc::to_underlying(c))
@@ -373,11 +373,11 @@ namespace ifc {
         auto operator<=>(const Operator&) const = default;
 
     private:
-        uint16_t tag : sort_precision;
-        uint16_t value : index_precision;
+        std::uint16_t tag : sort_precision;
+        std::uint16_t value : index_precision;
     };
 
-    static_assert(sizeof(Operator) == sizeof(uint16_t));
+    static_assert(sizeof(Operator) == sizeof(std::uint16_t));
 } // namespace ifc
 
 #endif // IFC_OPERATORS

@@ -44,19 +44,19 @@ namespace ifc {
     constexpr auto count = std::underlying_type_t<S>(S::Count);
 
     // Source line info index into the global line table.
-    enum class LineIndex : uint32_t {};
+    enum class LineIndex : std::uint32_t {};
 
     // Index into a word stream.
-    enum class WordIndex : uint32_t {};
+    enum class WordIndex : std::uint32_t {};
 
     // Index into the token stream table.
-    enum class SentenceIndex : uint32_t {};
+    enum class SentenceIndex : std::uint32_t {};
 
     // Index into the specialization form table.
-    enum class SpecFormIndex : uint32_t {};
+    enum class SpecFormIndex : std::uint32_t {};
 
     // The variety of string literals
-    enum class StringSort : uint8_t {
+    enum class StringSort : std::uint8_t {
         Ordinary, // Ordinary string literal -- no prefix.
         UTF8,     // UTF-8 narrow string literal -- only u8 prefix.
         UTF16,    // A char16_t string literal -- only u prefix.
@@ -71,7 +71,7 @@ namespace ifc {
     };
 
     // The sort of module ownership or entities.
-    enum class Ownership : uint8_t {
+    enum class Ownership : std::uint8_t {
         Unknown,  // No particular information is known.
         Imported, // The reference is to an imported module.
         Exported, // The reference is to an exported module.
@@ -80,7 +80,7 @@ namespace ifc {
 
     // Set of declarative properties reachable from any program points
     // outside from a module boundaries.
-    enum class ReachableProperties : uint8_t {
+    enum class ReachableProperties : std::uint8_t {
         Nothing          = 0,      // nothing beyond name, type, scope.
         Initializer      = 1 << 0, // IPR-initializer exported.
         DefaultArguments = 1 << 1, // function or template default arguments exported
@@ -89,7 +89,7 @@ namespace ifc {
     };
 
     // Standard C++ access specifiers.
-    enum class Access : uint8_t {
+    enum class Access : std::uint8_t {
         None,      // No access specified.
         Private,   // "private"
         Protected, // "protected"
@@ -98,7 +98,7 @@ namespace ifc {
     };
 
     // Common declaration specifiers.  By default, we assume the language linkage to C++.
-    enum class BasicSpecifiers : uint8_t {
+    enum class BasicSpecifiers : std::uint8_t {
         Cxx                    = 0,      // C++ language linkage
         C                      = 1 << 0, // C language linkage
         Internal               = 1 << 1, // Exported entities should have external linkage, not sure we need this.
@@ -113,7 +113,7 @@ namespace ifc {
 
     // The various calling conventions currently supported by VC.
     // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/115
-    enum class CallingConvention : uint8_t {
+    enum class CallingConvention : std::uint8_t {
         Cdecl,  // "__cdecl"
         Fast,   // "__fastcall"
         Std,    // "__stdcall"
@@ -125,7 +125,7 @@ namespace ifc {
     };
 
     // Modifiers of (member) function types.
-    enum class FunctionTypeTraits : uint8_t {
+    enum class FunctionTypeTraits : std::uint8_t {
         None     = 0x00, // Just a regular function parameter type list
         Const    = 0x01, // 'void (int) const'
         Volatile = 0x02, // 'void (int) volatile'
@@ -135,7 +135,7 @@ namespace ifc {
 
     // General description of exception-specification.
     // FIXME:  See https://github.com/microsoft/ifc-spec/issues/116
-    enum class ExceptionSpecification : uint8_t {
+    enum class ExceptionSpecification : std::uint8_t {
         None,         // None specified, not the same as no-exception
         NonNoexcept,  // "noexcept(false)" specification
         Noexcept,     // "noexcept" or "noexcept(true)" specification.
@@ -147,7 +147,7 @@ namespace ifc {
 
     // Noexcept semantics resolution.
     // FIXME: See https://github.com/microsoft/ifc-spec/issues/116
-    enum class NoexceptSort : uint8_t {
+    enum class NoexceptSort : std::uint8_t {
         None,                  // No specifier
         False,                 // "noexcept(false)" specifier.
         True,                  // "noexcept(true)" specifier.
@@ -161,7 +161,7 @@ namespace ifc {
     };
 
     // Semantics traits of scope types (classes, namespaces, etc).
-    enum class ScopeTraits : uint8_t {
+    enum class ScopeTraits : std::uint8_t {
         None                = 0,
         Unnamed             = 1 << 0, // unnamed namespace, or unnamed class types.
         Inline              = 1 << 1, // inline namespace.
@@ -173,7 +173,7 @@ namespace ifc {
     };
 
     // Variable and object trait specifiers.
-    enum class ObjectTraits : uint8_t {
+    enum class ObjectTraits : std::uint8_t {
         None                = 0,
         Constexpr           = 1 << 0, // Constexpr object.
         Mutable             = 1 << 1, // Mutable object.
@@ -187,10 +187,10 @@ namespace ifc {
     };
 
     // Type for #pragma pack values.
-    enum class PackSize : uint16_t {};
+    enum class PackSize : std::uint16_t {};
 
     // Semantic traits of functions.
-    enum class FunctionTraits : uint16_t {
+    enum class FunctionTraits : std::uint16_t {
         None                    = 0,
         Inline                  = 1 << 0,   // inline function
         Constexpr               = 1 << 1,   // constexpr function
@@ -213,14 +213,14 @@ namespace ifc {
     };
 
     // Semantic traits of deduction guides.
-    enum class GuideTraits : uint8_t {
+    enum class GuideTraits : std::uint8_t {
         None     = 0,      // nothing
         Explicit = 1 << 0, // the deduction guide is declared 'explicit'.
     };
 
     // MSVC-specific declspec attributes.
     // FIXME: Sequester in an MSVC-specific file, and represent as a form of standard attributes.
-    enum class VendorTraits : uint32_t {
+    enum class VendorTraits : std::uint32_t {
         None                    = 0,
         ForceInline             = 1 << 0,  // __forceinline function
         Naked                   = 1 << 1,  // __declspec(naked)
@@ -261,13 +261,13 @@ namespace ifc {
     };
 
     // FIXME: Move to an MSVC-specific file. Attributes of segments.
-    enum class SegmentTraits : uint32_t {};
+    enum class SegmentTraits : std::uint32_t {};
 
     // FIXME: Move to an MSVC-specific file.
-    enum class SegmentType : uint8_t {};
+    enum class SegmentType : std::uint8_t {};
 
     // Account for all kinds of valid C++ names.
-    enum class NameSort : uint8_t {
+    enum class NameSort : std::uint8_t {
         Identifier,     // Normal alphabetic identifiers.
         Operator,       // Operator names.
         Conversion,     // Conversion function name.
@@ -285,7 +285,7 @@ namespace ifc {
     };
 
     // Sort of template parameter set (also called chart.)
-    enum class ChartSort : uint8_t {
+    enum class ChartSort : std::uint8_t {
         None,       // No template parameters; e.g. explicit specialization.
         Unilevel,   // Unidimensional set of template parameters; e.g. templates that are not members of templates.
         Multilevel, // Multidimensional set of template parameters; e.g. member templates of templates.
@@ -298,7 +298,7 @@ namespace ifc {
     };
 
     // Sorts of declarations that can be exported, or part of exportable entities.
-    enum class DeclSort : uint8_t {
+    enum class DeclSort : std::uint8_t {
         VendorExtension,       // A vendor-specific extension.
         Enumerator,            // An enumerator declaration.
         Variable,              // A variable declaration; a static-data member is also considered a variable.
@@ -342,7 +342,7 @@ namespace ifc {
     };
 
     // Sorts of types.
-    enum class TypeSort : uint8_t {
+    enum class TypeSort : std::uint8_t {
         VendorExtension, // Vendor-specific type constructor extensions.
         Fundamental,     // Fundamental type, in standard C++ sense
         Designated,      // A type designated by a declared name.  Really a proxy type designator.
@@ -377,7 +377,7 @@ namespace ifc {
 
     // The set of exported syntactic elements
     // FIXME: See bug https://github.com/microsoft/ifc-spec/issues/127
-    enum class SyntaxSort : uint8_t {
+    enum class SyntaxSort : std::uint8_t {
         VendorExtension,           // Vendor-specific extension for syntax. What fresh hell is this?
         SimpleTypeSpecifier,       // A simple type-specifier (i.e. no declarator)
         DecltypeSpecifier,         // A decltype-specifier - 'decltype(expression)'
@@ -502,7 +502,7 @@ namespace ifc {
     };
 
     // The various kinds of parameters.
-    enum class ParameterSort : uint8_t {
+    enum class ParameterSort : std::uint8_t {
         Object,   // Function parameter
         Type,     // Type template parameter
         NonType,  // Non-type template parameter
@@ -511,7 +511,7 @@ namespace ifc {
     };
 
     // The various sort of literal constants.
-    enum class LiteralSort : uint8_t {
+    enum class LiteralSort : std::uint8_t {
         Immediate,     // Immediate integer constants, directly representable by an index value.
         Integer,       // Unsigned 64-bit integer constant that are not immediate values.
         FloatingPoint, // Floating point constant.
@@ -524,7 +524,7 @@ namespace ifc {
     };
 
     // Sorts of statements.
-    enum class StmtSort : uint8_t {
+    enum class StmtSort : std::uint8_t {
         VendorExtension, // Vendor-specific extensions
         Try,             // A try-block containing a list of handlers
         If,              // If statements
@@ -557,7 +557,7 @@ namespace ifc {
     };
 
     // Sorts of expressions.
-    enum class ExprSort : uint8_t {
+    enum class ExprSort : std::uint8_t {
         VendorExtension,           // Vendor-specific extension for expressions.
         Empty,                     // An empty expression.
         Literal,                   // Literal constants.
@@ -640,7 +640,7 @@ namespace ifc {
         using Over<ExprSort>::Over;
     };
 
-    enum class InheritanceSort : uint8_t {
+    enum class InheritanceSort : std::uint8_t {
         None,
         Single,
         Multiple,
@@ -648,7 +648,7 @@ namespace ifc {
     };
 
     // Type qualifiers.
-    enum class Qualifier : uint8_t {
+    enum class Qualifier : std::uint8_t {
         None     = 0,      // No qualifier
         Const    = 1 << 0, // "const" qualifier
         Volatile = 1 << 1, // "volatile" qualifier
@@ -656,9 +656,9 @@ namespace ifc {
     };
 
     // Type of abstract references to words (generalized tokens).
-    enum class WordCategory : uint16_t {};
+    enum class WordCategory : std::uint16_t {};
 
-    enum class MacroSort : uint8_t {
+    enum class MacroSort : std::uint8_t {
         ObjectLike,   // #define NAME <replacement-text>
         FunctionLike, // #define F(A, B) <replacement-text>
         Count
@@ -669,7 +669,7 @@ namespace ifc {
         using Over<MacroSort>::Over;
     };
 
-    enum class PragmaSort : uint8_t {
+    enum class PragmaSort : std::uint8_t {
         VendorExtension,
         Expr,            // Pragma with a description and expression representing compiler information, e.g. #pragma message "literal"
         Count,
@@ -683,7 +683,7 @@ namespace ifc {
     static_assert(index_like::tag_precision<PragmaSort> == 1);
     static_assert(index_like::index_precision<PragmaSort> == 31);
 
-    enum class AttrSort : uint8_t {
+    enum class AttrSort : std::uint8_t {
         Nothing,    // no attribute - [[ ]]
         Basic,      // any token    - [[ foo ]]
         Scoped,     // scoped attribute - [[foo :: bar]]
@@ -701,7 +701,7 @@ namespace ifc {
         using Over<AttrSort>::Over;
     };
 
-    enum class DirSort : uint8_t {
+    enum class DirSort : std::uint8_t {
         VendorExtension,   // Vendor-specific extension for directives.
         Empty,             // An empty declaration - ;
         Attribute,         // Attribute declaration - [[nodiscard]].
@@ -744,7 +744,7 @@ namespace ifc {
     };
 
     // Symbolic name of the various heaps stored in an IFC.
-    enum class HeapSort : uint8_t {
+    enum class HeapSort : std::uint8_t {
         Decl,   // DeclIndex heap
         Type,   // TypeIndex heap
         Stmt,   // StmtIndex heap
@@ -761,7 +761,7 @@ namespace ifc {
     };
 
     // Vendor-specific syntax (or future additions to the IFC specification).
-    enum class VendorSort : uint8_t {
+    enum class VendorSort : std::uint8_t {
         SEHTry,                 // A structured exception handling try block.
         SEHFinally,             // A structured exception handling finally block.
         SEHExcept,              // A structured exception handling except block.
@@ -912,7 +912,7 @@ namespace ifc {
         };
 
         // The set of fundamental type basis.
-        enum class TypeBasis : uint8_t {
+        enum class TypeBasis : std::uint8_t {
             Void,             // "void"
             Bool,             // "bool"
             Char,             // "char"
@@ -940,7 +940,7 @@ namespace ifc {
             Count             // cardinality of fundamental type basis.
         };
 
-        enum class TypePrecision : uint8_t {
+        enum class TypePrecision : std::uint8_t {
             Default, // Default bit width, whatever that is.
             Short,   // The short version.
             Long,    // The long version.
@@ -953,7 +953,7 @@ namespace ifc {
         };
 
         // Signed-ness of a fundamental type.
-        enum class TypeSign : uint8_t {
+        enum class TypeSign : std::uint8_t {
             Plain,    // No sign specified, default to standard interpretation.
             Signed,   // Specified sign, or implied
             Unsigned, // Specified sign.
@@ -967,11 +967,11 @@ namespace ifc {
             TypeBasis basis{};
             TypePrecision precision{};
             TypeSign sign{};
-            uint8_t unused{};
+            std::uint8_t unused{};
         };
 
         // Template parameter pack and template-id expansion mode.
-        enum class ExpansionMode : uint8_t {
+        enum class ExpansionMode : std::uint8_t {
             Full,
             Partial,
         };
@@ -1097,7 +1097,7 @@ namespace ifc {
             ExprIndex path{};
         };
 
-        enum class BaseClassTraits : uint8_t {
+        enum class BaseClassTraits : std::uint8_t {
             None     = 0x00, // Nothing
             Shared   = 0x01, // Base class inherited virtually
             Expanded = 0x02, // Base class pack expanded
@@ -1150,7 +1150,7 @@ namespace ifc {
             };
 
             struct Keyword {
-                enum class Kind : uint8_t {
+                enum class Kind : std::uint8_t {
                     None,
                     Class,
                     Struct,
@@ -1170,7 +1170,7 @@ namespace ifc {
                 Kind kind = Kind::None; // What kind of keyword do we have?
             };
 
-            enum class StorageClass : uint32_t {
+            enum class StorageClass : std::uint32_t {
                 None         = 0,
                 Auto         = 1 << 0,  // 'auto' (use as a storage-class requires '/Zc:auto-')
                 Constexpr    = 1 << 1,  // 'constexpr'
@@ -1280,7 +1280,7 @@ namespace ifc {
             };
 
             struct PointerDeclarator : Tag<SyntaxSort::PointerDeclarator> {
-                enum class Kind : uint8_t {
+                enum class Kind : std::uint8_t {
                     None,
                     Pointer,         // T*
                     LvalueReference, // T&
@@ -1423,7 +1423,7 @@ namespace ifc {
             };
 
             struct StructuredBindingDeclaration : Tag<SyntaxSort::StructuredBindingDeclaration> {
-                enum class RefQualifierKind : uint8_t {
+                enum class RefQualifierKind : std::uint8_t {
                     None,
                     Rvalue,
                     Lvalue,
@@ -1449,7 +1449,7 @@ namespace ifc {
             };
 
             struct ReturnStatement : Tag<SyntaxSort::ReturnStatement> {
-                enum class ReturnKind : uint8_t {
+                enum class ReturnKind : std::uint8_t {
                     Return,
                     Co_return,
                 };
@@ -1540,7 +1540,7 @@ namespace ifc {
             };
 
             struct LabeledStatement : Tag<SyntaxSort::LabeledStatement> {
-                enum class Kind : uint8_t {
+                enum class Kind : std::uint8_t {
                     None,
                     Case,
                     Default,
@@ -1796,7 +1796,7 @@ namespace ifc {
             };
 
             struct LambdaDeclaratorSpecifier {
-                enum class SpecifierSort : uint8_t {
+                enum class SpecifierSort : std::uint8_t {
                     None      = 0,
                     Mutable   = 1 << 0,
                     Constexpr = 1 << 1,
@@ -1893,7 +1893,7 @@ namespace ifc {
                 SourceLocation locus{}; // The source location of the '__super' keyword
             };
 
-            enum class FoldKind : uint32_t { // FIXME: this should be uint8_t
+            enum class FoldKind : std::uint32_t { // FIXME: this should be std::uint8_t
                 Unknown,
                 LeftFold,  // Some form of left fold expression
                 RightFold, // Some form of right fold expression
@@ -2008,7 +2008,7 @@ namespace ifc {
                 static_assert(sizeof(TypeOrExprOperand) == sizeof(Index));
 
                 // the types of msvc-specific C++ syntax
-                enum class Kind : uint8_t {
+                enum class Kind : std::uint8_t {
                     Unknown,
                     Declspec,          // __declspec( expression )
                     BuiltinAddressOf,  // __builtin_addressof( expression )
@@ -2042,12 +2042,12 @@ namespace ifc {
                     ExprIndex argument;         // expression
                 };
                 struct IfExists {
-                    enum class Kind : uint8_t {
+                    enum class Kind : std::uint8_t {
                         Statement,
                         Initializer,
                         MemberDeclaration,
                     };
-                    enum class Keyword : uint8_t {
+                    enum class Keyword : std::uint8_t {
                         IfExists,
                         IfNotExists,
                     };
@@ -2151,7 +2151,7 @@ namespace ifc {
         };
 
         // A strongly-typed abstraction of ExprIndex which always points to ExprSort::NamedDecl.
-        enum class DefaultIndex : uint32_t {
+        enum class DefaultIndex : std::uint32_t {
             UnderlyingSort = ifc::to_underlying(ExprSort::NamedDecl),
         };
 
@@ -2179,8 +2179,8 @@ namespace ifc {
             TypeIndex type{};                 // Sort and index of this decl's type.  Null means no type.
             ExprIndex type_constraint{};      // Optional type-constraint on the parameter type.
             DefaultIndex initializer{};       // Default argument. Null means none was provided.
-            uint32_t level{};                 // The nesting depth of this parameter (template or function).
-            uint32_t position{};              // The 1-based position of this parameter.
+            std::uint32_t level{};                 // The nesting depth of this parameter (template or function).
+            std::uint32_t position{};              // The 1-based position of this parameter.
             ParameterSort sort{};             // The kind of parameter.
             ReachableProperties properties{}; // The set of semantic properties reaching to outside importers.
         };
@@ -2312,7 +2312,7 @@ namespace ifc {
             ReachableProperties properties{};    // The set of semantic properties reaching to outside importers.
         };
 
-        enum class SpecializationSort : uint8_t {
+        enum class SpecializationSort : std::uint8_t {
             Implicit,      // An implicit specialization
             Explicit,      // An explicit specialization (user provided)
             Instantiation, // An explicit instantiation (user provided)
@@ -2600,7 +2600,7 @@ namespace ifc {
         };
 
         // Expression trees for integer constants below this threshold are directly represented by their indices.
-        inline constexpr auto immediate_upper_bound = uint64_t(1) << index_like::index_precision<ExprSort>;
+        inline constexpr auto immediate_upper_bound = std::uint64_t(1) << index_like::index_precision<ExprSort>;
 
         struct StringLiteral {
             TextOffset start{}; // beginning of the first byte in this string literal
@@ -2664,7 +2664,7 @@ namespace ifc {
         // Read from a symbolic address.  When the address is an id-expression, the read expression
         // symbolizes an lvalue-to-rvalue conversion.
         struct ReadExpr : LocationAndType<ExprSort::Read> {
-            enum class Kind : uint8_t {
+            enum class Kind : std::uint8_t {
                 Unknown,            // Unknown
                 Indirection,        // Dereference a pointer, e.g. *p
                 RemoveReference,    // Convert a reference into an lvalue
@@ -2712,7 +2712,7 @@ namespace ifc {
         };
 
         struct DestructorCallExpr : LocationAndType<ExprSort::DestructorCall> {
-            enum class Kind : uint8_t {
+            enum class Kind : std::uint8_t {
                 Unknown,
                 Destructor,
                 Finalizer,
@@ -2742,7 +2742,7 @@ namespace ifc {
         };
 
         struct TemporaryExpr : LocationAndType<ExprSort::Temporary> {
-            uint32_t index{}; // The index that uniquely identifiers this temporary object
+            std::uint32_t index{}; // The index that uniquely identifiers this temporary object
         };
 
         struct DynamicDispatchExpr : LocationAndType<ExprSort::DynamicDispatch> {
@@ -2758,7 +2758,7 @@ namespace ifc {
             SyntaxIndex body{};       // The requirement body
         };
 
-        enum class Associativity : uint8_t {
+        enum class Associativity : std::uint8_t {
             Unspecified,
             Left,
             Right,
@@ -2807,7 +2807,7 @@ namespace ifc {
         };
 
         struct InitializerExpr : LocationAndType<ExprSort::Initializer> {
-            enum class Kind : uint8_t {
+            enum class Kind : std::uint8_t {
                 Unknown,
                 DirectInitialization,
                 CopyInitialization,
@@ -2855,7 +2855,7 @@ namespace ifc {
 
         // FIXME: Remove at earliest convenience.
         struct ExpressionListExpr : Tag<ExprSort::ExpressionList> {
-            enum class Delimiter : uint8_t {
+            enum class Delimiter : std::uint8_t {
                 None,               // No delimiter
                 Brace,              // Brace delimiters
                 Parenthesis,        // Parenthesis delimiters
@@ -2918,7 +2918,7 @@ namespace ifc {
             ExprIndex base_class_values{}; // The values (zero or more) of base class members
         };
 
-        enum class ActiveMemberIndex : uint32_t {};
+        enum class ActiveMemberIndex : std::uint32_t {};
 
         struct SumTypeValueExpr : LocationAndType<ExprSort::SumTypeValue> {
             TypeIndex variant{};               // The union type which this value is associated
@@ -2942,8 +2942,8 @@ namespace ifc {
             TextOffset name{};            // macro name
             FormIndex parameters{};       // The parameters of the macro.
             FormIndex replacement_list{}; // The replacement list of the macro.
-            uint32_t arity : 31 {};       // Arity for function-like macros.
-            uint32_t variadic : 1 {};     // True if this macro is variadic.
+            std::uint32_t arity : 31 {};       // Arity for function-like macros.
+            std::uint32_t variadic : 1 {};     // True if this macro is variadic.
         };
 
         // Note: this class is not meant to be used to create objects -- it is just a traits class.
@@ -2955,12 +2955,12 @@ namespace ifc {
         // FIXME: investigate if disabling C4624 is really necessary here
 #pragma warning(push)
 #pragma warning(disable : 4624)
-        struct IntegerLiteral : constant_traits<uint64_t, LiteralSort::Integer> {};
+        struct IntegerLiteral : constant_traits<std::uint64_t, LiteralSort::Integer> {};
 
 #pragma pack(push, 4)
         struct LiteralReal {
             double value{};
-            uint16_t size{};
+            std::uint16_t size{};
         };
 #pragma pack(pop)
 
@@ -2974,15 +2974,15 @@ namespace ifc {
             DeclIndex const_segment;    // Symbol for #pragma const_seg
             DeclIndex data_segment;     // Symbol for #pragma data_seg
             DeclIndex bss_segment;      // Symbol for #pragma data_seg
-            uint32_t pack_size : 8;     // value of #pragma pack
-            uint32_t fp_control : 8;    // value of #pragma float_control
-            uint32_t exec_charset : 8;  // value of #pragma execution_character_set
-            uint32_t vtor_disp : 8;     // value of #pragma vtordisp
-            uint32_t std_for_scope : 1; // value of #pragma conform(forScope)
-            uint32_t unused : 1;        // unused bit - was previously pure_cil, which was meant to be the captured
+            std::uint32_t pack_size : 8;     // value of #pragma pack
+            std::uint32_t fp_control : 8;    // value of #pragma float_control
+            std::uint32_t exec_charset : 8;  // value of #pragma execution_character_set
+            std::uint32_t vtor_disp : 8;     // value of #pragma vtordisp
+            std::uint32_t std_for_scope : 1; // value of #pragma conform(forScope)
+            std::uint32_t unused : 1;        // unused bit - was previously pure_cil, which was meant to be the captured
                                         //  state of #pragma managed(off/on). This is not actually required as we
             //  don't support module export for /clr, and it's always the case for native code.
-            uint32_t strict_gs_check : 1; // value of #pragma strict_gs_check
+            std::uint32_t strict_gs_check : 1; // value of #pragma strict_gs_check
         };
 
         struct BasicAttr : Tag<AttrSort::Basic> {
@@ -3021,7 +3021,7 @@ namespace ifc {
         struct TupleAttr : Tag<AttrSort::Tuple>, Sequence<AttrIndex, HeapSort::Attr> {};
 
         namespace microsoft {
-            enum class PragmaCommentSort : uint8_t {
+            enum class PragmaCommentSort : std::uint8_t {
                 Unknown,
                 Compiler,
                 Lib,
@@ -3043,7 +3043,7 @@ namespace ifc {
             ExprIndex operand{}; // The operand of the #pragma expression
         };
 
-        enum class Phases : uint32_t {
+        enum class Phases : std::uint32_t {
             Unknown        = 0,
             Reading        = 1 << 0,
             Lexing         = 1 << 1,
@@ -3185,7 +3185,7 @@ namespace ifc {
         };
     } // namespace symbolic::preprocessing
 
-    enum class TraitSort : uint8_t {
+    enum class TraitSort : std::uint8_t {
         MappingExpr,     // function definition associated with a declaration
         AliasTemplate,   // extra information required for alias templates
         Friends,         // sequence of friends
@@ -3197,7 +3197,7 @@ namespace ifc {
         Count,
     };
 
-    enum class MsvcTraitSort : uint8_t {
+    enum class MsvcTraitSort : std::uint8_t {
         Uuid,                       // uuid associated with a declaration
         Segment,                    // segment associated with a declaration
         SpecializationEncoding,     // template specialization encoding associated with a specialization
@@ -3309,7 +3309,7 @@ namespace ifc {
             LineNumber last;  // The last line in the file (inclusive).
         };
 
-        enum class MsvcFileHashSort : uint8_t
+        enum class MsvcFileHashSort : std::uint8_t
         {
             None,
             MD5,
@@ -3320,18 +3320,18 @@ namespace ifc {
         struct alignas(partition_alignment) MsvcFileHashData {
             static constexpr auto msvc_file_hash_size = 32;
 
-            std::array<uint8_t, msvc_file_hash_size> bytes{};
+            std::array<std::uint8_t, msvc_file_hash_size> bytes{};
             MsvcFileHashSort sort = MsvcFileHashSort::None;
-            std::array<uint8_t, 3> unused;
+            std::array<std::uint8_t, 3> unused;
         };
 
         static_assert(sizeof(MsvcFileHashData) == 36);
 
         // The MSVC warning number.
-        enum class MsvcWarningNumber : uint16_t {};
+        enum class MsvcWarningNumber : std::uint16_t {};
 
         // The state of the warning associated with this pragma.
-        enum class MsvcWarningState : uint8_t {};
+        enum class MsvcWarningState : std::uint8_t {};
 
         struct MsvcPragmaWarningRegion {
             SourceLocation start_locus{};
@@ -3342,7 +3342,7 @@ namespace ifc {
 
         static_assert(sizeof(MsvcPragmaWarningRegion) == 20);
 
-        enum class MsvcDebugRecordIndex : uint32_t {};
+        enum class MsvcDebugRecordIndex : std::uint32_t {};
 
         struct MsvcGMFSpecializedTemplate {
             DeclIndex template_decl{}; // The template declaration.
