@@ -1,4 +1,5 @@
 /build/
+/build-test/
 /prefix/
 /linux-build/
 /CMakeUserPresets.json
