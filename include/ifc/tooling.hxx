@@ -4,10 +4,16 @@
 #ifndef IFC_TOOLING_INCLUDED
 #define IFC_TOOLING_INCLUDED
 
-#include <string_view>
-#include <string>
-#include <filesystem>
-#include <vector>
+#if defined(IFC_BUILD_USING_STD_MODULE)
+    import std;
+#else
+    #include <span>
+    #include <string_view>
+    #include <string>
+    #include <filesystem>
+    #include <vector>
+#endif
+
 #include <gsl/span>
 
 namespace ifc {

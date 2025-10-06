@@ -1,12 +1,16 @@
 // Copyright Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include <stdlib.h>
-#include <vector>
-#include <span>
-#include <algorithm>
-#include <iostream>
-#include <fstream>
+#if defined(IFC_BUILD_USING_STD_MODULE)
+    import std;
+#else
+    #include <stdlib.h>
+    #include <vector>
+    #include <span>
+    #include <algorithm>
+    #include <iostream>
+    #include <fstream>
+#endif
 
 #ifdef WIN32
 #   include <windows.h>

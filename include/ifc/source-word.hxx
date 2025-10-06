@@ -4,7 +4,12 @@
 #ifndef IFC_SOURCE_WORD
 #define IFC_SOURCE_WORD
 
-#include <concepts>
+#if defined(IFC_BUILD_USING_STD_MODULE)
+    import std;
+#else
+    #include <concepts>
+#endif
+
 #include <ifc/underlying.hxx>
 
 namespace ifc {

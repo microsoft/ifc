@@ -15,9 +15,14 @@
 #ifndef IFC_ABSTRACT_SGRAPH
 #define IFC_ABSTRACT_SGRAPH
 
-#include <concepts>
-#include <string_view>
-#include <type_traits>
+#if defined(IFC_BUILD_USING_STD_MODULE)
+    import std;
+    #include <stddef.h> // For offsetof
+#else
+    #include <concepts>
+    #include <string_view>
+    #include <type_traits>
+#endif
 
 #include <ifc/underlying.hxx>
 #include <ifc/basic-types.hxx>

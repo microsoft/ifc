@@ -4,9 +4,13 @@
 #ifndef IFC_UNDERLYING_H
 #define IFC_UNDERLYING_H
 
-#include <bit>
-#include <type_traits>
-#include <utility>
+#if defined(IFC_BUILD_USING_STD_MODULE)
+    import std;
+#else
+    #include <bit>
+    #include <type_traits>
+    #include <utility>
+#endif
 
 namespace ifc {
     template <typename T>

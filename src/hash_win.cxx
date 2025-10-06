@@ -6,8 +6,14 @@
 #include <windows.h>
 #include <bcrypt.h>
 #include <gsl/util>
+
+#if defined(IFC_BUILD_USING_STD_MODULE)
+    import std;
+#else
+    #include <vector>
+#endif
+
 #include <ifc/file.hxx>
-#include <vector>
 #include <ifc/assertions.hxx>
 
 namespace {

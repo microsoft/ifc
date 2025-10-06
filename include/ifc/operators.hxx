@@ -4,7 +4,12 @@
 #ifndef IFC_OPERATORS
 #define IFC_OPERATORS
 
-#include <concepts>
+#if defined(IFC_BUILD_USING_STD_MODULE)
+    import std;
+#else
+    #include <concepts>
+#endif
+
 #include "ifc/underlying.hxx"
 
 // -- This header file defines symbolic notation for operations needed

@@ -2,7 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include "ifc/util.hxx"
-#include <map>
+
+#if defined(IFC_BUILD_USING_STD_MODULE)
+    import std;
+#else
+    #include <map>
+#endif
 
 namespace ifc::util {
     namespace {
