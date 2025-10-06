@@ -129,6 +129,7 @@ namespace ifc {
             MsvcCastTargetType,    // Binding of a resolve type in a cast expression.  FIXME: to be removed along with
                                    // other YACC oddities.
             MsvcTemplateId,        // A reference to a known template template specialization.
+            MsvcResolvedExpression,// Binding of a resolved expression
         };
 
         enum class Operator : std::uint16_t {

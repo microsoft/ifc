@@ -145,6 +145,8 @@ namespace ifc {
         MsvcConfusedTemporaryArray,                         // The backing temporary array for a std::initializer_list
         MsvcConfusedDependentNestedDecl,                    // The parser saw a nested-name as part of a declaration of a dependent expression (e.g. 'friend void X<T>::mf()') and 'mf' is the
                                                             // named declaration here.
+        MsvcConfusedTemplateAliasSubstitution,              // Represents a non-type template argument substitution inside of a template alias specialization.  This is unique from 'MsvcConfusedSubstitution'
+                                                            // above due to C++ semantics requiring this type of substitution to be transparent.
 
         Last
     };

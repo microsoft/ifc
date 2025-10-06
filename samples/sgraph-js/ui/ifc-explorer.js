@@ -138,6 +138,13 @@ class IFCExplorerJSONReplacer {
         return resolved_seq;
     }
 
+    static replace_spec_form_index(index) {
+        if (index.value == 0)
+            return "SpecFormIndex{null}";
+        const spec_form = sgraph.resolver.resolve_spec_form(index);
+        return { template_decl: spec_form.template_decl, arguments: spec_form.arguments };
+    }
+
     static replace_scope_index(index) {
         if (null_scope(index)) {
             return { scope_index: index.value, decls: [] };
@@ -184,6 +191,8 @@ function ifc_explorer_json_replacer(key, value) {
         return IFCExplorerJSONReplacer.replace_locus(value);
     if (value instanceof ScopeIndex)
         return IFCExplorerJSONReplacer.replace_scope_index(value);
+    if (value instanceof SpecFormIndex)
+        return IFCExplorerJSONReplacer.replace_spec_form_index(value);
     if (value instanceof Operator)
         return IFCExplorerJSONReplacer.replace_operator(value);
     if (value instanceof HeapSequence)
@@ -198,6 +207,10 @@ function ifc_explorer_json_replacer(key, value) {
         return IFCExplorerJSONReplacer.generic_bitset_to_string(FunctionTraits, value);
     if (value instanceof FunctionTypeTraits)
         return IFCExplorerJSONReplacer.generic_bitset_to_string(FunctionTypeTraits, value);
+    if (value instanceof ObjectTraits)
+        return IFCExplorerJSONReplacer.generic_bitset_to_string(ObjectTraits, value);
+    if (value instanceof MsvcVendorTraits)
+        return IFCExplorerJSONReplacer.generic_bitset_to_string(MsvcVendorTraits, value);
     if (value instanceof Qualifier)
         return IFCExplorerJSONReplacer.generic_bitset_to_string(Qualifier, value);
     if (value instanceof Phases)
@@ -252,7 +265,11 @@ function set_ifc_explorer_selected_decl(index, from_history, skip_navigation) {
     ifc_explorer.decls.index_edit.value = index.index;
 
     const symbolic = symbolic_for_decl_sort(index.sort);
-    const symbolic_decl = sgraph.resolver.read(symbolic, index.index);
+    var symbolic_decl = sgraph.resolver.read(symbolic, index.index);
+    const msvc_traits = sgraph.resolver.associated_trait_index(index, sgraph.resolver.msvc_traits);
+    if (msvc_traits != undefined) {
+        symbolic_decl.msvc_traits = msvc_traits;
+    }
     const json_str = JSON.stringify(symbolic_decl, ifc_explorer_json_replacer, 2);
     const container = document.createElement("pre");
     const sort = sort_to_string(DeclIndex, index.sort);

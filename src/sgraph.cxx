@@ -59,7 +59,7 @@ namespace ifc {
             {DeclSort::Destructor, "decl.destructor"},
             {DeclSort::Reference, "decl.reference"},
             {DeclSort::Using, "decl.using-declaration"},
-            {DeclSort::UnusedSort0, "decl.unused0"},
+            {DeclSort::Prolongation, "decl.prolongation"},
             {DeclSort::Friend, "decl.friend"},
             {DeclSort::Expansion, "decl.expansion"},
             {DeclSort::DeductionGuide, "decl.deduction-guide"},
@@ -358,6 +358,7 @@ namespace ifc {
             {TraitSort::Friends, "trait.friend"},           {TraitSort::Specializations, "trait.specialization"},
             {TraitSort::Requires, "trait.requires"},        {TraitSort::Attributes, "trait.attribute"},
             {TraitSort::Deprecated, "trait.deprecated"},    {TraitSort::DeductionGuides, "trait.deduction-guides"},
+            {TraitSort::Prolongations, "trait.prolongation"},
         };
 
         static_assert(retractible_by_key(traitsort_table));

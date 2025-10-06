@@ -6,6 +6,7 @@ class Resolver {
         this.reader = reader;
         this.toc = toc;
         this.string_table = string_table;
+        this.msvc_traits = this.associated_trait_table(AssociatedMsvcTraits);
     }
 
     decl_index_in_bounds(index) {
@@ -165,6 +166,34 @@ class Resolver {
             offset += partition.entry_size;
         }
         return elms;
+    }
+
+    resolve_spec_form(form) {
+        const partition = this.toc.partition_by_name(form.T.partition_name);
+        return this.read(form.T, form.value);
+    }
+
+    associated_trait_table(T) {
+        const partition = this.toc.partition_by_name(T.partition_name);
+        var elms = new Array();
+        if (partition == undefined)
+            return elms;
+        var offset = partition.tell(0);
+        for (var i = 0; i < partition.cardinality; ++i) {
+            var k = this.offset_read(T.K, offset);
+            var v = new T.V(this.reader);
+            elms.push({ key: k, value: v });
+            offset += partition.entry_size;
+        }
+        return elms;
+    }
+
+    associated_trait_index(key, table) {
+        var idx = lower_bound(table, e => [...Object.values(key)] <= [...Object.values(e.key)]);
+        if (idx < table.length && [...Object.values(key)].equal([...Object.values(table[idx].key)])) {
+            return table[idx].value;
+        }
+        return undefined;
     }
 }
 
