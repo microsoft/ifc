@@ -4,9 +4,8 @@
 #ifndef IFC_BASIC_TYPES
 #define IFC_BASIC_TYPES
 
-#include <ifc/underlying.hxx>
-
 #include <cstdint>
+#include <ifc/underlying.hxx>
 
 namespace ifc {
     enum class ColumnNumber : std::int32_t {
