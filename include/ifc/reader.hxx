@@ -160,7 +160,7 @@ namespace ifc {
             IFCASSERT(!span.empty() and &item >= &span.front() and &item <= &span.back());
 
             auto offset = &item - &span.front();
-            return {E::algebra_sort, static_cast<uint32_t>(offset)};
+            return {E::algebra_sort, static_cast<std::uint32_t>(offset)};
         }
 
         template<typename F>
@@ -369,10 +369,10 @@ namespace ifc {
 
     // Outside of class due to GCC bug.
     template <>
-    inline const int64_t& Reader::get<int64_t, LitIndex>(LitIndex index) const
+    inline const std::int64_t& Reader::get<std::int64_t, LitIndex>(LitIndex index) const
     {
         IFCASSERT(LiteralSort::Integer == index.sort());
-        return view_entry_at<int64_t>(toc.u64s.tell(index.index()));
+        return view_entry_at<std::int64_t>(toc.u64s.tell(index.index()));
     }
 
     template <>

@@ -4,13 +4,14 @@
 #ifndef IFC_BASIC_TYPES
 #define IFC_BASIC_TYPES
 
+#include <cstdint>
 #include <ifc/underlying.hxx>
 
 namespace ifc {
-    enum class ColumnNumber : int32_t {
+    enum class ColumnNumber : std::int32_t {
         Invalid = -1,
     };
-    enum LineNumber : int32_t {
+    enum LineNumber : std::int32_t {
         Max = 0x00ffffff,
     };
 

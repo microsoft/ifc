@@ -12,15 +12,15 @@
 
 // Provide support infrastructure for common operations for index-like types.
 // These are types that have the same representational characteristics as
-// the 32-bit unsigned integer type uint32_t.
+// the 32-bit unsigned integer type std::uint32_t.
 namespace index_like {
     // Useful for generating sentinel values for enumerations.  Typically placeholder for null values.
     template<ifc::Enum E>
     inline constexpr auto sentinel_for = std::numeric_limits<ifc::raw<E>>::max();
 
-    // Check whether the type parameter is uint32_t.
+    // Check whether the type parameter is std::uint32_t.
     // In fact, it would be acceptable if values of that type
-    // promotes to an integer type with rank less than uint32_t.  This concept
+    // promotes to an integer type with rank less than std::uint32_t.  This concept
     // is useful mainly to guard against the anarchic implicit conversions
     // between builtin types.  It is a best-effort attempt to prevent value truncation.
     template<typename S>
@@ -30,10 +30,10 @@ namespace index_like {
     concept U32Enum = ifc::Enum<T> and Uint32<ifc::raw<T>>;
 
     template<U32Enum T>
-    inline constexpr uint32_t wilderness = sentinel_for<T>;
+    inline constexpr std::uint32_t wilderness = sentinel_for<T>;
 
     // Generic representational index value type.
-    // Every other type is representationally isomorphic to this (or uint32_t).
+    // Every other type is representationally isomorphic to this (or std::uint32_t).
     enum class Index : std::uint32_t {};
 
     // Advance an index by a give amount.
@@ -178,7 +178,7 @@ namespace index_like {
     struct Over {
         using SortType = S;
         constexpr Over() : tag(), value() {}
-        constexpr Over(S s, uint32_t v) : tag(ifc::to_underlying(s)), value(v) {}
+        constexpr Over(S s, std::uint32_t v) : tag(ifc::to_underlying(s)), value(v) {}
 
         constexpr S sort() const
         {
