@@ -12,7 +12,7 @@ namespace ifc::util {
         case LiteralSort::Immediate:
             return std::to_string(ifc::to_underlying(index.index()));
         case LiteralSort::Integer:
-            return std ::to_string(ctx.reader.get<int64_t>(index));
+            return std ::to_string(ctx.reader.get<std::int64_t>(index));
         case LiteralSort::FloatingPoint:
             return std ::to_string(ctx.reader.get<double>(index));
         default:

@@ -8,7 +8,7 @@
 #include <ostream>
 
 namespace ifc::util {
-    enum class PrintOptions : int8_t {
+    enum class PrintOptions : std::int8_t {
         None            = 0,
         Use_color       = 1 << 0,
         Top_level_index = 1 << 1,
