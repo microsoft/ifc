@@ -332,10 +332,19 @@ namespace ifc {
         static_assert(retractible_by_key(macro_sort_table));
 
         constexpr SortNameMapEntry<HeapSort> heapsort_table[] = {
-            {HeapSort::Decl, "heap.decl"},   {HeapSort::Type, "heap.type"},  {HeapSort::Stmt, "heap.stmt"},
-            {HeapSort::Expr, "heap.expr"},   {HeapSort::Syntax, "heap.syn"}, {HeapSort::Word, "heap.word"},
-            {HeapSort::Chart, "heap.chart"}, {HeapSort::Spec, "heap.spec"},  {HeapSort::Form, "heap.pp"},
-            {HeapSort::Attr, "heap.attr"},   {HeapSort::Dir, "heap.dir"},    {HeapSort::Vendor, "heap.vendor"},
+            {HeapSort::Decl, "heap.decl"},   
+            {HeapSort::Type, "heap.type"},  
+            {HeapSort::Stmt, "heap.stmt"},
+            {HeapSort::Expr, "heap.expr"},   
+            {HeapSort::Syntax, "heap.syn"}, 
+            {HeapSort::Word, "heap.word"},
+            {HeapSort::Chart, "heap.chart"}, 
+            {HeapSort::Spec, "heap.spec"},  
+            {HeapSort::Form, "heap.pp"},
+            {HeapSort::Attr, "heap.attr"},   
+            {HeapSort::Dir, "heap.dir"},
+            {HeapSort::String, "heap.string"},    
+            {HeapSort::Vendor, "heap.vendor"},
         };
 
         static_assert(retractible_by_key(heapsort_table));

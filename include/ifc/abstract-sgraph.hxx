@@ -751,6 +751,7 @@ namespace ifc {
         Form,   // FormIndex heap
         Attr,   // AttrIndex heap
         Dir,    // DirIndex heap
+        String, // TextOffset heap.
         Vendor, // VendorIndex heap
         Count
     };
@@ -3021,6 +3022,12 @@ namespace ifc {
 
         // Sequence of one or more attributes.
         struct TupleAttr : Tag<AttrSort::Tuple>, Sequence<AttrIndex, HeapSort::Attr> {};
+
+        // -- Tool invocation
+        struct ToolInvocation {
+            TextOffset cmd;                     // The invoked command.
+            Sequence<TextOffset> args;          // The arguments to the command.
+        };
 
         namespace microsoft {
             enum class PragmaCommentSort : std::uint8_t {
