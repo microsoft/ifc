@@ -132,8 +132,13 @@ namespace ifc {
         Partition,  // Module interface partition unit.
         Header,     // Header unit.
         ExportedTU, // Translation unit where every declaration is exported, scheduled for removal.
+        Unused0,    // Reserved for future use.
+        Unused1,    // Reserved for future use.
+        Unused2,    // Reserved for future use.
         Count
     };
+
+    static_assert(index_like::tag_precision<UnitSort> == 3);        // Per current specification.
 
     struct UnitIndex : index_like::Over<UnitSort> {
         using Base = index_like::Over<UnitSort>;
