@@ -19,10 +19,12 @@ install(
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
 
-install(
-    TARGETS ifc
-    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-)
+if(TARGET ifc)
+    install(
+        TARGETS ifc
+        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    )
+endif()
 
 install(
     TARGETS ifc-dom ifc-reader SDK
