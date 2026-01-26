@@ -132,9 +132,9 @@ namespace ifc {
         Partition,  // Module interface partition unit.
         Header,     // Header unit.
         ExportedTU, // Translation unit where every declaration is exported, scheduled for removal.
+        Archive,    // Archive of IFC files.
         Unused0,    // Reserved for future use.
         Unused1,    // Reserved for future use.
-        Unused2,    // Reserved for future use.
         Count
     };
 
