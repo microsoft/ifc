@@ -22,11 +22,13 @@ jobs:
       run: |
         $installer = Join-Path $env:TEMP 'vs_buildtools.exe'
         Invoke-WebRequest -Uri 'https://aka.ms/vs/insiders/vs_buildtools.exe' -OutFile $installer
-        & $installer --quiet --wait --norestart --nocache `
-          --add Microsoft.VisualStudio.Workload.VCTools `
-          --includeRecommended
-        if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 3010 -and $LASTEXITCODE -ne 3015) {
-          throw "MSVC Build Tools Insiders installation failed with exit code $LASTEXITCODE"
+        $process = Start-Process -FilePath $installer -ArgumentList `
+          '--quiet','--wait','--norestart','--nocache', `
+          '--add','Microsoft.VisualStudio.Workload.VCTools', `
+          '--includeRecommended' -Wait -PassThru
+        $exitCode = $process.ExitCode
+        if ($exitCode -ne 0 -and $exitCode -ne 3010 -and $exitCode -ne 3015) {
+          throw "MSVC Build Tools Insiders installation failed with exit code $exitCode"
         }
 
     - name: Use GitHub Actions provided vcpkg
