@@ -38,7 +38,7 @@ jobs:
         & $installer --quiet --wait --norestart --nocache `
           --add Microsoft.VisualStudio.Workload.VCTools `
           --includeRecommended
-        if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 3010) {
+        if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 3010 -and $LASTEXITCODE -ne 3015) {
           throw "MSVC Build Tools Insiders installation failed with exit code $LASTEXITCODE"
         }
 
