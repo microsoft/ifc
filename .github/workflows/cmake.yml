@@ -21,7 +21,7 @@ jobs:
       shell: pwsh
       run: |
         $installer = Join-Path $env:TEMP 'vs_buildtools.exe'
-        Invoke-WebRequest -Uri 'https://aka.ms/vs/17/pre/vs_buildtools.exe' -OutFile $installer
+        Invoke-WebRequest -Uri 'https://aka.ms/vs/insiders/vs_buildtools.exe' -OutFile $installer
         & $installer --quiet --wait --norestart --nocache `
           --add Microsoft.VisualStudio.Workload.VCTools `
           --includeRecommended
