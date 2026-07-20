@@ -308,8 +308,8 @@ TEST_CASE("IFC spec - Test header")
     InputIfc ifc;
     Reader reader = create_ifc_reader(IFC_FILE, &buf, &ifc);
 
-    // The currently documented version of the IFC that the MSVC compiler will emit is 0.43.
-    constexpr auto expected_version = FormatVersion{ Version{ 0 }, Version{ 43 } };
+    // The currently documented version of the IFC that the MSVC compiler will emit is 0.44.
+    constexpr auto expected_version = FormatVersion{ Version{ 0 }, Version{ 44 } };
     CHECK_MESSAGE(reader.ifc.header()->version == expected_version, "minor/major");
     CHECK_MESSAGE(reader.ifc.header()->abi == Abi{}, "abi - not currently set in MSVC");
     // arch - since we compile this file in multiple modes, let's just ensure that 'arch' matches one of the known types.
