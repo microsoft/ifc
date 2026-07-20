@@ -205,6 +205,17 @@ namespace ifc {
         }
     };
 
+    // -- ToC entry for a member of an archive IFC.
+    // -- When header.unit.sort() == UnitSort::Archive, header.toc addresses header.partition_count
+    // -- of these, sorted by canonical name with sort() being tie-breaker.
+    struct ArchiveMember {
+        UnitIndex name;         // canonical name; with `sort` -- member's identity.
+        TextOffset path;        // path to the member's IFC container when it was embedded.
+        ByteOffset offset;      // location of the member within the archive
+        EntitySize size;        // size of the member in bytes count.
+    };
+    static_assert(sizeof(ArchiveMember) == 16);
+
     // Exception tag used to signal target architecture mismatch.
     struct IfcArchMismatch {
         Pathname name;
