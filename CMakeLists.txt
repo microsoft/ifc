@@ -71,6 +71,8 @@ if(BUILD_TOOLS)
   add_executable(
     ifc
     src/tools/ifc.cxx
+    src/tools/ifc-archive.cxx
+    src/tools/tool-support.cxx
   )
   add_executable(Microsoft.IFC::Tool ALIAS ifc)
   set_property(TARGET ifc PROPERTY EXPORT_NAME Tool)

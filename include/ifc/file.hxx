@@ -121,9 +121,17 @@ namespace ifc {
     // Index into the scope table.
     enum ScopeIndex : std::uint32_t {};
 
+    // -- SHA-256 digest whose object bytes match the 32-byte on-disk digest representation.
     struct SHA256Hash {
-        std::array<std::uint32_t, 8> value;
+        std::array<std::uint32_t, 8> value; // Word storage preserves the SDK's existing comparison API.
     };
+
+    // -- The IFC signature precedes the stored content digest in every file image.
+    inline constexpr std::size_t content_hash_offset = sizeof InterfaceSignature;
+
+    // -- IFC integrity covers every byte after the stored digest, including the rest of the header.
+    inline constexpr std::size_t hashed_contents_offset = content_hash_offset + sizeof(SHA256Hash);
+    static_assert(hashed_contents_offset == 36);
 
     // The various sort of translation units that can be represented in an IFC file.
     enum class UnitSort : std::uint8_t {
@@ -246,7 +254,40 @@ namespace ifc {
                                     // against some external source.
     };
 
+    // -- Incremental SHA-256.  Feed the message through update() in any number of pieces, then call
+    // -- finish() exactly once.  hash_bytes() below is the one-shot form of the same computation.
+    struct Sha256 {
+        // -- Stateful hashing permits bounded-memory processing of archives and other streams.
+        Sha256();
+        // -- The Windows backend owns a bcrypt hash handle; portable state needs no special cleanup.
+        ~Sha256();
+        // -- A hash computation has one evolving state and therefore cannot be duplicated safely.
+        Sha256(const Sha256&) = delete;
+        Sha256& operator=(const Sha256&) = delete;
+
+        // -- Chunk boundaries carry no message semantics, allowing callers to choose bounded buffers.
+        void update(gsl::span<const std::byte> bytes);
+        // -- Finalization consumes the pending state and is valid exactly once per computation.
+        SHA256Hash finish();
+
+    private:
+#ifdef _WIN32
+        void* hash_handle = nullptr; // Bcrypt owns algorithm state behind this native handle.
+#else
+        // -- Portable compression state starts at the SHA-256 initialization vector.
+        std::array<std::uint32_t, 8> state {
+            0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
+        std::array<std::byte, 64> block {}; // Retains the partial SHA-256 block across update calls.
+        std::size_t block_length = 0; // Number of meaningful bytes currently held in block.
+        std::uint64_t message_length = 0; // Total bytes before padding, needed by SHA-256 finalization.
+#endif
+    };
+
+    // -- One-shot compatibility entry point implemented through the same incremental backend.
     SHA256Hash hash_bytes(const std::byte* first, const std::byte* last);
+
+    // -- Applies the IFC integrity boundary consistently to a complete mapped file image.
+    SHA256Hash hash_ifc_contents(gsl::span<const std::byte> image);
 
     inline SHA256Hash bytes_to_hash(const std::uint8_t* first, const std::uint8_t* last)
     {
