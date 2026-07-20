@@ -37,7 +37,9 @@ namespace ifc::tool {
 
     // -- Base class for an ifc subcommand extension.
     struct Extension {
-        virtual Name name() const = 0;
+        // -- Constexpr names let builtin registries prove lookup ordering at compile time.
+        virtual constexpr Name name() const = 0;
+        // -- Each extension owns its argument policy while the driver owns dispatch and exception containment.
         virtual int run_with(const Arguments&) const = 0;
     };
 
