@@ -190,6 +190,8 @@ namespace ifc::util {
         }
 
         std::set<NodeKey> referenced_nodes;
+        // Track indices currently being processed to detect cycles
+        std::set<TypeIndex> processing_types;
 
     private:
         using NodeMap = std::map<NodeKey, Node>;
