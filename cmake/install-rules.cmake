@@ -5,7 +5,11 @@ include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
 if(BUILD_PRINTER)
-  install(TARGETS ifc-printer DESTINATION . COMPONENT Printer)
+    install(
+        TARGETS ifc-printer
+        DESTINATION "${CMAKE_INSTALL_BINDIR}"
+        COMPONENT Printer
+    )
 endif()
 
 # find_package(<package>) call for consumers to find this project
